@@ -18,7 +18,8 @@ from PIL import Image
 REPO = Path(__file__).resolve().parents[1]
 RAW = REPO / "data" / "raw" / "SLAKE"
 
-SPLIT_FILES = {"train": "train.json", "validation": "validate.json", "test": "test.json"}
+# HF 镜像叫 validation.json, 官方发布叫 validate.json, 两个都认
+SPLIT_FILES = {"train": ["train.json"], "validation": ["validation.json", "validate.json"], "test": ["test.json"]}
 
 
 def _find(root: Path, name: str) -> Path | None:
@@ -28,7 +29,7 @@ def _find(root: Path, name: str) -> Path | None:
 
 def load_split(split: str, lang: str = "en", root: Path = RAW) -> list[dict]:
     """返回 list[dict], 每条含 question/answer/answer_type/image_path 或 image。"""
-    fn = _find(root, SPLIT_FILES[split])
+    fn = next((f for name in SPLIT_FILES[split] if (f := _find(root, name)) is not None), None)
     if fn is not None:
         img_root = _find(root, "imgs")
         if img_root is None:
