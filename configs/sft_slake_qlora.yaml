@@ -31,7 +31,7 @@ preprocessing_num_workers: 4
 ### output
 output_dir: outputs/sft_slake_qlora_r16
 logging_steps: 10
-save_steps: 200
+save_steps: 400
 save_total_limit: 3
 plot_loss: true
 overwrite_output_dir: true
@@ -52,4 +52,4 @@ seed: 42
 eval_dataset: slake_validation
 per_device_eval_batch_size: 2
 eval_strategy: steps
-eval_steps: 200
+eval_steps: 400
