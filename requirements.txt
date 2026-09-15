@@ -1,0 +1,15 @@
+# 先按平台单独装 torch: https://pytorch.org/get-started/locally/
+#   Kaggle/Colab 已预装, 本机 CUDA 12.x:  pip install torch --index-url https://download.pytorch.org/whl/cu124
+transformers>=4.49.0
+accelerate>=0.34.0
+peft>=0.13.0
+bitsandbytes>=0.44.0
+datasets>=3.0.0
+huggingface_hub>=0.25.0
+qwen-vl-utils>=0.0.8
+pillow
+scikit-learn
+tqdm
+pyyaml
+# 训练框架 (单独装, 见 README):
+#   pip install "llamafactory[torch,metrics] @ git+https://github.com/hiyouga/LLaMA-Factory.git"

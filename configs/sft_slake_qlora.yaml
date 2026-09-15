@@ -1,0 +1,55 @@
+# LLaMA-Factory 配置: SLAKE 上直接 QLoRA SFT (实验 A: 只 SFT)
+# 运行: llamafactory-cli train configs/sft_slake_qlora.yaml
+# T4 16GB 可跑; 4090/A100 把 quantization_bit 去掉、fp16 改 bf16、batch 调大。
+
+### model
+model_name_or_path: Qwen/Qwen2.5-VL-3B-Instruct
+quantization_bit: 4
+quantization_method: bnb
+trust_remote_code: true
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_target: all          # 只对 LLM 的线性层加 LoRA, 视觉塔冻结
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+freeze_vision_tower: true
+freeze_multi_modal_projector: true
+
+### dataset
+dataset: slake_train
+dataset_dir: data/processed
+template: qwen2_vl
+cutoff_len: 1024
+image_max_pixels: 262144  # 512*512, 与 eval 的 max_pixels 一致
+overwrite_cache: true
+preprocessing_num_workers: 4
+
+### output
+output_dir: outputs/sft_slake_qlora_r16
+logging_steps: 10
+save_steps: 200
+save_total_limit: 3
+plot_loss: true
+overwrite_output_dir: true
+report_to: none
+
+### train
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 8   # 有效 batch 16
+learning_rate: 1.0e-4
+num_train_epochs: 3.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.05
+fp16: true                       # T4 用 fp16; Ampere 及以上改 bf16: true
+gradient_checkpointing: true
+seed: 42
+
+### eval
+eval_dataset: slake_validation
+per_device_eval_batch_size: 2
+eval_strategy: steps
+eval_steps: 200

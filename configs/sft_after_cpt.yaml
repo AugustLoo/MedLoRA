@@ -1,0 +1,56 @@
+# LLaMA-Factory 配置: 在 CPT adapter 基础上继续 SFT (实验 B: CPT + SFT)
+# 前置: 先跑完 configs/cpt_pubmed_qlora.yaml
+# 运行: llamafactory-cli train configs/sft_after_cpt.yaml
+
+### model
+model_name_or_path: Qwen/Qwen2.5-VL-3B-Instruct
+adapter_name_or_path: outputs/cpt_pubmed_qlora_r16   # 从 CPT adapter 继续训
+quantization_bit: 4
+quantization_method: bnb
+trust_remote_code: true
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_target: all
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+freeze_vision_tower: true
+freeze_multi_modal_projector: true
+
+### dataset
+dataset: slake_train
+dataset_dir: data/processed
+template: qwen2_vl
+cutoff_len: 1024
+image_max_pixels: 262144
+overwrite_cache: true
+preprocessing_num_workers: 4
+
+### output
+output_dir: outputs/sft_after_cpt_r16
+logging_steps: 10
+save_steps: 200
+save_total_limit: 3
+plot_loss: true
+overwrite_output_dir: true
+report_to: none
+
+### train
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 8
+learning_rate: 1.0e-4
+num_train_epochs: 3.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.05
+fp16: true
+gradient_checkpointing: true
+seed: 42
+
+### eval
+eval_dataset: slake_validation
+per_device_eval_batch_size: 2
+eval_strategy: steps
+eval_steps: 200

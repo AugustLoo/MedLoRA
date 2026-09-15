@@ -1,0 +1,19 @@
+# data & weights never go to git
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+outputs/*
+!outputs/.gitkeep
+*.safetensors
+*.bin
+*.pt
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+wandb/
+.DS_Store
+Thumbs.db
