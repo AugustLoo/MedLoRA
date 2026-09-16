@@ -146,3 +146,28 @@ fig.savefig(OUT / "fig5_pubmedqa_distribution.png")
 plt.close(fig)
 
 print("written:", sorted(p.name for p in OUT.glob("*.png")))
+
+# ---------- Fig 1: pipeline ----------
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+fig, ax = plt.subplots(figsize=(11.5, 3.2))
+ax.set_xlim(0, 100); ax.set_ylim(0, 30); ax.axis("off")
+def box(x, y, w, h, title, lines, color, fill="white"):
+    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.4,rounding_size=1.2", fc=fill, ec=color, lw=1.6))
+    ax.text(x + w / 2, y + h - 2.4, title, ha="center", va="center", fontsize=8.5, color=INK, weight="bold")
+    for i, l in enumerate(lines):
+        ax.text(x + w / 2, y + h - 5.6 - 2.9 * i, l, ha="center", va="center", fontsize=6.4, color=INK2)
+def arrow(x0, x1, y, label):
+    ax.add_patch(FancyArrowPatch((x0, y), (x1, y), arrowstyle="-|>", mutation_scale=12, color=INK2, lw=1.2))
+    ax.text((x0 + x1) / 2, y - 2.2, label, ha="center", va="top", fontsize=6.2, color=INK2)
+box(1, 9, 18, 15, "Base model", ["Qwen2.5-VL-3B-Instruct", "4-bit NF4, frozen", "vision tower frozen"], INK2, "#f4f3f0")
+box(26, 9, 21, 15, "Stage 1 · CPT", ["B1: 10k PubMed abstracts", "B2: 3.3k IU X-Ray image→report", "LoRA r16, lr 5e-5, 1 epoch"], COL["B1"])
+box(54, 9, 20, 15, "Stage 2 · SFT", ["SLAKE train, 4.9k QA", "same prompts as evaluation", "LoRA r16, lr 1e-4, 3 epochs"], COL["A"])
+box(81, 9, 18, 15, "Stage 3 · Alignment", ["yes / no / maybe calibration", "DPO or rebalanced SFT", "(planned)"], GRID)
+arrow(19.6, 25.4, 16.5, "")
+arrow(47.6, 53.4, 16.5, "adapter continues")
+arrow(74.6, 80.4, 16.5, "")
+ax.text(36.5, 5.2, "experiment A skips stage 1", ha="center", fontsize=6.8, color=INK2, style="italic")
+ax.text(50, 1.2, "Every stage is evaluated on the same three tables: SLAKE test · TextVQA-300 · PubMedQA labeled",
+        ha="center", fontsize=7.4, color=INK)
+fig.savefig(OUT / "fig1_pipeline.png")
+plt.close(fig)

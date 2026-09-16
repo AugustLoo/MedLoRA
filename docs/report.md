@@ -52,6 +52,10 @@ Qwen2.5-VL-3B     medical corpus           SLAKE train                 preferenc
 
 Each stage produces a LoRA adapter on the same frozen 4-bit base. Stage 2 is initialised from the stage-1 adapter (`adapter_name_or_path`) and continues training the same low-rank matrices, so the final artefact is a single 120 MB adapter. Experiment A skips stage 1; experiments B1/B2 differ only in the stage-1 corpus.
 
+![Figure 1. Three-stage pipeline. Every stage is evaluated on the same three tables.](figures/fig1_pipeline.png)
+
+*Figure 1. The three-stage pipeline. Every adapter is evaluated on the same three tables.*
+
 ### 3.2 Base model
 
 Qwen2.5-VL-3B-Instruct (Apache-2.0): a 3.75B-parameter model with a native-resolution ViT, an MLP projector and a Qwen2.5 decoder. It was chosen because (i) it sits in the 2–7B range required by the task, (ii) it fits on a 16 GB T4 in 4-bit with room for activations, and (iii) it already follows short-answer instructions, which makes zero-shot baselines meaningful.
@@ -155,7 +159,15 @@ All training and evaluation ran on Kaggle (one NVIDIA T4, 16 GB, fp16). A local 
 | PubMedQA macro-F1 | 51.03 | 52.38 | **54.19** | `TBD` |
 | PubMedQA predicted yes / no / maybe (gold 552 / 338 / 110) | 641 / 201 / 158 | 685 / 256 / 59 | 670 / 286 / 44 | `TBD` |
 
-Training curves: A, train loss 0.736 → 0.082, validation loss 0.225 → 0.145 still decreasing at epoch 3; B1 CPT loss 1.96 → 1.75 over one epoch; B1 SFT validation loss 0.160 → 0.142. No NaN in any run. `[TODO: insert loss plots from outputs/*/training_loss.png]`
+Training curves: A, train loss 0.736 → 0.082, validation loss 0.225 → 0.145 still decreasing at epoch 3; B1 CPT loss 1.96 → 1.75 over one epoch; B1 SFT validation loss 0.160 → 0.142. No NaN in any run.
+
+![Figure 2. Main results.](figures/fig2_main_results.png)
+
+*Figure 2. Main results across the three evaluation tables.*
+
+![Figure 4. Training curves.](figures/fig4_training_curves.png)
+
+*Figure 4. Training loss (line) and validation loss (dots) for each run.*
 
 ### 5.2 Results by question type (SLAKE test, accuracy; open questions use exact match)
 
@@ -172,6 +184,10 @@ Training curves: A, train loss 0.736 → 0.082, validation loss 0.225 → 0.145 
 | Modality / Plane / Colour / Size, closed | 91 | 26.9–78.6 | 100.0 | 100.0 | 0.0 |
 
 Per-question changes: base → A fixed 345 questions and broke 30; A → B1 fixed 15 and broke 14.
+
+![Figure 3. SLAKE accuracy by question type.](figures/fig3_slake_by_type.png)
+
+*Figure 3. SLAKE test accuracy by question type. The grey bar spans base → A; the largest gains are on vocabulary-bound types (Organ, KG, Colour, Plane), the smallest on Abnormality and Position.*
 
 ### 5.3 Experiment B2 `[TBD]`
 
@@ -190,6 +206,10 @@ Per-question changes: base → A fixed 345 questions and broke 30; A → B1 fixe
 **Forgetting is not measurable with the current probe.** TextVQA is unchanged after SFT and after CPT+SFT (83.89 / 83.89 / 83.78). Of the 300 answers, 81 differ from the base only in capitalisation. LoRA with a frozen vision tower and 3 epochs on 4.9k examples is a mild intervention, but the probe is also blunt: short-answer OCR questions are close to the SFT output format. A more sensitive general benchmark (open-ended description or an MMBench subset) is needed before experiment C can show anything. `[TODO: choose and run the second retention probe]`
 
 **Reliability worsens in a specific way.** Every fine-tuning stage increases willingness to commit: predicted "maybe" falls from 158 (base) to 59 (A) to 44 (B1) against 110 gold, while "no"→"yes" errors remain at 92. Accuracy rises because SLAKE-style short-answer training removes hedging, not because calibration improves. This is the concrete target for stage 3.
+
+![Figure 5. PubMedQA predicted label distribution.](figures/fig5_pubmedqa_distribution.png)
+
+*Figure 5. PubMedQA predicted-label counts versus gold. Each fine-tuning stage shrinks "maybe" further below its true frequency.*
 
 ---
 
