@@ -1,0 +1,17 @@
+[
+ {
+  "image": "docs/figures/iu/1015_IM-0001-1001.jpg",
+  "gold": "Findings: Streaky and patchy bibasilar opacities, triangular density projected over the heart on the lateral view. No definite pleural effusion seen, no typical findings of pulmonary edema. Considering differences in technical factors stable cardiomediastinal silhouette with normal heart size. Impression: Bibasilar opacities, right greater than left, features suggest a combination of consolidation and atelectasis",
+  "pred": "Findings: The heart and lungs are grossly unremarkable. No pleural effusion or pneumothorax.\nImpression: No acute cardiopulmonary abnormality."
+ },
+ {
+  "image": "docs/figures/iu/1_IM-0001-4001.jpg",
+  "gold": "Findings: The cardiac silhouette and mediastinum size are within normal limits. There is no pulmonary edema. There is no focal consolidation. There are no of a pleural effusion. There is no evidence of pneumothorax. Impression: Normal chest x-.",
+  "pred": "Findings: The heart is normal in size. The lungs are clear. No pneumothorax or pleural effusion.\nImpression: No acute cardiopulmonary abnormality."
+ },
+ {
+  "image": "docs/figures/iu/1016_IM-0013-1001.jpg",
+  "gold": "Impression: Comparison,. right pleural opacity along the lower chest wall compatible with thickening and/or some loculated effusion, accompanied with some adjacent atelectasis / airspace disease within the right lung base. Round opacity seen projecting adjacent to right hilum on PA view is on lateral view to represent some discoid atelectasis or fluid associated with the upper aspect of the fissure. Some opacities compatible with scarring/chronic inflammatory change are seen within the left lower lung which are more conspicuous versus previous examination. Stable mediastinal contour.",
+  "pred": "Findings: The lungs are clear. There is no pleural effusion or pneumothorax. The heart and mediastinum are normal. The skeletal structures appear intact.\nImpression: No acute cardiopulmonary abnormali"
+ }
+]

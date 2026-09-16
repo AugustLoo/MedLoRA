@@ -1,0 +1,14 @@
+[
+ {
+  "gold": "Findings: The cardiac silhouette and mediastinum size are within normal limits. There is no pulmonary edema. There is no focal consolidation. There are no of a pleural effusion. There is no evidence o",
+  "pred": "Findings: The heart is normal in size. The lungs are clear. No pneumothorax or pleural effusion.\nImpression: No acute cardiopulmonary abnormality."
+ },
+ {
+  "gold": "Findings: Streaky and patchy bibasilar opacities, triangular density projected over the heart on the lateral view. No definite pleural effusion seen, no typical findings of pulmonary edema. Considerin",
+  "pred": "Findings: The heart and lungs are grossly unremarkable. No pleural effusion or pneumothorax.\nImpression: No acute cardiopulmonary abnormality."
+ },
+ {
+  "gold": "Impression: Comparison,. right pleural opacity along the lower chest wall compatible with thickening and/or some loculated effusion, accompanied with some adjacent atelectasis / airspace disease withi",
+  "pred": "Findings: The lungs are clear. There is no pleural effusion or pneumothorax. The heart and mediastinum are normal. The skeletal structures appear intact.\nImpression: No acute cardiopulmonary abnormali"
+ }
+]

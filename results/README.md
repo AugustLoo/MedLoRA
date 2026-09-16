@@ -82,3 +82,28 @@ CPT 2 h 39 min (0.42 样本/秒, loss 1.96 → 1.75); SFT 4 h 07 min (loss 1.38 
 - **yes 偏置仍在**: no→yes 误判 92 例, maybe→yes 77 例; maybe 只答了 44 个。文本 CPT 没有改善可靠性。
 - 由此实验 B2 (图文 CPT, IU X-Ray / CheXpert Plus 的图片+报告) 是必要的, 否则 CPT 阶段对本课题的主指标无贡献。报告中 B1 作为「文本 CPT 不足以提升医学 VQA」的对照证据保留。
 - 时间: CPT 的 packing 序列在 T4 上只有 0.42 样本/秒, 1 万条已经 2.6 h; 图文 CPT 数据量要控制在 5k 以内或等学院服务器。
+
+## 实验 B2 · IU X-Ray 图文 CPT → SLAKE SFT (2026-09-16)
+
+配置 `configs/cpt_iu_qlora.yaml` (3483 张正位胸片 → Findings+Impression 报告, caption 式对齐, 1 epoch, lr 5e-5) → `configs/sft_after_cpt_iu.yaml` (与 A 同参数)。
+CPT 1 h 19 min (0.73 样本/秒, loss 2.17 → 1.06); SFT 4 h 38 min (loss 0.73 → 0.083, eval 0.168 → 0.151); 评估 1.5 h; 合计 7.7 h。无 NaN。
+
+| 指标 | 基座 | A | B1 文本 CPT | B2 图文 CPT | B2−A |
+|---|---|---|---|---|---|
+| SLAKE closed acc | 67.31 | 89.18 | 88.70 | 88.70 | −0.48 |
+| SLAKE open EM / recall / F1 | 40.62 / 46.73 / 47.53 | 75.35 / 82.17 / 81.56 | 75.81 / 82.72 / 82.07 | 74.57 / 81.61 / 80.88 | −0.8 / −0.6 / −0.7 |
+| SLAKE closed X-Ray / CT / MRI | 80.70 / 64.49 / 56.82 | 91.23 / 86.45 / 93.18 | 91.23 / 85.51 / 93.18 | **92.11** / 85.05 / 93.18 | +0.9 / −1.4 / 0 |
+| TextVQA acc | 83.89 | 83.89 | 83.78 | 84.00 | +0.11 |
+| PubMedQA acc / macro-F1 | 65.80 / 51.03 | 70.60 / 52.38 | 72.80 / 54.19 | 70.80 / 52.96 | +0.2 / +0.6 |
+| PubMedQA 预测 yes / no / maybe | 641 / 201 / 158 | 685 / 256 / 59 | 670 / 286 / 44 | 672 / 263 / 65 | 真实 552 / 338 / 110 |
+
+按题型 B2−A: Abnormality open **−9.8** (41.5 → 31.7, n=41, 即少对 4 题), Modality closed −3.0, KG closed −2.6, KG open −1.8; Abnormality closed +1.8, Quantity +1.9, Size open +2.6; 其余 ±1。逐题 A→B2: 修正 11 题, 新错 18 题。X 光片子集: open 76.5 → 74.5, closed 91.2 → 92.1。
+
+CPT 阶段冒烟 (给 3 张验证片写报告): 模型完全学会了放射报告的句式和结构 ("The heart is normal in size. The lungs are clear. No pneumothorax or pleural effusion. Impression: No acute cardiopulmonary abnormality."), 但 3 张里 2 张有异常 (双下肺斑片影 / 右侧胸腔积液) 都被写成正常。
+
+结论:
+- **图文 CPT 同样没有给 SLAKE 带来增益**, 整体略降 (open −0.6, 逐题 11 对 18)。X 光片封闭题小涨 0.9 (114 题涨 1 题), 在噪声内。
+- **CPT 学到的是语言, 不是视觉**: 报告语体学得很像, 但对异常视而不见, 输出向「正常」模板坍缩。IU X-Ray 训练集里 36% 是正常报告, 且异常报告的句子也大多以否定句 ("no effusion") 开头, caption 式 loss 让模型学会的是高频模板。视觉塔冻结, 视觉特征没有被改动, 所以 CPT 不可能提升「看片」。
+- 这也解释了 Abnormality open 的下降: 一个偏向「正常」的先验在识别病灶的题上是负作用。
+- 与 B1 合起来的结论: **在 3B 模型、冻结视觉塔、几千条数据的设定下, CPT 阶段对医学 VQA 主指标没有贡献**; 文本 CPT 只在文本任务 (PubMedQA) 上有效。报告主结果是 A, B1/B2 作为「CPT 何时无效」的对照证据。
+- 后续如果还要做 CPT, 必须改两处之一: 解冻视觉塔 (或给 ViT 也加 LoRA), 或换成异常均衡的图文对 (CheXpert Plus 按标签抽样)。否则把精力转向 SFT 数据配比 (C)、遗忘基准与可靠性对齐。
