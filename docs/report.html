@@ -1,4 +1,5 @@
 <title>MedLoRA Report</title>
+<link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
@@ -89,6 +90,36 @@ figcaption b{color:var(--ink);font-weight:600}
 .refs li{margin-bottom:6px}
 footer{padding:36px 0 0;color:var(--ink-3);font-size:13px;font-family:var(--mono)}
 @media (prefers-reduced-motion:no-preference){a{transition:border-color .15s}}
+@media print{
+  :root{--bg:#ffffff;--surface:#ffffff;--ink:#111518;--ink-2:#4a545c;--ink-3:#7a848c;--accent:#1c5cab;--accent-soft:#eef3fa;--rule:#cfd5d9;--rule-soft:#e4e9ec;--todo:#8a5e00;--todo-bg:#fff1cc}
+  @page{size:A4;margin:18mm 16mm 20mm}
+  body{font-size:11pt;line-height:1.45}
+  .page{max-width:none;padding:0;display:block}
+  nav.toc{display:none}
+  header.hd{padding:0 0 14pt}
+  h1{font-size:24pt;max-width:none}
+  .stats{max-width:none}
+  .stat{break-inside:avoid}
+  section{padding:18pt 0 4pt;border-bottom:0}
+  h2{font-size:17pt;margin-top:4pt;break-after:avoid}
+  h3{font-size:12.5pt;break-after:avoid}
+  p,ul,ol{max-width:none}
+  figure,.tw,pre,.callout{break-inside:avoid;max-width:none}
+  figure .fr{border-color:#dfe4e7;padding:6pt}
+  table{font-size:9.5pt}
+  th,td{padding:5pt 7pt}
+  td.num,th.num{font-size:8.8pt}
+  pre{font-size:8.6pt}
+  a{color:var(--ink);border:0}
+  .status{background:#eef3fa}
+  footer{margin-top:18pt}
+  .tw{overflow:visible;border:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);border-radius:0}
+  table{table-layout:auto;width:100%;font-size:8.8pt}
+  td.num,th.num{white-space:normal;font-size:8.2pt}
+  th,td{padding:4pt 5pt}
+  thead th{font-size:7.6pt}
+  figure .fr img{max-height:230mm;width:auto;max-width:100%;margin:0 auto}
+}
 </style>
 
 <div class="page">
