@@ -1,5 +1,5 @@
 {
-  "id": "chunqianloo/medlora-cpt-b2",
+  "id": "chunqianloo/medlora-cpt-b2-iu-x-ray-image-text",
   "title": "MedLoRA CPT B2 (IU X-Ray image-text)",
   "code_file": "kaggle_cpt_b2.ipynb",
   "language": "python",
