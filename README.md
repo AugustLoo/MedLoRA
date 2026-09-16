@@ -55,7 +55,7 @@ bash train/eval_all.sh cpt_sft_r16 outputs/sft_after_cpt_r16
 
 ## 数据合规
 - SLAKE (CC BY 4.0) 与 PubMedQA (MIT) 可直接用。
-- MIMIC-CXR 需要 PhysioNet 授权 (CITI 培训 + DUA + 审核, 1–3 周), 拿到后作为 CPT 扩展语料。
+- 图文 CPT 扩展语料用 CheXpert Plus (已注册, 需签 DUA, 数据量大按需下载子集) 替代原计划的 MIMIC-CXR; IU X-Ray (Kaggle 公开) 作原型。
 - 受控数据和病人级衍生数据永远不进 git, `.gitignore` 已经排除。
 
 ## 注意
