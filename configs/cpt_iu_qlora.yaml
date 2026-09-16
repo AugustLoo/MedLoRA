@@ -1,0 +1,49 @@
+# LLaMA-Factory 配置: 图文 CPT (IU X-Ray 胸片 → 报告, caption 式对齐, 只对报告算 loss)
+# 运行: llamafactory-cli train configs/cpt_iu_qlora.yaml
+# 之后用 configs/sft_after_cpt_iu.yaml 在这个 adapter 上继续 SLAKE SFT (实验 B2)
+
+### model
+model_name_or_path: Qwen/Qwen2.5-VL-3B-Instruct
+quantization_bit: 4
+quantization_method: bnb
+trust_remote_code: true
+
+### method
+stage: sft                 # 图文 caption 对齐, 见 data/convert_iu_xray.py 说明
+do_train: true
+finetuning_type: lora
+lora_target: all
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+freeze_vision_tower: true
+freeze_multi_modal_projector: true
+
+### dataset
+dataset: iu_cpt_train
+dataset_dir: data/processed
+template: qwen2_vl
+cutoff_len: 1024
+image_max_pixels: 262144
+overwrite_cache: true
+preprocessing_num_workers: 4
+
+### output
+output_dir: outputs/cpt_iu_qlora_r16
+logging_steps: 10
+save_steps: 400
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: none
+
+### train
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 8
+learning_rate: 5.0e-5            # CPT 学习率取 SFT 的一半
+num_train_epochs: 1.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+fp16: true
+gradient_checkpointing: true
+seed: 42

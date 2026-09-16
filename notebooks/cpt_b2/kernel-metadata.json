@@ -1,0 +1,15 @@
+{
+  "id": "chunqianloo/medlora-cpt-b2",
+  "title": "MedLoRA CPT B2 (IU X-Ray image-text)",
+  "code_file": "kaggle_cpt_b2.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": ["raddar/chest-xrays-indiana-university"],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
