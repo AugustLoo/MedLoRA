@@ -1,0 +1,361 @@
+<title>MedLoRA Report</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f6f8f8; --surface:#ffffff; --ink:#151a1e; --ink-2:#5a646d; --ink-3:#8a949c;
+  --accent:#1c5cab; --accent-soft:#e3edf9; --rule:#d6dcdf; --rule-soft:#e8edef;
+  --todo:#9a6a00; --todo-bg:#fff4d6; --good:#0f7a3d;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,"Courier New",monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#141a1e; --surface:#1c2328; --ink:#eef2f4; --ink-2:#a7b1b9; --ink-3:#77828b;
+    --accent:#7fb3f0; --accent-soft:#1f2f42; --rule:#2c363d; --rule-soft:#222b31;
+    --todo:#f1c65a; --todo-bg:#33290f; --good:#5fcf8a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141a1e; --surface:#1c2328; --ink:#eef2f4; --ink-2:#a7b1b9; --ink-3:#77828b;
+  --accent:#7fb3f0; --accent-soft:#1f2f42; --rule:#2c363d; --rule-soft:#222b31;
+  --todo:#f1c65a; --todo-bg:#33290f; --good:#5fcf8a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+a:hover,a:focus-visible{border-bottom-color:currentColor;outline:none}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.page{display:grid;grid-template-columns:1fr;gap:0;max-width:1180px;margin:0 auto;padding:0 20px 80px}
+@media (min-width:1100px){.page{grid-template-columns:220px minmax(0,1fr);gap:56px}}
+nav.toc{display:none}
+@media (min-width:1100px){
+  nav.toc{display:block;position:sticky;top:32px;align-self:start;padding-top:96px;font-size:13.5px}
+  nav.toc .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+  nav.toc a{display:block;color:var(--ink-2);padding:4px 0;border:0;border-left:2px solid var(--rule-soft);padding-left:12px}
+  nav.toc a:hover{color:var(--ink);border-left-color:var(--accent)}
+}
+main{min-width:0}
+header.hd{padding:72px 0 28px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,4vw,42px);line-height:1.15;letter-spacing:-.01em;margin:0 0 16px;max-width:22ch;text-wrap:balance}
+.meta{font-size:14.5px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px 22px;margin:0 0 26px}
+.meta b{color:var(--ink);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:780px}
+@media (max-width:640px){.stats{grid-template-columns:1fr}}
+.stat{background:var(--surface);border:1px solid var(--rule);padding:14px 16px 12px;border-radius:6px}
+.stat .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.stat .v{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1.1;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.stat .v small{font-size:15px;font-family:var(--sans);font-weight:400;color:var(--ink-2);margin-left:8px}
+.stat .d{font-size:13px;color:var(--ink-2)}
+.status{margin:26px 0 0;padding:12px 16px;background:var(--accent-soft);border-radius:6px;font-size:14.5px;color:var(--ink);max-width:780px}
+.status b{font-weight:600}
+section{padding:40px 0 8px;border-bottom:1px solid var(--rule-soft)}
+section:last-of-type{border-bottom:0}
+h2{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1.2;margin:0 0 18px;letter-spacing:-.005em;text-wrap:balance}
+h2 .n{font-family:var(--mono);font-size:13px;color:var(--ink-3);margin-right:12px;letter-spacing:.06em;font-weight:400;vertical-align:.25em}
+h3{font-family:var(--serif);font-weight:600;font-size:19.5px;margin:30px 0 10px;text-wrap:balance}
+p{max-width:68ch;margin:0 0 16px}
+p.lead{font-size:18.5px;color:var(--ink);font-family:var(--serif);line-height:1.55}
+ul,ol{max-width:68ch;padding-left:22px;margin:0 0 16px}
+li{margin:0 0 6px}
+li::marker{color:var(--ink-3)}
+b,strong{font-weight:600}
+code{font-family:var(--mono);font-size:.86em;background:var(--rule-soft);padding:1px 5px;border-radius:3px}
+pre{font-family:var(--mono);font-size:13px;line-height:1.55;background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:16px 18px;overflow-x:auto;max-width:880px;margin:0 0 18px}
+pre code{background:none;padding:0;font-size:inherit}
+.todo{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--todo);background:var(--todo-bg);border-radius:3px;padding:1px 7px;vertical-align:.15em;margin-left:4px}
+.tw{overflow-x:auto;max-width:880px;margin:0 0 22px;border:1px solid var(--rule);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;line-height:1.4}
+th,td{padding:9px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule-soft)}
+thead th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);font-weight:500;background:var(--rule-soft);border-bottom:1px solid var(--rule)}
+tbody tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13.5px;white-space:nowrap}
+td.best{color:var(--ink);font-weight:600}
+td.bad{color:#b23b2e;font-weight:600}
+:root[data-theme="dark"] td.bad{color:#f28b7d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) td.bad{color:#f28b7d}}
+figure{margin:24px 0 28px;max-width:880px}
+figure .fr{background:#ffffff;border:1px solid var(--rule);border-radius:6px;padding:12px}
+figure img{display:block;width:100%;height:auto}
+figcaption{font-size:14px;color:var(--ink-2);margin:10px 4px 0;line-height:1.5;max-width:70ch}
+figcaption b{color:var(--ink);font-weight:600}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:880px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.callout{max-width:68ch;border-left:3px solid var(--accent);padding:4px 0 4px 18px;margin:18px 0 22px;color:var(--ink)}
+.callout p{margin:0 0 10px}
+.refs{font-size:15px;max-width:68ch;padding-left:26px}
+.refs li{margin-bottom:6px}
+footer{padding:36px 0 0;color:var(--ink-3);font-size:13px;font-family:var(--mono)}
+@media (prefers-reduced-motion:no-preference){a{transition:border-color .15s}}
+</style>
+
+<div class="page">
+<nav class="toc" aria-label="Contents">
+  <div class="lbl">Contents</div>
+  <a href="#abstract">Abstract</a>
+  <a href="#intro">1 Introduction</a>
+  <a href="#related">2 Related work</a>
+  <a href="#method">3 Method</a>
+  <a href="#setup">4 Data and setup</a>
+  <a href="#results">5 Results</a>
+  <a href="#analysis">6 Analysis</a>
+  <a href="#limits">7 Limitations</a>
+  <a href="#repro">8 Reproducibility</a>
+  <a href="#refs">References</a>
+</nav>
+
+<main>
+<header class="hd">
+  <p class="eyebrow">Topic 6 · Task 1.3 · Draft v0.2 · 16 September 2026</p>
+  <h1>Parameter-Efficient Continued Pre-training and Instruction Tuning of a Medical Vision-Language Model</h1>
+  <div class="meta">
+    <span><b>Author</b> Chunqian Loo</span>
+    <span><b>Base model</b> Qwen2.5-VL-3B-Instruct</span>
+    <span><b>Code</b> <a href="https://github.com/AugustLoo/MedLoRA">github.com/AugustLoo/MedLoRA</a></span>
+  </div>
+  <div class="stats" aria-label="Headline results">
+    <div class="stat"><div class="k">SLAKE closed accuracy</div><div class="v">89.2<small>from 67.3</small></div><div class="d">QLoRA SFT on 4.9k questions (experiment A)</div></div>
+    <div class="stat"><div class="k">SLAKE open recall</div><div class="v">82.2<small>from 46.7</small></div><div class="d">same adapter, open-ended questions</div></div>
+    <div class="stat"><div class="k">TextVQA retention</div><div class="v">83.9<small>from 83.9</small></div><div class="d">no measurable forgetting on the probe</div></div>
+  </div>
+  <div class="status"><b>Draft status.</b> Experiments 0, A, B1 and B2 are complete and Sections 3 to 6 are written from the repository as it stands. Section 2 is an outline with citation placeholders. Items marked <span class="todo">todo</span> still need work.</div>
+</header>
+
+<section id="abstract">
+  <h2>Abstract</h2>
+  <p class="lead">Open-weight vision-language models in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (a TextVQA subset) and answer reliability (PubMedQA).</p>
+  <p>QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 89.2 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 88.7) while lowering open lesion questions. In this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. The residual errors concentrate in lesion identification and spatial localisation, and a persistent "yes" bias on PubMedQA is identified as the target for the alignment stage. All adapters, data-generation scripts, evaluation code and configurations are released for one-command reproduction.</p>
+</section>
+
+<section id="intro">
+  <h2><span class="n">1</span>Introduction</h2>
+  <p>Large VLMs such as Qwen2.5-VL and LLaVA are trained on web-scale natural images. Radiology and pathology images are rare in that data, so out of the box these models mislabel organs, confuse modalities and hedge poorly on medical questions. Full fine-tuning of even a 3B model is out of reach for a single consumer GPU, which motivates parameter-efficient methods: low-rank adapters (LoRA) and their 4-bit variant (QLoRA) train under 2% of the parameters and fit on a 16 GB card.</p>
+  <p>Task 1.3 of the course asks for a complete pipeline on a 2–7B open VLM: (1) continued pre-training on medical corpora, (2) LoRA/QLoRA instruction tuning, (3) an alignment step, with four deliverables: data-generation scripts, the CPT/SFT pipeline with adapters, evaluation sets with model cards, and a report with reproducible configurations.</p>
+  <p>This report makes the following contributions:</p>
+  <ol>
+    <li>A reproducible three-table evaluation protocol (medical VQA, general retention, reliability) shared by every experiment, with prompts fixed once and used identically for training-data generation and evaluation.</li>
+    <li>A controlled comparison of SFT alone versus CPT followed by SFT, on the same base model, adapter rank, learning schedule and evaluation seed.</li>
+    <li>Evidence that neither text-only nor small-scale image-text CPT transfers to image questions when the vision tower is frozen, with an error analysis of why.</li>
+    <li>A question-type analysis that separates "vocabulary alignment" gains from genuine gains in medical perception.</li>
+  </ol>
+</section>
+
+<section id="related">
+  <h2><span class="n">2</span>Related Work <span class="todo">todo: expand, add citations</span></h2>
+  <ul>
+    <li><b>General VLMs.</b> Qwen2.5-VL, LLaVA-1.5 / LLaVA-NeXT, InternVL. Architecture: ViT vision tower, projector, decoder-only LLM; dynamic-resolution vision tokens in Qwen2.5-VL.</li>
+    <li><b>Medical VLMs.</b> LLaVA-Med (two-stage: caption alignment on PMC figure-caption pairs, then instruction tuning); Med-Flamingo; BiomedGPT; CheXagent; RadFM. LLaVA-Med's first stage is exactly image-caption CPT, which experiment B2 reproduces at small scale.</li>
+    <li><b>Parameter-efficient fine-tuning.</b> LoRA (Hu et al. 2021), QLoRA (Dettmers et al. 2023): 4-bit NF4 base weights, paged optimisers; reported to match full fine-tuning on instruction tasks at a fraction of the memory.</li>
+    <li><b>Continued pre-training for domain adaptation.</b> Gururangan et al. 2020, BioMedLM / PubMedBERT, Med-PaLM. Open question addressed here: does CPT help a <i>multimodal</i> downstream task.</li>
+    <li><b>Catastrophic forgetting in fine-tuned VLMs.</b> Rehearsal and replay; LoRA as an implicit regulariser; evaluation on general VQA after domain SFT.</li>
+    <li><b>Benchmarks.</b> SLAKE (Liu et al. 2021), VQA-RAD, PubMedQA (Jin et al. 2019), TextVQA (Singh et al. 2019), IU X-Ray / OpenI (Demner-Fushman et al. 2016), CheXpert Plus (Chambon et al. 2024), MIMIC-CXR (Johnson et al. 2019).</li>
+  </ul>
+</section>
+
+<section id="method">
+  <h2><span class="n">3</span>Method</h2>
+  <h3>3.1 Pipeline overview</h3>
+  <p>Each stage produces a LoRA adapter on the same frozen 4-bit base. Stage 2 is initialised from the stage-1 adapter and continues training the same low-rank matrices, so the final artefact is a single 120 MB adapter. Experiment A skips stage 1; experiments B1 and B2 differ only in the stage-1 corpus.</p>
+  <figure><div class="fr"><img src="figures/fig1_pipeline.png" alt="Three-stage pipeline: base model, CPT adapter, SFT adapter, planned alignment"></div>
+  <figcaption><b>Figure 1.</b> The three-stage pipeline. Every adapter is evaluated on the same three tables.</figcaption></figure>
+
+  <h3>3.2 Base model</h3>
+  <p>Qwen2.5-VL-3B-Instruct (Apache-2.0): a 3.75B-parameter model with a native-resolution ViT, an MLP projector and a Qwen2.5 decoder. It sits in the 2–7B range the task requires, fits on a 16 GB T4 in 4-bit with room for activations, and already follows short-answer instructions, which makes zero-shot baselines meaningful.</p>
+
+  <h3>3.3 Parameter-efficient training (QLoRA)</h3>
+  <ul>
+    <li>Base weights quantised to 4-bit NF4 with double quantisation (bitsandbytes); LoRA matrices and optimiser states in fp16.</li>
+    <li>LoRA on every linear layer of the language model, rank 16, α = 32, dropout 0.05. The vision tower and projector are frozen in all experiments, so any change in behaviour is attributable to the LLM side.</li>
+    <li>Gradient checkpointing, effective batch 16 (2 × 8 accumulation), cosine schedule, seed 42. Training uses LLaMA-Factory; one YAML per experiment under <code>configs/</code>.</li>
+  </ul>
+
+  <h3>3.4 Stage 1a: text-only CPT (B1)</h3>
+  <p>Causal-LM loss on 10,000 PubMedQA <code>pqa_artificial</code> documents (question, abstract context and long answer, concatenated), packed into 1024-token sequences. Learning rate 5e-5 (half of SFT), one epoch. The evaluation split <code>pqa_labeled</code> is never used for training.</p>
+
+  <h3>3.5 Stage 1b: image-text CPT (B2)</h3>
+  <p>Caption-style alignment in the sense of LLaVA-Med stage 1: the input is a frontal chest X-ray plus a fixed instruction ("Write the radiology report for this chest X-ray."), the target is the report's Findings and Impression sections, and the loss is computed on the report tokens only. Implemented as an SFT-format dataset so that images are consumed; hyper-parameters as in 3.4. Corpus: IU X-Ray; CheXpert Plus is the planned scale-up.</p>
+
+  <h3>3.6 Stage 2: instruction tuning (SFT)</h3>
+  <p>SLAKE English training questions converted to a two-turn chat format with the same prompt templates used at evaluation time:</p>
+  <ul>
+    <li>closed questions: <code>{question} Answer with yes or no only.</code></li>
+    <li>open questions: <code>{question} Answer with a single word or short phrase.</code></li>
+  </ul>
+  <p>Learning rate 1e-4, three epochs, images resized to at most 512 × 512 pixels, validation loss on the SLAKE validation split every 400 steps.</p>
+
+  <h3>3.7 Stage 3: alignment <span class="todo">planned</span></h3>
+  <p>The PubMedQA results show a stable over-prediction of "yes" and under-prediction of "maybe". The planned alignment step is DPO on preference pairs built from PubMedQA <code>pqa_artificial</code> (preferred: the gold label; rejected: the model's over-confident answer), evaluated on <code>pqa_labeled</code> macro-F1 and the maybe rate. A label-rebalanced SFT is the cheaper alternative and will be tried first.</p>
+</section>
+
+<section id="setup">
+  <h2><span class="n">4</span>Data and Experimental Setup</h2>
+  <h3>4.1 Datasets</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Dataset</th><th>Role</th><th>Size used</th><th>Licence / access</th></tr></thead>
+    <tbody>
+      <tr><td>SLAKE (English)</td><td>SFT training; validation loss; <b>test set for medical VQA</b></td><td>train 4,919 / val 1,053 / test 1,061 (416 closed, 645 open)</td><td>CC BY 4.0</td></tr>
+      <tr><td>PubMedQA pqa_artificial</td><td>text CPT corpus</td><td>10,000 documents</td><td>MIT</td></tr>
+      <tr><td>PubMedQA pqa_labeled</td><td><b>reliability evaluation</b> (yes / no / maybe)</td><td>1,000</td><td>MIT, never trained on</td></tr>
+      <tr><td>TextVQA validation</td><td><b>general-ability retention</b></td><td>fixed 300-question sample, seed 42</td><td>CC BY 4.0</td></tr>
+      <tr><td>IU X-Ray (OpenI, Kaggle mirror)</td><td>image-text CPT prototype</td><td>3,666 frontal images with non-empty reports; 3,483 train / 183 held out, split by report id</td><td>public</td></tr>
+      <tr><td>CheXpert Plus</td><td>image-text CPT at scale (planned, B3)</td><td>5k → 20k studies</td><td>registered; download pending</td></tr>
+    </tbody></table></div>
+  <p>MIMIC-CXR was in the original task description; CheXpert Plus was chosen instead because it provides the same image-report structure with a lighter access process (registration rather than PhysioNet credentialing), and because it is the dataset shared with the Topic 1 teammate whose image-text alignment model will provide the data-filtering scores for B3.</p>
+  <p>Compliance rules fixed in the repository: SLAKE test and PubMedQA labeled are evaluation-only; patient-level splits are stored in git; controlled data and patient-level derived files never enter git or public Kaggle datasets.</p>
+
+  <h3>4.2 Evaluation protocol</h3>
+  <p>All three tables are produced by one script with greedy decoding, at most 32 new tokens, images capped at 512 × 512, on the fp16 base plus adapter. Predictions are stored per question for error analysis.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Table</th><th>Data</th><th>Metrics</th></tr></thead>
+    <tbody>
+      <tr><td>Medical VQA</td><td>SLAKE test</td><td>closed: accuracy after folding the answer to yes/no; open: exact match, token recall (LLaVA-Med convention) and token F1, after lower-casing and stripping punctuation and articles; both split by modality (X-Ray / CT / MRI)</td></tr>
+      <tr><td>General retention</td><td>TextVQA, 300 questions</td><td>VQA accuracy: min(matching annotators / 3, 1)</td></tr>
+      <tr><td>Reliability</td><td>PubMedQA labeled</td><td>accuracy, macro-F1 over {yes, no, maybe}, predicted-label distribution versus gold (552 / 338 / 110)</td></tr>
+    </tbody></table></div>
+
+  <h3>4.3 Hardware and cost</h3>
+  <p>All training and evaluation ran on Kaggle (one NVIDIA T4, 16 GB, fp16). A local RTX 3050 (4 GB) was used only for code and smoke tests.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Run</th><th>Samples</th><th class="num">Wall time</th><th class="num">Throughput</th></tr></thead>
+    <tbody>
+      <tr><td>Baseline evaluation, three tables</td><td>–</td><td class="num">≈ 1.5 h</td><td class="num">SLAKE 1,061 q in 38 min</td></tr>
+      <tr><td>A: SLAKE SFT, 3 epochs</td><td>4,919 × 3</td><td class="num">4 h 28 min</td><td class="num">0.92 samples/s</td></tr>
+      <tr><td>B1: text CPT, 1 epoch</td><td>10,000 packed</td><td class="num">2 h 39 min</td><td class="num">0.42 samples/s</td></tr>
+      <tr><td>B1: SFT after CPT</td><td>4,919 × 3</td><td class="num">4 h 07 min</td><td class="num">1.00 samples/s</td></tr>
+      <tr><td>B2: image-text CPT, 1 epoch</td><td>3,483 image-report pairs</td><td class="num">1 h 19 min</td><td class="num">0.73 samples/s</td></tr>
+      <tr><td>B2: SFT after CPT</td><td>4,919 × 3</td><td class="num">4 h 38 min</td><td class="num">0.89 samples/s</td></tr>
+    </tbody></table></div>
+
+  <h3>4.4 Experiment matrix</h3>
+  <div class="tw"><table>
+    <thead><tr><th>ID</th><th>Stage 1</th><th>Stage 2</th><th>Question answered</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>–</td><td>–</td><td>zero-shot starting point</td><td>done</td></tr>
+      <tr><td>A</td><td>–</td><td>SLAKE SFT</td><td>gain from instruction tuning alone</td><td>done</td></tr>
+      <tr><td>B1</td><td>text CPT (PubMedQA)</td><td>SLAKE SFT</td><td>does text CPT transfer to image VQA</td><td>done</td></tr>
+      <tr><td>B2</td><td>image-text CPT (IU X-Ray)</td><td>SLAKE SFT</td><td>does image-report CPT transfer</td><td>done</td></tr>
+      <tr><td>B3</td><td>image-text CPT filtered by alignment score (CheXpert Plus)</td><td>SLAKE SFT</td><td>value of data-quality filtering</td><td>needs teammate interface</td></tr>
+      <tr><td>C</td><td>best of B</td><td>SFT + general VQA replay (5 % / 10 %)</td><td>forgetting mitigation</td><td>planned</td></tr>
+      <tr><td>D</td><td colspan="2">ablations: rank 8 / 16 / 32, CPT size, learning rate, epochs</td><td>which factor matters</td><td>planned</td></tr>
+      <tr><td>E</td><td colspan="2">C + DPO (optional)</td><td>reliability</td><td>planned</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="results">
+  <h2><span class="n">5</span>Results</h2>
+  <h3>5.1 Main table</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Metric</th><th class="num">Base (0)</th><th class="num">A: SFT</th><th class="num">B1: text CPT → SFT</th><th class="num">B2: image CPT → SFT</th></tr></thead>
+    <tbody>
+      <tr><td>SLAKE closed acc</td><td class="num">67.31</td><td class="num best">89.18</td><td class="num">88.70</td><td class="num">88.70</td></tr>
+      <tr><td>SLAKE open EM</td><td class="num">40.62</td><td class="num">75.35</td><td class="num best">75.81</td><td class="num">74.57</td></tr>
+      <tr><td>SLAKE open recall</td><td class="num">46.73</td><td class="num">82.17</td><td class="num best">82.72</td><td class="num">81.61</td></tr>
+      <tr><td>SLAKE open F1</td><td class="num">47.53</td><td class="num">81.56</td><td class="num best">82.07</td><td class="num">80.88</td></tr>
+      <tr><td>SLAKE closed, X-Ray / CT / MRI</td><td class="num">80.70 / 64.49 / 56.82</td><td class="num">91.23 / 86.45 / 93.18</td><td class="num">91.23 / 85.51 / 93.18</td><td class="num">92.11 / 85.05 / 93.18</td></tr>
+      <tr><td>TextVQA acc (retention)</td><td class="num">83.89</td><td class="num">83.89</td><td class="num">83.78</td><td class="num">84.00</td></tr>
+      <tr><td>PubMedQA acc</td><td class="num">65.80</td><td class="num">70.60</td><td class="num best">72.80</td><td class="num">70.80</td></tr>
+      <tr><td>PubMedQA macro-F1</td><td class="num">51.03</td><td class="num">52.38</td><td class="num best">54.19</td><td class="num">52.96</td></tr>
+      <tr><td>PubMedQA predicted yes / no / maybe<br><span style="color:var(--ink-3)">gold 552 / 338 / 110</span></td><td class="num">641 / 201 / 158</td><td class="num">685 / 256 / 59</td><td class="num">670 / 286 / 44</td><td class="num">672 / 263 / 65</td></tr>
+    </tbody></table></div>
+  <figure><div class="fr"><img src="figures/fig2_main_results.png" alt="Grouped bars of the five headline metrics for Base, A, B1, B2"></div>
+  <figcaption><b>Figure 2.</b> Main results across the three evaluation tables. The three fine-tuned adapters are indistinguishable on SLAKE; only PubMedQA separates them.</figcaption></figure>
+  <p>Training curves: A, train loss 0.736 → 0.082, validation loss 0.225 → 0.145 and still decreasing at epoch 3; B1 CPT loss 1.96 → 1.75 over one epoch; B1 SFT validation loss 0.160 → 0.142; B2 CPT loss 2.17 → 1.06; B2 SFT validation loss 0.168 → 0.151. No NaN in any run.</p>
+  <figure><div class="fr"><img src="figures/fig4_training_curves.png" alt="Training and validation loss curves for the five training runs"></div>
+  <figcaption><b>Figure 3.</b> Training loss (line) and validation loss (dots) for each run.</figcaption></figure>
+
+  <h3>5.2 Results by question type</h3>
+  <p>SLAKE test accuracy by question type; open questions are scored by exact match.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Type</th><th class="num">n</th><th class="num">Base</th><th class="num">A</th><th class="num">B1</th><th class="num">B2</th><th class="num">B1 − A</th><th class="num">B2 − A</th></tr></thead>
+    <tbody>
+      <tr><td>Position, open</td><td class="num">163</td><td class="num">24.5</td><td class="num">57.7</td><td class="num">60.1</td><td class="num">58.3</td><td class="num">+2.5</td><td class="num">+0.6</td></tr>
+      <tr><td>Organ, closed</td><td class="num">154</td><td class="num">75.3</td><td class="num">90.9</td><td class="num">90.3</td><td class="num">89.6</td><td class="num">−0.6</td><td class="num">−1.3</td></tr>
+      <tr><td>Abnormality, closed</td><td class="num">109</td><td class="num">68.8</td><td class="num">82.6</td><td class="num">82.6</td><td class="num">84.4</td><td class="num">0.0</td><td class="num">+1.8</td></tr>
+      <tr><td>Knowledge-graph, open</td><td class="num">109</td><td class="num">22.0</td><td class="num">72.5</td><td class="num">69.7</td><td class="num">70.6</td><td class="num">−2.8</td><td class="num">−1.8</td></tr>
+      <tr><td>Organ, open</td><td class="num">99</td><td class="num">23.2</td><td class="num">84.8</td><td class="num">83.8</td><td class="num">84.8</td><td class="num">−1.0</td><td class="num">0.0</td></tr>
+      <tr><td>Modality, open</td><td class="num">75</td><td class="num">92.0</td><td class="num">94.7</td><td class="num">94.7</td><td class="num">94.7</td><td class="num">0.0</td><td class="num">0.0</td></tr>
+      <tr><td>Quantity, open</td><td class="num">52</td><td class="num">71.2</td><td class="num">73.1</td><td class="num">76.9</td><td class="num">75.0</td><td class="num">+3.8</td><td class="num">+1.9</td></tr>
+      <tr><td>Abnormality, open</td><td class="num">41</td><td class="num">12.2</td><td class="num">41.5</td><td class="num">39.0</td><td class="num bad">31.7</td><td class="num">−2.4</td><td class="num bad">−9.8</td></tr>
+      <tr><td>Modality / Plane / Colour / Size, closed</td><td class="num">91</td><td class="num">26.9–78.6</td><td class="num">100.0</td><td class="num">100.0</td><td class="num">97.0–100.0</td><td class="num">0.0</td><td class="num">−1.1</td></tr>
+    </tbody></table></div>
+  <p>Per-question changes: base → A fixed 345 questions and broke 30; A → B1 fixed 15 and broke 14; A → B2 fixed 11 and broke 18. On the X-ray subset alone, the CPT modality, B2 versus A is 74.5 versus 76.5 on open questions and 92.1 versus 91.2 on closed.</p>
+  <figure><div class="fr"><img src="figures/fig3_slake_by_type.png" alt="Dumbbell chart of SLAKE accuracy by question type for Base, A, B1, B2"></div>
+  <figcaption><b>Figure 4.</b> SLAKE test accuracy by question type. The grey bar spans base → A; the largest gains are on vocabulary-bound types (Organ, KG, Colour, Plane), the smallest on Abnormality and Position.</figcaption></figure>
+
+  <h3>5.3 What the image-text CPT stage learned</h3>
+  <p>Before the SFT stage, the B2 CPT adapter was asked to write reports for three held-out IU X-Ray images. The generations are fluent, correctly structured radiology reports ("Findings: The heart is normal in size. The lungs are clear. No pneumothorax or pleural effusion. Impression: No acute cardiopulmonary abnormality."), but two of the three reference reports describe abnormalities, bibasilar opacities in one and a right pleural opacity with effusion in the other, and both were reported as normal. The CPT loss fell from 2.17 to 1.06 in one epoch, so the objective was learned; what was learned is the dominant report template. In the IU X-Ray training split 36 % of reports are normal, and abnormal reports are still written mostly as negations ("no effusion"), so a caption loss with a frozen vision tower rewards the template rather than the image.</p>
+  <figure><div class="fr"><img src="figures/fig6_examples.png" alt="Three SLAKE examples with answers from each model, and one IU X-Ray with reference and generated reports"></div>
+  <figcaption><b>Figure 5.</b> Top: three SLAKE test questions the base model gets wrong and every fine-tuned model gets right. Bottom: an abnormal held-out IU X-Ray; the B2 CPT adapter writes a fluent normal report.</figcaption></figure>
+</section>
+
+<section id="analysis">
+  <h2><span class="n">6</span>Analysis</h2>
+  <p><b>Where SFT gains come from.</b> The largest jumps after SFT are on Organ (+61.6 open), Knowledge-graph (+50.5) and the closed Modality / Plane / Colour / Size types (to 100 %). These are questions the base model could already perceive but answered with the wrong vocabulary or format ("the lungs" versus "lung", full sentences versus a phrase). SFT is largely <i>vocabulary and format alignment</i> here. Genuine perception questions moved less: Abnormality-open reaches only 41.5 % and Position-open 57.7 %. Remaining errors are left/right and upper/lower confusions and lesion-category mix-ups.</p>
+  <p><b>MRI: data, not capacity.</b> MRI was the weakest modality at baseline (56.8) and becomes the strongest after SFT (93.2). SLAKE's training set is MRI-heavy, so the base model lacked domain exposure rather than the ability to read MR images.</p>
+  <div class="callout">
+    <p><b>Image-text CPT does not help, and slightly hurts lesion questions.</b> B2 matches A on closed questions (88.7 versus 89.2) and is 0.6 below on open recall; per question it fixes 11 and breaks 18. The one type that moves beyond noise is Abnormality-open, down from 41.5 to 31.7 (four of 41 questions). This is consistent with Section 5.3: the CPT stage instilled a "normal chest" prior in the language model without changing the visual features, and that prior is a liability on lesion questions. The X-ray closed-question gain (+0.9, one question of 114) is within noise.</p>
+    <p>Taken together, B1 and B2 say that in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage contributes nothing to the primary metric; text CPT helps only text tasks. Two changes would be needed for a CPT stage to matter: unfreezing the vision tower (or LoRA on the ViT), or a label-balanced image-report corpus (CheXpert Plus sampled by finding). The report therefore treats A as the main result and B1 / B2 as controlled evidence on when CPT does not help.</p>
+  </div>
+  <p><b>Text CPT does not cross the modality gap.</b> B1 and A are indistinguishable on SLAKE: every metric within ±0.6, per-question changes 15 fixed versus 14 broken. Two explanations, both plausible: the CPT corpus (abstract-level biomedical text) does not contain the localisation and lesion vocabulary SLAKE tests, and CPT updates only the LLM while the vision side is frozen. The CPT stage is nevertheless effective in its own domain: PubMedQA improves by 2.2 accuracy and 1.8 macro-F1.</p>
+  <p><b>Forgetting is not measurable with the current probe.</b> TextVQA is unchanged after SFT and after CPT + SFT (83.89 / 83.89 / 83.78 / 84.00). Of the 300 answers, 81 differ from the base only in capitalisation. LoRA with a frozen vision tower and 3 epochs on 4.9k examples is a mild intervention, but the probe is also blunt: short-answer OCR questions are close to the SFT output format. A more sensitive general benchmark (open-ended description or an MMBench subset) is needed before experiment C can show anything. <span class="todo">todo: second retention probe</span></p>
+  <p><b>Reliability worsens in a specific way.</b> Every fine-tuning stage increases willingness to commit: predicted "maybe" falls from 158 (base) to 59 (A), 44 (B1) and 65 (B2) against 110 gold, while "no" → "yes" errors remain around 92. Accuracy rises because SLAKE-style short-answer training removes hedging, not because calibration improves. This is the concrete target for stage 3.</p>
+  <figure><div class="fr"><img src="figures/fig5_pubmedqa_distribution.png" alt="PubMedQA predicted label counts versus gold for each model"></div>
+  <figcaption><b>Figure 6.</b> PubMedQA predicted-label counts versus gold. Each fine-tuning stage shrinks "maybe" well below its true frequency.</figcaption></figure>
+</section>
+
+<section id="limits">
+  <h2><span class="n">7</span>Limitations and Planned Work</h2>
+  <ul>
+    <li>Single seed per experiment; differences under ±1 point are treated as noise rather than tested statistically. <span class="todo">todo: 2 seeds for A vs B</span></li>
+    <li>Evaluation uses greedy decoding and string matching; open-ended recall rewards verbose answers. Exact match and F1 are reported alongside to bound this.</li>
+    <li>The vision tower is frozen throughout. Unfreezing it, or LoRA on the ViT, is the natural next ablation for B2 but roughly doubles memory.</li>
+    <li>Image-text CPT is prototyped on IU X-Ray (3.5k frontal images). CheXpert Plus is registered but not yet downloaded; the 5k → 20k scale-up and alignment-score filtering (B3) depend on it and on the teammate's scoring interface (week 6).</li>
+    <li>Kaggle's 30 h/week GPU quota bounds throughput at roughly three full experiments per week; the college GPU server, once available, removes the 4-bit requirement (bf16, larger batch).</li>
+  </ul>
+</section>
+
+<section id="repro">
+  <h2><span class="n">8</span>Reproducibility</h2>
+  <p>Every run is fully specified by one YAML (seed 42) and one evaluation tag; the JSON summaries in <code>results/</code> are the exact files behind Section 5. Kaggle notebooks that execute the sequences below end-to-end are under <code>notebooks/</code>.</p>
+<pre><code>git clone https://github.com/AugustLoo/MedLoRA &amp;&amp; cd MedLoRA
+pip install -r requirements.txt
+pip install "llamafactory[torch,metrics] @ git+https://github.com/hiyouga/LLaMA-Factory.git"
+
+python data/download_slake.py &amp;&amp; python data/convert_slake_sharegpt.py
+python data/download_pubmedqa.py &amp;&amp; python data/convert_pubmedqa_cpt.py --max 10000
+python data/convert_iu_xray.py --root &lt;IU_XRAY_DIR&gt; --max 5000      # B2 only
+
+bash train/eval_all.sh baseline                                       # experiment 0
+llamafactory-cli train configs/sft_slake_qlora.yaml                   # A
+bash train/eval_all.sh sft_r16 outputs/sft_slake_qlora_r16
+llamafactory-cli train configs/cpt_pubmed_qlora.yaml                  # B1
+llamafactory-cli train configs/sft_after_cpt.yaml
+bash train/eval_all.sh cpt_sft_r16 outputs/sft_after_cpt_r16
+llamafactory-cli train configs/cpt_iu_qlora.yaml                      # B2
+llamafactory-cli train configs/sft_after_cpt_iu.yaml
+bash train/eval_all.sh cpt_iu_sft_r16 outputs/sft_after_cpt_iu_r16
+python scripts/make_figures.py                                        # figures</code></pre>
+</section>
+
+<section id="refs">
+  <h2>References <span class="todo">todo: complete</span></h2>
+  <ol class="refs">
+    <li>Qwen team. Qwen2.5-VL technical report, 2025.</li>
+    <li>Hu et al. LoRA: Low-Rank Adaptation of Large Language Models, 2021.</li>
+    <li>Dettmers et al. QLoRA: Efficient Finetuning of Quantized LLMs, 2023.</li>
+    <li>Li et al. LLaVA-Med: Training a Large Language-and-Vision Assistant for Biomedicine in One Day, 2023.</li>
+    <li>Liu et al. SLAKE: A Semantically-Labeled Knowledge-Enhanced Dataset for Medical Visual Question Answering, 2021.</li>
+    <li>Jin et al. PubMedQA: A Dataset for Biomedical Research Question Answering, 2019.</li>
+    <li>Singh et al. Towards VQA Models That Can Read (TextVQA), 2019.</li>
+    <li>Demner-Fushman et al. Preparing a collection of radiology examinations for distribution and retrieval (OpenI / IU chest X-ray), 2016.</li>
+    <li>Chambon et al. CheXpert Plus, 2024.</li>
+    <li>Gururangan et al. Don't Stop Pretraining: Adapt Language Models to Domains and Tasks, 2020.</li>
+    <li>Zheng et al. LlamaFactory: Unified Efficient Fine-Tuning of 100+ Language Models, 2024.</li>
+  </ol>
+</section>
+
+<footer>MedLoRA · draft v0.2 · generated from results/ and docs/figures/ in the repository</footer>
+</main>
+</div>
