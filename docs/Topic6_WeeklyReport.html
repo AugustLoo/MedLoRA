@@ -287,6 +287,7 @@ footer a{color:var(--ink-soft)}
     <h2>越训越不敢说「不确定」</h2>
     <p class="lede">PubMedQA 一千题里真实答案有 110 个 maybe。基座答了 158 个，A 只剩 59，B1 剩 44。准确率在涨，是因为短答题训练把犹豫训掉了，不是因为判断变准了。</p>
     <p>该答 no 的题被答成 yes 的数量，基座 <span class="en">85</span>、A <span class="en">106</span>、B1 <span class="en">92</span>、B2 <span class="en">99</span>，四轮实验没有一轮改善；该答 maybe 的 110 题，基座答对 17 题，三个微调模型都只答对 8 到 9 题。这是第三阶段「对齐」要打的靶子：先试成本最低的按标签重新平衡的 SFT，不行再上 DPO。</p>
+    <p><strong>偏置是 SFT 带进来的，不是 CPT。</strong>今天补了一组只做 CPT、不做 SFT 的评估：B2 的 CPT adapter 在 PubMedQA 上答 yes / no / maybe <span class="en">598 / 288 / 114</span>，是五个模型里最接近真实分布 <span class="en">552 / 338 / 110</span> 的；B1 的 CPT adapter 也把 no 从 201 提到 251。一做 SLAKE 的短答式 SFT，maybe 就塌下去。所以对齐要改的是 SFT 的数据配比，而不是再加一个阶段。</p>
   </div>
   <div class="viz"><div class="card" style="padding:22px 24px 18px">
     <div class="ttl" style="font-family:var(--font-num);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin-bottom:10px">PubMedQA · predicted label counts vs. gold (n = 1,000)</div>

@@ -273,7 +273,8 @@ h2(s, Inches(0.8), Inches(0.85), "越训越不敢说「不确定」", size=28)
 text(s, Inches(0.8), Inches(1.85), Inches(4.6), Inches(4.8),
      ["PubMedQA 一千题里真实答案有 110 个 maybe。基座答了 158 个，A 只剩 59，B1 剩 44。准确率在涨，是因为短答题训练把犹豫训掉了，不是因为判断变准了。",
       "该答 no 却答成 yes 的题：基座 85、A 106、B1 92、B2 99，四轮没有一轮改善；该答 maybe 的 110 题，基座答对 17 题，三个微调模型都只答对 8 到 9 题。",
-      "这是第三阶段「对齐」要打的靶子：先试成本最低的按标签重新平衡的 SFT，不行再上 DPO。"], size=12.5, spacing=1.35, para_gap=8)
+      "这是第三阶段「对齐」要打的靶子：先试成本最低的按标签重新平衡的 SFT，不行再上 DPO。",
+      [("偏置是 SFT 带进来的，不是 CPT。", {"color": NAVY, "bold": True}), ("只做 CPT 不做 SFT 的 B2 adapter 答 yes / no / maybe 598 / 288 / 114，五个模型里最接近真实分布；一做短答式 SFT，maybe 就塌下去。对齐要改的是 SFT 的数据配比。", {})]], size=12.5, spacing=1.35, para_gap=8)
 picture(s, CH / "pubmedqa.png", Inches(5.85), Inches(2.1), w=Inches(6.9))
 footer(s, 9)
 
