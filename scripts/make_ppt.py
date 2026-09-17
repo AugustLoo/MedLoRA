@@ -1,4 +1,4 @@
-"""把 docs/Topic6_WeeklyReport.html 的内容与视觉做成 PPT: docs/Topic6_WeeklyReport.pptx (16:9)。
+"""把 docs/weekly/week2/Topic6_WeeklyReport.html 的内容与视觉做成 PPT: docs/weekly/week2/Topic6_WeeklyReport.pptx (16:9)。
 先跑 scripts/make_ppt_charts.py 生成图表。用法: python scripts/make_ppt.py
 """
 from pathlib import Path
@@ -12,7 +12,7 @@ from pptx.util import Emu, Inches, Pt
 REPO = Path(__file__).resolve().parents[1]
 CH = REPO / "docs" / "ppt" / "charts"
 FIG = REPO / "docs" / "figures"
-OUT = REPO / "docs" / "Topic6_WeeklyReport.pptx"
+OUT = REPO / "docs" / "weekly" / "week2" / "Topic6_WeeklyReport.pptx"
 
 def rgb(h): return RGBColor.from_string(h.lstrip("#"))
 PAPER, DEEP, CARD = rgb("F7F2E7"), rgb("EFE7D3"), rgb("FDFAF2")
