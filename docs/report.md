@@ -1,6 +1,6 @@
 # Parameter-Efficient Continued Pre-training and Instruction Tuning of a Medical Vision-Language Model
 
-**Course project, Topic 6 (Task 1.3)** · Draft v0.2, 2026-09-16 · Author: Chunqian Loo
+**Course project, Topic 6 (Task 1.3)** · Draft v0.3, 2026-09-17 · Author: Chunqian Loo
 
 > **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1 and B2 are complete. Section 2 (Related Work) is an outline with citation placeholders. Everything marked `[TODO]` still needs work. Repository: https://github.com/AugustLoo/MedLoRA
 
@@ -137,6 +137,7 @@ All training and evaluation ran on Kaggle (one NVIDIA T4, 16 GB, fp16). A local 
 | A | – | SLAKE SFT | gain from instruction tuning alone | done |
 | B1 | text CPT (PubMedQA) | SLAKE SFT | does text CPT transfer to image VQA | done |
 | B2 | image-text CPT (IU X-Ray) | SLAKE SFT | does image-report CPT transfer | done |
+| B1/B2 CPT-only | stage-1 adapters, no SFT | – | what CPT itself changes | done |
 | B3 | image-text CPT filtered by alignment score (CheXpert Plus) | SLAKE SFT | value of data-quality filtering | needs teammate interface |
 | C | best of B | SFT + general VQA replay (5 % / 10 %) | forgetting mitigation | planned |
 | D | ablations: rank 8/16/32, CPT size, lr, epochs | | which factor matters | planned |
@@ -190,7 +191,21 @@ Per-question changes: base → A fixed 345 questions and broke 30; A → B1 fixe
 
 *Figure 3. SLAKE test accuracy by question type. The grey bar spans base → A; the largest gains are on vocabulary-bound types (Organ, KG, Colour, Plane), the smallest on Abnormality and Position.*
 
-### 5.3 Experiment B2: what the image-text CPT stage learned
+### 5.3 CPT-stage adapters evaluated without SFT
+
+To separate what the CPT stage itself does from what the SFT stage overwrites, the two stage-1 adapters were evaluated directly, without stage 2.
+
+| Metric | Base | B1 CPT only | B2 CPT only | A: SFT |
+|---|---|---|---|---|
+| SLAKE closed acc | 67.31 | 69.95 | 70.43 | 89.18 |
+| SLAKE open EM / recall | 40.62 / 46.73 | 34.11 / 44.87 | 36.43 / 44.65 | 75.35 / 82.17 |
+| TextVQA acc | 83.89 | 81.67 | 83.56 | 83.89 |
+| PubMedQA acc / macro-F1 | 65.80 / 51.03 | 66.70 / 53.25 | 68.40 / 53.20 | 70.60 / 52.38 |
+| PubMedQA predicted yes / no / maybe (gold 552 / 338 / 110) | 641 / 201 / 158 | 578 / 251 / 171 | **598 / 288 / 114** | 685 / 256 / 59 |
+
+Three things follow. (i) CPT is not inert: closed accuracy rises by 2.6–3.1 points and PubMedQA by 0.9–2.6, but the gains are small and are entirely absorbed by the SFT stage, after which all adapters converge to the same scores. (ii) The drop in open-question exact match with unchanged recall is format drift, not knowledge loss: the CPT-only models answer in sentences, and the B2 adapter in report style. (iii) The CPT-only models are the best-calibrated on PubMedQA: the B2 CPT adapter's label distribution (598 / 288 / 114) is the closest of all five models to the gold distribution. The "yes" bias and the collapse of "maybe" are therefore introduced by the short-answer SLAKE SFT, not by CPT and not by the base model. This relocates the alignment problem from stage 3 to the stage-2 data mix.
+
+### 5.4 Experiment B2: what the image-text CPT stage learned
 
 Before the SFT stage, the B2 CPT adapter was asked to write reports for three held-out IU X-Ray images. The generations are fluent, correctly structured radiology reports ("Findings: The heart is normal in size. The lungs are clear. No pneumothorax or pleural effusion. Impression: No acute cardiopulmonary abnormality."), but two of the three reference reports describe abnormalities (bibasilar opacities; a right pleural opacity with effusion) and both were reported as normal. The CPT loss fell from 2.17 to 1.06 in one epoch, so the objective was learned; what was learned is the dominant report template. In the IU X-Ray training split 36 % of reports are normal, and abnormal reports are still written mostly as negations ("no effusion"), so a caption loss with a frozen vision tower rewards the template rather than the image.
 
@@ -212,7 +227,7 @@ Before the SFT stage, the B2 CPT adapter was asked to write reports for three he
 
 **Forgetting is not measurable with the current probe.** TextVQA is unchanged after SFT and after CPT+SFT (83.89 / 83.89 / 83.78). Of the 300 answers, 81 differ from the base only in capitalisation. LoRA with a frozen vision tower and 3 epochs on 4.9k examples is a mild intervention, but the probe is also blunt: short-answer OCR questions are close to the SFT output format. A more sensitive general benchmark (open-ended description or an MMBench subset) is needed before experiment C can show anything. `[TODO: choose and run the second retention probe]`
 
-**Reliability worsens in a specific way.** Every fine-tuning stage increases willingness to commit: predicted "maybe" falls from 158 (base) to 59 (A) to 44 (B1) against 110 gold, while "no"→"yes" errors remain at 92. Accuracy rises because SLAKE-style short-answer training removes hedging, not because calibration improves. This is the concrete target for stage 3.
+**Reliability worsens in a specific way, and the SFT stage is the cause.** Section 5.3 shows the CPT-only adapters are the best calibrated of all models; the short-answer SFT stage is what creates the bias. Every SFT-containing stage increases willingness to commit: predicted "maybe" falls from 158 (base) to 59 (A) to 44 (B1) against 110 gold, while "no"→"yes" errors remain at 92. Accuracy rises because SLAKE-style short-answer training removes hedging, not because calibration improves. This is the concrete target for stage 3.
 
 ![Figure 5. PubMedQA predicted label distribution.](figures/fig5_pubmedqa_distribution.png)
 

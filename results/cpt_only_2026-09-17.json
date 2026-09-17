@@ -1,0 +1,118 @@
+{
+  "cpt_only_b1": {
+    "slake": {
+      "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "adapter": "/kaggle/input/notebooks/chunqianloo/medlora-cpt-b/MedLoRA/outputs/cpt_pubmed_qlora_r16",
+      "split": "test",
+      "n": 1061,
+      "load_4bit": false,
+      "max_pixels": 401408,
+      "seconds": 2293.8,
+      "metrics": {
+        "open_em": 34.11,
+        "open_recall": 44.87,
+        "open_f1": 43.35,
+        "closed_acc": 69.95
+      },
+      "n_closed": 416,
+      "n_open": 645,
+      "by_modality": {
+        "CT": {
+          "open_recall": 49.34,
+          "closed_acc": 66.82
+        },
+        "X-Ray": {
+          "open_recall": 42.35,
+          "closed_acc": 76.32
+        },
+        "MRI": {
+          "open_recall": 41.07,
+          "closed_acc": 69.32
+        }
+      }
+    },
+    "textvqa": {
+      "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "adapter": "/kaggle/input/notebooks/chunqianloo/medlora-cpt-b/MedLoRA/outputs/cpt_pubmed_qlora_r16",
+      "n": 300,
+      "seed": 42,
+      "textvqa_acc": 81.67
+    },
+    "pubmedqa": {
+      "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "adapter": "/kaggle/input/notebooks/chunqianloo/medlora-cpt-b/MedLoRA/outputs/cpt_pubmed_qlora_r16",
+      "n": 1000,
+      "accuracy": 66.7,
+      "macro_f1": 53.25,
+      "pred_dist": {
+        "yes": 578,
+        "maybe": 171,
+        "no": 251
+      },
+      "gold_dist": {
+        "yes": 552,
+        "no": 338,
+        "maybe": 110
+      },
+      "unparsed": 0
+    }
+  },
+  "cpt_only_b2": {
+    "slake": {
+      "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "adapter": "/kaggle/input/notebooks/chunqianloo/medlora-cpt-b2-iu-x-ray-image-text/MedLoRA/outputs/cpt_iu_qlora_r16",
+      "split": "test",
+      "n": 1061,
+      "load_4bit": false,
+      "max_pixels": 401408,
+      "seconds": 2301.9,
+      "metrics": {
+        "open_em": 36.43,
+        "open_recall": 44.65,
+        "open_f1": 45.49,
+        "closed_acc": 70.43
+      },
+      "n_closed": 416,
+      "n_open": 645,
+      "by_modality": {
+        "CT": {
+          "open_recall": 43.13,
+          "closed_acc": 69.63
+        },
+        "X-Ray": {
+          "open_recall": 42.84,
+          "closed_acc": 72.81
+        },
+        "MRI": {
+          "open_recall": 50.62,
+          "closed_acc": 69.32
+        }
+      }
+    },
+    "textvqa": {
+      "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "adapter": "/kaggle/input/notebooks/chunqianloo/medlora-cpt-b2-iu-x-ray-image-text/MedLoRA/outputs/cpt_iu_qlora_r16",
+      "n": 300,
+      "seed": 42,
+      "textvqa_acc": 83.56
+    },
+    "pubmedqa": {
+      "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "adapter": "/kaggle/input/notebooks/chunqianloo/medlora-cpt-b2-iu-x-ray-image-text/MedLoRA/outputs/cpt_iu_qlora_r16",
+      "n": 1000,
+      "accuracy": 68.4,
+      "macro_f1": 53.2,
+      "pred_dist": {
+        "yes": 598,
+        "no": 288,
+        "maybe": 114
+      },
+      "gold_dist": {
+        "yes": 552,
+        "no": 338,
+        "maybe": 110
+      },
+      "unparsed": 0
+    }
+  }
+}
