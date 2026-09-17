@@ -1,4 +1,4 @@
-# 汇报讲稿（对应 docs/report.html / report.pptx，约 6–7 分钟）
+# 汇报讲稿（对应 docs/Topic6_WeeklyReport.html / Topic6_WeeklyReport.pptx，约 6–7 分钟）
 
 > 每一节先说结论，再说证据。括号里是给自己的提示，不用念。
 
