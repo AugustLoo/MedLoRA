@@ -1,0 +1,15 @@
+{
+  "id": "chunqianloo/medlora-eval-cpt-only",
+  "title": "MedLoRA eval CPT-only",
+  "code_file": "kaggle_eval_cpt_only.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": ["chunqianloo/medlora-cpt-b", "chunqianloo/medlora-cpt-b2-iu-x-ray-image-text"],
+  "model_sources": []
+}
