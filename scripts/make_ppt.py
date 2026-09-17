@@ -1,4 +1,4 @@
-"""把 docs/weekly/week2/Topic6_WeeklyReport.html 的内容与视觉做成 PPT: docs/weekly/week2/Topic6_WeeklyReport.pptx (16:9)。
+"""把 docs/weekly/week1/Topic6_WeeklyReport.html 的内容与视觉做成 PPT: docs/weekly/week1/Topic6_WeeklyReport.pptx (16:9)。
 先跑 scripts/make_ppt_charts.py 生成图表。用法: python scripts/make_ppt.py
 """
 from pathlib import Path
@@ -12,7 +12,7 @@ from pptx.util import Emu, Inches, Pt
 REPO = Path(__file__).resolve().parents[1]
 CH = REPO / "docs" / "ppt" / "charts"
 FIG = REPO / "docs" / "figures"
-OUT = REPO / "docs" / "weekly" / "week2" / "Topic6_WeeklyReport.pptx"
+OUT = REPO / "docs" / "weekly" / "week1" / "Topic6_WeeklyReport.pptx"
 
 def rgb(h): return RGBColor.from_string(h.lstrip("#"))
 PAPER, DEEP, CARD = rgb("F7F2E7"), rgb("EFE7D3"), rgb("FDFAF2")
@@ -97,13 +97,13 @@ def picture(s, path, x, y, w=None, h=None, frame=True):
 
 
 def footer(s, n):
-    text(s, Inches(0.6), H - Inches(0.45), Inches(8), Inches(0.3), "MEDLORA · TOPIC 6 · 第 2 周进展汇报 · 2026-09-17", size=9, font=F_NUM, color=TAUPE)
+    text(s, Inches(0.6), H - Inches(0.45), Inches(8), Inches(0.3), "MEDLORA · TOPIC 6 · 第 1 周进展汇报 · 2026-09-17", size=9, font=F_NUM, color=TAUPE)
     text(s, W - Inches(1.4), H - Inches(0.45), Inches(0.8), Inches(0.3), f"{n:02d}", size=9, font=F_NUM, color=TAUPE, align=PP_ALIGN.RIGHT)
 
 
 # ---------------- 1. cover ----------------
 s = new_slide()
-kicker(s, Inches(1.0), Inches(1.15), "Topic 6 · Task 1.3 · 第 2 周进展汇报 · 2026-09-17")
+kicker(s, Inches(1.0), Inches(1.15), "Topic 6 · Task 1.3 · 第 1 周进展汇报 · 2026-09-17")
 text(s, Inches(1.0), Inches(1.5), Inches(11), Inches(2.4),
      [[("SFT 涨了 22 分，", {"color": NAVY}), ("CPT", {"color": RED}), (" 没有增益", {"color": NAVY})]],
      size=56, font=F_HEAD, bold=True, spacing=1.15)
