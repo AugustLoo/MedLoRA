@@ -1,392 +1,519 @@
-<title>MedLoRA Report</title>
-<link rel="stylesheet" href="fonts/fonts.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MedLoRA 周报</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap">
 <style>
 :root{
-  --bg:#f6f8f8; --surface:#ffffff; --ink:#151a1e; --ink-2:#5a646d; --ink-3:#8a949c;
-  --accent:#1c5cab; --accent-soft:#e3edf9; --rule:#d6dcdf; --rule-soft:#e8edef;
-  --todo:#9a6a00; --todo-bg:#fff4d6; --good:#0f7a3d;
-  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
-  --sans:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
-  --mono:"IBM Plex Mono",Consolas,"Courier New",monospace;
+  --paper:#F7F2E7; --paper-deep:#EFE7D3; --card:#FDFAF2;
+  --navy:#14263B; --ink-soft:#3D4E63; --taupe:#8C8577; --rule:#D8CFBA;
+  --c-base:#0E67B5; --c-a:#C25E28; --c-b1:#1F8A70; --c-b2:#B8860B; --c-red:#C0392B; --c-gold:#9A9283;
+  --font-head:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --font-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --font-num:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;
   color-scheme:light;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#141a1e; --surface:#1c2328; --ink:#eef2f4; --ink-2:#a7b1b9; --ink-3:#77828b;
-    --accent:#7fb3f0; --accent-soft:#1f2f42; --rule:#2c363d; --rule-soft:#222b31;
-    --todo:#f1c65a; --todo-bg:#33290f; --good:#5fcf8a; color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#141a1e; --surface:#1c2328; --ink:#eef2f4; --ink-2:#a7b1b9; --ink-3:#77828b;
-  --accent:#7fb3f0; --accent-soft:#1f2f42; --rule:#2c363d; --rule-soft:#222b31;
-  --todo:#f1c65a; --todo-bg:#33290f; --good:#5fcf8a; color-scheme:dark;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
-a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
-a:hover,a:focus-visible{border-bottom-color:currentColor;outline:none}
-a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.page{display:grid;grid-template-columns:1fr;gap:0;max-width:1180px;margin:0 auto;padding:0 20px 80px}
-@media (min-width:1100px){.page{grid-template-columns:220px minmax(0,1fr);gap:56px}}
-nav.toc{display:none}
-@media (min-width:1100px){
-  nav.toc{display:block;position:sticky;top:32px;align-self:start;padding-top:96px;font-size:13.5px}
-  nav.toc .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
-  nav.toc a{display:block;color:var(--ink-2);padding:4px 0;border:0;border-left:2px solid var(--rule-soft);padding-left:12px}
-  nav.toc a:hover{color:var(--ink);border-left-color:var(--accent)}
-}
-main{min-width:0}
-header.hd{padding:72px 0 28px;border-bottom:1px solid var(--rule)}
-.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
-h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,4vw,42px);line-height:1.15;letter-spacing:-.01em;margin:0 0 16px;max-width:22ch;text-wrap:balance}
-.meta{font-size:14.5px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px 22px;margin:0 0 26px}
-.meta b{color:var(--ink);font-weight:600}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:780px}
-@media (max-width:640px){.stats{grid-template-columns:1fr}}
-.stat{background:var(--surface);border:1px solid var(--rule);padding:14px 16px 12px;border-radius:6px}
-.stat .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
-.stat .v{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1.1;margin:6px 0 2px;font-variant-numeric:tabular-nums}
-.stat .v small{font-size:15px;font-family:var(--sans);font-weight:400;color:var(--ink-2);margin-left:8px}
-.stat .d{font-size:13px;color:var(--ink-2)}
-.status{margin:26px 0 0;padding:12px 16px;background:var(--accent-soft);border-radius:6px;font-size:14.5px;color:var(--ink);max-width:780px}
-.status b{font-weight:600}
-section{padding:40px 0 8px;border-bottom:1px solid var(--rule-soft)}
-section:last-of-type{border-bottom:0}
-h2{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1.2;margin:0 0 18px;letter-spacing:-.005em;text-wrap:balance}
-h2 .n{font-family:var(--mono);font-size:13px;color:var(--ink-3);margin-right:12px;letter-spacing:.06em;font-weight:400;vertical-align:.25em}
-h3{font-family:var(--serif);font-weight:600;font-size:19.5px;margin:30px 0 10px;text-wrap:balance}
-p{max-width:68ch;margin:0 0 16px}
-p.lead{font-size:18.5px;color:var(--ink);font-family:var(--serif);line-height:1.55}
-ul,ol{max-width:68ch;padding-left:22px;margin:0 0 16px}
-li{margin:0 0 6px}
-li::marker{color:var(--ink-3)}
-b,strong{font-weight:600}
-code{font-family:var(--mono);font-size:.86em;background:var(--rule-soft);padding:1px 5px;border-radius:3px}
-pre{font-family:var(--mono);font-size:13px;line-height:1.55;background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:16px 18px;overflow-x:auto;max-width:880px;margin:0 0 18px}
-pre code{background:none;padding:0;font-size:inherit}
-.todo{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--todo);background:var(--todo-bg);border-radius:3px;padding:1px 7px;vertical-align:.15em;margin-left:4px}
-.tw{overflow-x:auto;max-width:880px;margin:0 0 22px;border:1px solid var(--rule);border-radius:6px;background:var(--surface)}
-table{border-collapse:collapse;width:100%;font-size:14.5px;line-height:1.4}
-th,td{padding:9px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule-soft)}
-thead th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);font-weight:500;background:var(--rule-soft);border-bottom:1px solid var(--rule)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--navy);font-family:var(--font-body);font-size:17px;line-height:1.9;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--c-base)} a:hover{color:var(--navy)}
+.num,.mono{font-family:var(--font-num)}
+h1,h2,h3{font-family:var(--font-head);font-weight:700}
+h2{font-size:38px;line-height:1.35;letter-spacing:.01em;margin-bottom:18px;text-wrap:balance}
+h2::after{content:"";display:block;width:64px;height:4px;background:var(--navy);margin-top:14px}
+h3{font-size:21px;line-height:1.4}
+.kicker{font-family:var(--font-num);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--taupe);margin-bottom:14px}
+.section{padding:110px 24px}
+.section.deep{background:var(--paper-deep)}
+.prose{max-width:720px;margin:0 auto}
+.viz{max-width:1080px;margin:48px auto 0}
+.prose p{margin-bottom:1.1em;color:var(--ink-soft)}
+.prose p.lede{font-size:19px;color:var(--navy)}
+.prose strong,.step-card strong{color:var(--navy)}
+.en{font-family:var(--font-num);font-size:.92em}
+.card{background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
+.srcline{max-width:1080px;margin:18px auto 0;font-size:13px;line-height:1.7;color:var(--taupe)}
+.srcline .asof{font-family:var(--font-num)}
+
+/* cover */
+#cover{min-height:100vh;position:relative;overflow:hidden;background:linear-gradient(180deg,#F9F5EC 0%,var(--paper) 55%,#E9E0C9 100%);display:flex;align-items:center;justify-content:center}
+#cover .inner{max-width:880px;padding:0 24px 18vh;position:relative;z-index:3;width:100%}
+#cover h1{font-size:clamp(40px,6.4vw,78px);line-height:1.22;letter-spacing:.04em}
+#cover h1 .hi{color:var(--c-red)}
+#cover .sub{margin-top:22px;font-size:18px;color:var(--ink-soft);max-width:640px}
+#cover .asof-line{margin-top:14px;font-family:var(--font-num);font-size:12.5px;color:var(--taupe);letter-spacing:.06em}
+#cover .stats{display:flex;gap:42px;margin-top:44px;flex-wrap:wrap}
+#cover .stat .v{font-family:var(--font-num);font-size:40px;font-weight:700;line-height:1.1}
+#cover .stat .v small{font-size:15px;font-weight:400;color:var(--taupe);margin-left:6px}
+#cover .stat .bar{height:5px;margin-top:8px;width:120px}
+#cover .stat .l{font-size:13px;color:var(--ink-soft);margin-top:8px;max-width:200px;line-height:1.5}
+#cover .scrollhint{position:absolute;bottom:34px;left:0;right:0;text-align:center;font-family:var(--font-num);font-size:11px;letter-spacing:.2em;color:var(--taupe);z-index:3}
+#grid{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.55}
+
+/* pipeline cards */
+.pipe{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;max-width:1080px;margin:44px auto 0}
+.pipe .card{padding:20px 20px 18px;position:relative}
+.pipe .card .tag{font-family:var(--font-num);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);display:inline-block;padding:2px 10px;margin-bottom:12px;background:var(--navy)}
+.pipe .card h3{font-size:19px;margin-bottom:8px}
+.pipe .card p{font-size:14px;line-height:1.75;color:var(--ink-soft)}
+.pipe .card .en{display:block;font-size:12.5px;color:var(--taupe);margin-top:10px;line-height:1.6}
+.pipe .card.planned{border-style:dashed;box-shadow:none}
+.pipe .card.planned .tag{background:var(--taupe)}
+
+/* table */
+.tbl{overflow-x:auto;max-width:1080px;margin:36px auto 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
+th,td{padding:10px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule)}
+thead th{font-family:var(--font-num);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);background:var(--paper-deep);border-bottom:2px solid var(--navy)}
+td.num,th.num{text-align:right;font-family:var(--font-num);white-space:nowrap}
+td.best{font-weight:700}
+td.bad{color:var(--c-red);font-weight:700}
 tbody tr:last-child td{border-bottom:0}
-td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13.5px;white-space:nowrap}
-td.best{color:var(--ink);font-weight:600}
-td.bad{color:#b23b2e;font-weight:600}
-:root[data-theme="dark"] td.bad{color:#f28b7d}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) td.bad{color:#f28b7d}}
-figure{margin:24px 0 28px;max-width:880px}
-figure .fr{background:#ffffff;border:1px solid var(--rule);border-radius:6px;padding:12px}
-figure img{display:block;width:100%;height:auto}
-figcaption{font-size:14px;color:var(--ink-2);margin:10px 4px 0;line-height:1.5;max-width:70ch}
-figcaption b{color:var(--ink);font-weight:600}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:880px}
-@media (max-width:760px){.two{grid-template-columns:1fr}}
-.callout{max-width:68ch;border-left:3px solid var(--accent);padding:4px 0 4px 18px;margin:18px 0 22px;color:var(--ink)}
-.callout p{margin:0 0 10px}
-.refs{font-size:15px;max-width:68ch;padding-left:26px}
-.refs li{margin-bottom:6px}
-footer{padding:36px 0 0;color:var(--ink-3);font-size:13px;font-family:var(--mono)}
-@media (prefers-reduced-motion:no-preference){a{transition:border-color .15s}}
-@media print{
-  :root{--bg:#ffffff;--surface:#ffffff;--ink:#111518;--ink-2:#4a545c;--ink-3:#7a848c;--accent:#1c5cab;--accent-soft:#eef3fa;--rule:#cfd5d9;--rule-soft:#e4e9ec;--todo:#8a5e00;--todo-bg:#fff1cc}
-  @page{size:A4;margin:18mm 16mm 20mm}
-  body{font-size:11pt;line-height:1.45}
-  .page{max-width:none;padding:0;display:block}
-  nav.toc{display:none}
-  header.hd{padding:0 0 14pt}
-  h1{font-size:24pt;max-width:none}
-  .stats{max-width:none}
-  .stat{break-inside:avoid}
-  section{padding:18pt 0 4pt;border-bottom:0}
-  h2{font-size:17pt;margin-top:4pt;break-after:avoid}
-  h3{font-size:12.5pt;break-after:avoid}
-  p,ul,ol{max-width:none}
-  figure,.tw,pre,.callout{break-inside:avoid;max-width:none}
-  figure .fr{border-color:#dfe4e7;padding:6pt}
-  table{font-size:9.5pt}
-  th,td{padding:5pt 7pt}
-  td.num,th.num{font-size:8.8pt}
-  pre{font-size:8.6pt}
-  a{color:var(--ink);border:0}
-  .status{background:#eef3fa}
-  footer{margin-top:18pt}
-  .tw{overflow:visible;border:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);border-radius:0}
-  table{table-layout:auto;width:100%;font-size:8.8pt}
-  td.num,th.num{white-space:normal;font-size:8.2pt}
-  th,td{padding:4pt 5pt}
-  thead th{font-size:7.6pt}
-  figure .fr img{max-height:230mm;width:auto;max-width:100%;margin:0 auto}
+
+/* scrolly */
+.scrolly{max-width:1160px;margin:40px auto 0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr);gap:40px;align-items:start}
+.sticky-fig{position:sticky;top:6vh;height:88vh;display:flex;align-items:center}
+.sticky-fig .card{width:100%;padding:22px 24px 18px}
+.sticky-fig .ttl{font-family:var(--font-num);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin-bottom:10px}
+.sticky-fig svg{width:100%;height:auto;display:block}
+.steps{padding:10vh 0 20vh}
+.step{min-height:64vh;display:flex;align-items:center}
+.step-card{background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16);padding:20px 22px;opacity:.38;transition:opacity .3s,transform .3s;transform:translateX(0)}
+.step.is-active .step-card{opacity:1;transform:translateX(-6px)}
+.step-card .n{font-family:var(--font-num);font-size:11.5px;letter-spacing:.14em;color:var(--taupe);margin-bottom:8px}
+.step-card h3{font-size:20px;margin-bottom:8px}
+.step-card p{font-size:15px;line-height:1.85;color:var(--ink-soft)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--font-num);font-size:12px;color:var(--ink-soft);margin-top:10px}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px}
+.legend .lb::before{background:var(--c-base)} .legend .la::before{background:var(--c-a)} .legend .lb1::before{background:var(--c-b1)} .legend .lb2::before{background:var(--c-b2)} .legend .lg::before{background:var(--c-gold)}
+
+/* examples */
+.examples{max-width:1080px;margin:44px auto 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.ex{padding:16px 16px 14px}
+.ex img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;border:1px solid var(--rule);background:#000}
+.ex .t{font-family:var(--font-num);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin:12px 0 6px}
+.ex .q{font-size:14.5px;font-weight:700;line-height:1.55;margin-bottom:8px}
+.ex .row{display:flex;justify-content:space-between;gap:10px;font-family:var(--font-num);font-size:12.5px;line-height:1.9;border-top:1px dashed var(--rule)}
+.ex .row .k{color:var(--taupe)} .ex .row .ok{color:var(--c-b1)} .ex .row .no{color:var(--c-red)}
+
+/* CPT learned */
+.xr{max-width:1080px;margin:44px auto 0;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);gap:26px;align-items:start}
+.xr img{width:100%;display:block;border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
+.rep{padding:18px 20px;margin-bottom:22px}
+.rep .h{font-family:var(--font-num);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe);margin-bottom:8px}
+.rep p{font-family:var(--font-num);font-size:13.5px;line-height:1.75;color:var(--navy)}
+.rep.gen p{color:var(--ink-soft)}
+.rep mark{background:#F6D9C9;color:var(--c-red);padding:0 3px}
+.rep mark.ok{background:#D5EEE4;color:var(--c-b1)}
+
+/* small multiples */
+.curves{max-width:1080px;margin:40px auto 0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.curves .card{padding:12px 12px 8px}
+.curves .ttl{font-family:var(--font-num);font-size:11px;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.curves svg{width:100%;height:auto;display:block}
+
+/* conclusions */
+.concl{max-width:1080px;margin:40px auto 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.concl .card{padding:22px 22px 18px}
+.concl .card .big{font-family:var(--font-num);font-size:34px;font-weight:700;line-height:1.1}
+.concl .card .big small{font-size:14px;font-weight:400;color:var(--taupe);margin-left:6px}
+.concl .card h3{font-size:18px;margin:10px 0 6px}
+.concl .card p{font-size:14px;line-height:1.8;color:var(--ink-soft)}
+.ask{max-width:720px;margin:36px auto 0;padding:22px 26px}
+.ask h3{margin-bottom:10px}
+.ask ol{padding-left:22px}
+.ask li{margin-bottom:6px;color:var(--ink-soft)}
+.ask li strong{color:var(--navy)}
+footer{padding:40px 24px 60px;text-align:center;font-family:var(--font-num);font-size:12px;color:var(--taupe);letter-spacing:.06em}
+footer a{color:var(--ink-soft)}
+
+@media (max-width:900px){
+  .scrolly{grid-template-columns:1fr;gap:0}
+  .sticky-fig{position:sticky;top:0;height:auto;padding:12px 0;background:var(--paper);z-index:2}
+  .section.deep .sticky-fig{background:var(--paper-deep)}
+  .step{min-height:40vh}
+  .pipe,.examples,.concl{grid-template-columns:1fr}
+  .curves{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .xr{grid-template-columns:1fr}
+  h2{font-size:30px}
+  .section{padding:72px 20px}
 }
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.step-card{transition:none}}
 </style>
+</head>
+<body>
 
-<div class="page">
-<nav class="toc" aria-label="Contents">
-  <div class="lbl">Contents</div>
-  <a href="#abstract">Abstract</a>
-  <a href="#intro">1 Introduction</a>
-  <a href="#related">2 Related work</a>
-  <a href="#method">3 Method</a>
-  <a href="#setup">4 Data and setup</a>
-  <a href="#results">5 Results</a>
-  <a href="#analysis">6 Analysis</a>
-  <a href="#limits">7 Limitations</a>
-  <a href="#repro">8 Reproducibility</a>
-  <a href="#refs">References</a>
-</nav>
-
-<main>
-<header class="hd">
-  <p class="eyebrow">Topic 6 · Task 1.3 · Draft v0.2 · 16 September 2026</p>
-  <h1>Parameter-Efficient Continued Pre-training and Instruction Tuning of a Medical Vision-Language Model</h1>
-  <div class="meta">
-    <span><b>Author</b> Chunqian Loo</span>
-    <span><b>Base model</b> Qwen2.5-VL-3B-Instruct</span>
-    <span><b>Code</b> <a href="https://github.com/AugustLoo/MedLoRA">github.com/AugustLoo/MedLoRA</a></span>
+<!-- ============================ Cover ============================ -->
+<section id="cover">
+  <svg id="grid" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs><pattern id="gp" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M56 0H0V56" fill="none" stroke="#D8CFBA" stroke-width="1"/></pattern></defs>
+    <rect width="1400" height="900" fill="url(#gp)"/>
+  </svg>
+  <div class="inner">
+    <div class="kicker">Topic 6 · Task 1.3 · 第 2 周进展汇报 · 2026-09-17</div>
+    <h1>SFT 涨了 22 分，<br><span class="hi">CPT</span> 没有增益</h1>
+    <p class="sub">医学视觉语言模型的参数高效增量预训练与指令微调。两周，四组实验，三张固定的评估表，每一个数字都能在仓库里复现。</p>
+    <div class="asof-line">Qwen2.5-VL-3B-Instruct · QLoRA r16 · Kaggle T4 · results as of 2026-09-16</div>
+    <div class="stats">
+      <div class="stat"><div class="v" style="color:var(--c-a)">89.2<small>← 67.3</small></div><div class="bar" style="background:var(--c-a)"></div><div class="l">SLAKE closed accuracy，SFT 之后（实验 A）</div></div>
+      <div class="stat"><div class="v" style="color:var(--c-a)">82.2<small>← 46.7</small></div><div class="bar" style="background:var(--c-a)"></div><div class="l">SLAKE open recall，同一个 adapter</div></div>
+      <div class="stat"><div class="v" style="color:var(--navy)">83.9<small>= 83.9</small></div><div class="bar" style="background:var(--navy)"></div><div class="l">TextVQA，通用能力没有可测的退化</div></div>
+    </div>
   </div>
-  <div class="stats" aria-label="Headline results">
-    <div class="stat"><div class="k">SLAKE closed accuracy</div><div class="v">89.2<small>from 67.3</small></div><div class="d">QLoRA SFT on 4.9k questions (experiment A)</div></div>
-    <div class="stat"><div class="k">SLAKE open recall</div><div class="v">82.2<small>from 46.7</small></div><div class="d">same adapter, open-ended questions</div></div>
-    <div class="stat"><div class="k">TextVQA retention</div><div class="v">83.9<small>from 83.9</small></div><div class="d">no measurable forgetting on the probe</div></div>
+  <div class="scrollhint">SCROLL ▼</div>
+</section>
+
+<!-- ============================ 1. 课题与流程 ============================ -->
+<section class="section deep" id="pipeline">
+  <div class="prose">
+    <div class="kicker">01 · 课题与流程</div>
+    <h2>三个阶段，一套评估</h2>
+    <p class="lede">课题任务 1.3：对一个 2B 到 7B 的开源视觉语言模型做增量预训练、LoRA 指令微调和对齐，交付数据脚本、训练流水线、评估集与模型卡、报告。</p>
+    <p>基座选 <span class="en">Qwen2.5-VL-3B-Instruct</span>，训练框架 <span class="en">LLaMA-Factory</span>，全部在 Kaggle 的 T4 上跑。每个阶段产出一个 LoRA adapter，后一阶段接着前一阶段的 adapter 继续训练，最终交付物是一个 120 MB 的补丁。视觉塔全程冻结，所以每一处变化都能归因到语言模型一侧。</p>
   </div>
-  <div class="status"><b>Draft status.</b> Experiments 0, A, B1 and B2 are complete and Sections 3 to 6 are written from the repository as it stands. Section 2 is an outline with citation placeholders. Items marked <span class="todo">todo</span> still need work.</div>
-</header>
-
-<section id="abstract">
-  <h2>Abstract</h2>
-  <p class="lead">Open-weight vision-language models in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (a TextVQA subset) and answer reliability (PubMedQA).</p>
-  <p>QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 89.2 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 88.7) while lowering open lesion questions. In this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. The residual errors concentrate in lesion identification and spatial localisation, and a persistent "yes" bias on PubMedQA is identified as the target for the alignment stage. All adapters, data-generation scripts, evaluation code and configurations are released for one-command reproduction.</p>
-</section>
-
-<section id="intro">
-  <h2><span class="n">1</span>Introduction</h2>
-  <p>Large VLMs such as Qwen2.5-VL and LLaVA are trained on web-scale natural images. Radiology and pathology images are rare in that data, so out of the box these models mislabel organs, confuse modalities and hedge poorly on medical questions. Full fine-tuning of even a 3B model is out of reach for a single consumer GPU, which motivates parameter-efficient methods: low-rank adapters (LoRA) and their 4-bit variant (QLoRA) train under 2% of the parameters and fit on a 16 GB card.</p>
-  <p>Task 1.3 of the course asks for a complete pipeline on a 2–7B open VLM: (1) continued pre-training on medical corpora, (2) LoRA/QLoRA instruction tuning, (3) an alignment step, with four deliverables: data-generation scripts, the CPT/SFT pipeline with adapters, evaluation sets with model cards, and a report with reproducible configurations.</p>
-  <p>This report makes the following contributions:</p>
-  <ol>
-    <li>A reproducible three-table evaluation protocol (medical VQA, general retention, reliability) shared by every experiment, with prompts fixed once and used identically for training-data generation and evaluation.</li>
-    <li>A controlled comparison of SFT alone versus CPT followed by SFT, on the same base model, adapter rank, learning schedule and evaluation seed.</li>
-    <li>Evidence that neither text-only nor small-scale image-text CPT transfers to image questions when the vision tower is frozen, with an error analysis of why.</li>
-    <li>A question-type analysis that separates "vocabulary alignment" gains from genuine gains in medical perception.</li>
-  </ol>
-</section>
-
-<section id="related">
-  <h2><span class="n">2</span>Related Work <span class="todo">todo: expand, add citations</span></h2>
-  <ul>
-    <li><b>General VLMs.</b> Qwen2.5-VL, LLaVA-1.5 / LLaVA-NeXT, InternVL. Architecture: ViT vision tower, projector, decoder-only LLM; dynamic-resolution vision tokens in Qwen2.5-VL.</li>
-    <li><b>Medical VLMs.</b> LLaVA-Med (two-stage: caption alignment on PMC figure-caption pairs, then instruction tuning); Med-Flamingo; BiomedGPT; CheXagent; RadFM. LLaVA-Med's first stage is exactly image-caption CPT, which experiment B2 reproduces at small scale.</li>
-    <li><b>Parameter-efficient fine-tuning.</b> LoRA (Hu et al. 2021), QLoRA (Dettmers et al. 2023): 4-bit NF4 base weights, paged optimisers; reported to match full fine-tuning on instruction tasks at a fraction of the memory.</li>
-    <li><b>Continued pre-training for domain adaptation.</b> Gururangan et al. 2020, BioMedLM / PubMedBERT, Med-PaLM. Open question addressed here: does CPT help a <i>multimodal</i> downstream task.</li>
-    <li><b>Catastrophic forgetting in fine-tuned VLMs.</b> Rehearsal and replay; LoRA as an implicit regulariser; evaluation on general VQA after domain SFT.</li>
-    <li><b>Benchmarks.</b> SLAKE (Liu et al. 2021), VQA-RAD, PubMedQA (Jin et al. 2019), TextVQA (Singh et al. 2019), IU X-Ray / OpenI (Demner-Fushman et al. 2016), CheXpert Plus (Chambon et al. 2024), MIMIC-CXR (Johnson et al. 2019).</li>
-  </ul>
-</section>
-
-<section id="method">
-  <h2><span class="n">3</span>Method</h2>
-  <h3>3.1 Pipeline overview</h3>
-  <p>Each stage produces a LoRA adapter on the same frozen 4-bit base. Stage 2 is initialised from the stage-1 adapter and continues training the same low-rank matrices, so the final artefact is a single 120 MB adapter. Experiment A skips stage 1; experiments B1 and B2 differ only in the stage-1 corpus.</p>
-  <figure><div class="fr"><img src="figures/fig1_pipeline.png" alt="Three-stage pipeline: base model, CPT adapter, SFT adapter, planned alignment"></div>
-  <figcaption><b>Figure 1.</b> The three-stage pipeline. Every adapter is evaluated on the same three tables.</figcaption></figure>
-
-  <h3>3.2 Base model</h3>
-  <p>Qwen2.5-VL-3B-Instruct (Apache-2.0): a 3.75B-parameter model with a native-resolution ViT, an MLP projector and a Qwen2.5 decoder. It sits in the 2–7B range the task requires, fits on a 16 GB T4 in 4-bit with room for activations, and already follows short-answer instructions, which makes zero-shot baselines meaningful.</p>
-
-  <h3>3.3 Parameter-efficient training (QLoRA)</h3>
-  <ul>
-    <li>Base weights quantised to 4-bit NF4 with double quantisation (bitsandbytes); LoRA matrices and optimiser states in fp16.</li>
-    <li>LoRA on every linear layer of the language model, rank 16, α = 32, dropout 0.05. The vision tower and projector are frozen in all experiments, so any change in behaviour is attributable to the LLM side.</li>
-    <li>Gradient checkpointing, effective batch 16 (2 × 8 accumulation), cosine schedule, seed 42. Training uses LLaMA-Factory; one YAML per experiment under <code>configs/</code>.</li>
-  </ul>
-
-  <h3>3.4 Stage 1a: text-only CPT (B1)</h3>
-  <p>Causal-LM loss on 10,000 PubMedQA <code>pqa_artificial</code> documents (question, abstract context and long answer, concatenated), packed into 1024-token sequences. Learning rate 5e-5 (half of SFT), one epoch. The evaluation split <code>pqa_labeled</code> is never used for training.</p>
-
-  <h3>3.5 Stage 1b: image-text CPT (B2)</h3>
-  <p>Caption-style alignment in the sense of LLaVA-Med stage 1: the input is a frontal chest X-ray plus a fixed instruction ("Write the radiology report for this chest X-ray."), the target is the report's Findings and Impression sections, and the loss is computed on the report tokens only. Implemented as an SFT-format dataset so that images are consumed; hyper-parameters as in 3.4. Corpus: IU X-Ray; CheXpert Plus is the planned scale-up.</p>
-
-  <h3>3.6 Stage 2: instruction tuning (SFT)</h3>
-  <p>SLAKE English training questions converted to a two-turn chat format with the same prompt templates used at evaluation time:</p>
-  <ul>
-    <li>closed questions: <code>{question} Answer with yes or no only.</code></li>
-    <li>open questions: <code>{question} Answer with a single word or short phrase.</code></li>
-  </ul>
-  <p>Learning rate 1e-4, three epochs, images resized to at most 512 × 512 pixels, validation loss on the SLAKE validation split every 400 steps.</p>
-
-  <h3>3.7 Stage 3: alignment <span class="todo">planned</span></h3>
-  <p>The PubMedQA results show a stable over-prediction of "yes" and under-prediction of "maybe". The planned alignment step is DPO on preference pairs built from PubMedQA <code>pqa_artificial</code> (preferred: the gold label; rejected: the model's over-confident answer), evaluated on <code>pqa_labeled</code> macro-F1 and the maybe rate. A label-rebalanced SFT is the cheaper alternative and will be tried first.</p>
-</section>
-
-<section id="setup">
-  <h2><span class="n">4</span>Data and Experimental Setup</h2>
-  <h3>4.1 Datasets</h3>
-  <div class="tw"><table>
-    <thead><tr><th>Dataset</th><th>Role</th><th>Size used</th><th>Licence / access</th></tr></thead>
-    <tbody>
-      <tr><td>SLAKE (English)</td><td>SFT training; validation loss; <b>test set for medical VQA</b></td><td>train 4,919 / val 1,053 / test 1,061 (416 closed, 645 open)</td><td>CC BY 4.0</td></tr>
-      <tr><td>PubMedQA pqa_artificial</td><td>text CPT corpus</td><td>10,000 documents</td><td>MIT</td></tr>
-      <tr><td>PubMedQA pqa_labeled</td><td><b>reliability evaluation</b> (yes / no / maybe)</td><td>1,000</td><td>MIT, never trained on</td></tr>
-      <tr><td>TextVQA validation</td><td><b>general-ability retention</b></td><td>fixed 300-question sample, seed 42</td><td>CC BY 4.0</td></tr>
-      <tr><td>IU X-Ray (OpenI, Kaggle mirror)</td><td>image-text CPT prototype</td><td>3,666 frontal images with non-empty reports; 3,483 train / 183 held out, split by report id</td><td>public</td></tr>
-      <tr><td>CheXpert Plus</td><td>image-text CPT at scale (planned, B3)</td><td>5k → 20k studies</td><td>registered; download pending</td></tr>
-    </tbody></table></div>
-  <p>MIMIC-CXR was in the original task description; CheXpert Plus was chosen instead because it provides the same image-report structure with a lighter access process (registration rather than PhysioNet credentialing), and because it is the dataset shared with the Topic 1 teammate whose image-text alignment model will provide the data-filtering scores for B3.</p>
-  <p>Compliance rules fixed in the repository: SLAKE test and PubMedQA labeled are evaluation-only; patient-level splits are stored in git; controlled data and patient-level derived files never enter git or public Kaggle datasets.</p>
-
-  <h3>4.2 Evaluation protocol</h3>
-  <p>All three tables are produced by one script with greedy decoding, at most 32 new tokens, images capped at 512 × 512, on the fp16 base plus adapter. Predictions are stored per question for error analysis.</p>
-  <div class="tw"><table>
-    <thead><tr><th>Table</th><th>Data</th><th>Metrics</th></tr></thead>
-    <tbody>
-      <tr><td>Medical VQA</td><td>SLAKE test</td><td>closed: accuracy after folding the answer to yes/no; open: exact match, token recall (LLaVA-Med convention) and token F1, after lower-casing and stripping punctuation and articles; both split by modality (X-Ray / CT / MRI)</td></tr>
-      <tr><td>General retention</td><td>TextVQA, 300 questions</td><td>VQA accuracy: min(matching annotators / 3, 1)</td></tr>
-      <tr><td>Reliability</td><td>PubMedQA labeled</td><td>accuracy, macro-F1 over {yes, no, maybe}, predicted-label distribution versus gold (552 / 338 / 110)</td></tr>
-    </tbody></table></div>
-
-  <h3>4.3 Hardware and cost</h3>
-  <p>All training and evaluation ran on Kaggle (one NVIDIA T4, 16 GB, fp16). A local RTX 3050 (4 GB) was used only for code and smoke tests.</p>
-  <div class="tw"><table>
-    <thead><tr><th>Run</th><th>Samples</th><th class="num">Wall time</th><th class="num">Throughput</th></tr></thead>
-    <tbody>
-      <tr><td>Baseline evaluation, three tables</td><td>–</td><td class="num">≈ 1.5 h</td><td class="num">SLAKE 1,061 q in 38 min</td></tr>
-      <tr><td>A: SLAKE SFT, 3 epochs</td><td>4,919 × 3</td><td class="num">4 h 28 min</td><td class="num">0.92 samples/s</td></tr>
-      <tr><td>B1: text CPT, 1 epoch</td><td>10,000 packed</td><td class="num">2 h 39 min</td><td class="num">0.42 samples/s</td></tr>
-      <tr><td>B1: SFT after CPT</td><td>4,919 × 3</td><td class="num">4 h 07 min</td><td class="num">1.00 samples/s</td></tr>
-      <tr><td>B2: image-text CPT, 1 epoch</td><td>3,483 image-report pairs</td><td class="num">1 h 19 min</td><td class="num">0.73 samples/s</td></tr>
-      <tr><td>B2: SFT after CPT</td><td>4,919 × 3</td><td class="num">4 h 38 min</td><td class="num">0.89 samples/s</td></tr>
-    </tbody></table></div>
-
-  <h3>4.4 Experiment matrix</h3>
-  <div class="tw"><table>
-    <thead><tr><th>ID</th><th>Stage 1</th><th>Stage 2</th><th>Question answered</th><th>Status</th></tr></thead>
-    <tbody>
-      <tr><td>0</td><td>–</td><td>–</td><td>zero-shot starting point</td><td>done</td></tr>
-      <tr><td>A</td><td>–</td><td>SLAKE SFT</td><td>gain from instruction tuning alone</td><td>done</td></tr>
-      <tr><td>B1</td><td>text CPT (PubMedQA)</td><td>SLAKE SFT</td><td>does text CPT transfer to image VQA</td><td>done</td></tr>
-      <tr><td>B2</td><td>image-text CPT (IU X-Ray)</td><td>SLAKE SFT</td><td>does image-report CPT transfer</td><td>done</td></tr>
-      <tr><td>B3</td><td>image-text CPT filtered by alignment score (CheXpert Plus)</td><td>SLAKE SFT</td><td>value of data-quality filtering</td><td>needs teammate interface</td></tr>
-      <tr><td>C</td><td>best of B</td><td>SFT + general VQA replay (5 % / 10 %)</td><td>forgetting mitigation</td><td>planned</td></tr>
-      <tr><td>D</td><td colspan="2">ablations: rank 8 / 16 / 32, CPT size, learning rate, epochs</td><td>which factor matters</td><td>planned</td></tr>
-      <tr><td>E</td><td colspan="2">C + DPO (optional)</td><td>reliability</td><td>planned</td></tr>
-    </tbody></table></div>
-</section>
-
-<section id="results">
-  <h2><span class="n">5</span>Results</h2>
-  <h3>5.1 Main table</h3>
-  <div class="tw"><table>
-    <thead><tr><th>Metric</th><th class="num">Base (0)</th><th class="num">A: SFT</th><th class="num">B1: text CPT → SFT</th><th class="num">B2: image CPT → SFT</th></tr></thead>
-    <tbody>
-      <tr><td>SLAKE closed acc</td><td class="num">67.31</td><td class="num best">89.18</td><td class="num">88.70</td><td class="num">88.70</td></tr>
-      <tr><td>SLAKE open EM</td><td class="num">40.62</td><td class="num">75.35</td><td class="num best">75.81</td><td class="num">74.57</td></tr>
-      <tr><td>SLAKE open recall</td><td class="num">46.73</td><td class="num">82.17</td><td class="num best">82.72</td><td class="num">81.61</td></tr>
-      <tr><td>SLAKE open F1</td><td class="num">47.53</td><td class="num">81.56</td><td class="num best">82.07</td><td class="num">80.88</td></tr>
-      <tr><td>SLAKE closed, X-Ray / CT / MRI</td><td class="num">80.70 / 64.49 / 56.82</td><td class="num">91.23 / 86.45 / 93.18</td><td class="num">91.23 / 85.51 / 93.18</td><td class="num">92.11 / 85.05 / 93.18</td></tr>
-      <tr><td>TextVQA acc (retention)</td><td class="num">83.89</td><td class="num">83.89</td><td class="num">83.78</td><td class="num">84.00</td></tr>
-      <tr><td>PubMedQA acc</td><td class="num">65.80</td><td class="num">70.60</td><td class="num best">72.80</td><td class="num">70.80</td></tr>
-      <tr><td>PubMedQA macro-F1</td><td class="num">51.03</td><td class="num">52.38</td><td class="num best">54.19</td><td class="num">52.96</td></tr>
-      <tr><td>PubMedQA predicted yes / no / maybe<br><span style="color:var(--ink-3)">gold 552 / 338 / 110</span></td><td class="num">641 / 201 / 158</td><td class="num">685 / 256 / 59</td><td class="num">670 / 286 / 44</td><td class="num">672 / 263 / 65</td></tr>
-    </tbody></table></div>
-  <figure><div class="fr"><img src="figures/fig2_main_results.png" alt="Grouped bars of the five headline metrics for Base, A, B1, B2"></div>
-  <figcaption><b>Figure 2.</b> Main results across the three evaluation tables. The three fine-tuned adapters are indistinguishable on SLAKE; only PubMedQA separates them.</figcaption></figure>
-  <p>Training curves: A, train loss 0.736 → 0.082, validation loss 0.225 → 0.145 and still decreasing at epoch 3; B1 CPT loss 1.96 → 1.75 over one epoch; B1 SFT validation loss 0.160 → 0.142; B2 CPT loss 2.17 → 1.06; B2 SFT validation loss 0.168 → 0.151. No NaN in any run.</p>
-  <figure><div class="fr"><img src="figures/fig4_training_curves.png" alt="Training and validation loss curves for the five training runs"></div>
-  <figcaption><b>Figure 3.</b> Training loss (line) and validation loss (dots) for each run.</figcaption></figure>
-
-  <h3>5.2 Results by question type</h3>
-  <p>SLAKE test accuracy by question type; open questions are scored by exact match.</p>
-  <div class="tw"><table>
-    <thead><tr><th>Type</th><th class="num">n</th><th class="num">Base</th><th class="num">A</th><th class="num">B1</th><th class="num">B2</th><th class="num">B1 − A</th><th class="num">B2 − A</th></tr></thead>
-    <tbody>
-      <tr><td>Position, open</td><td class="num">163</td><td class="num">24.5</td><td class="num">57.7</td><td class="num">60.1</td><td class="num">58.3</td><td class="num">+2.5</td><td class="num">+0.6</td></tr>
-      <tr><td>Organ, closed</td><td class="num">154</td><td class="num">75.3</td><td class="num">90.9</td><td class="num">90.3</td><td class="num">89.6</td><td class="num">−0.6</td><td class="num">−1.3</td></tr>
-      <tr><td>Abnormality, closed</td><td class="num">109</td><td class="num">68.8</td><td class="num">82.6</td><td class="num">82.6</td><td class="num">84.4</td><td class="num">0.0</td><td class="num">+1.8</td></tr>
-      <tr><td>Knowledge-graph, open</td><td class="num">109</td><td class="num">22.0</td><td class="num">72.5</td><td class="num">69.7</td><td class="num">70.6</td><td class="num">−2.8</td><td class="num">−1.8</td></tr>
-      <tr><td>Organ, open</td><td class="num">99</td><td class="num">23.2</td><td class="num">84.8</td><td class="num">83.8</td><td class="num">84.8</td><td class="num">−1.0</td><td class="num">0.0</td></tr>
-      <tr><td>Modality, open</td><td class="num">75</td><td class="num">92.0</td><td class="num">94.7</td><td class="num">94.7</td><td class="num">94.7</td><td class="num">0.0</td><td class="num">0.0</td></tr>
-      <tr><td>Quantity, open</td><td class="num">52</td><td class="num">71.2</td><td class="num">73.1</td><td class="num">76.9</td><td class="num">75.0</td><td class="num">+3.8</td><td class="num">+1.9</td></tr>
-      <tr><td>Abnormality, open</td><td class="num">41</td><td class="num">12.2</td><td class="num">41.5</td><td class="num">39.0</td><td class="num bad">31.7</td><td class="num">−2.4</td><td class="num bad">−9.8</td></tr>
-      <tr><td>Modality / Plane / Colour / Size, closed</td><td class="num">91</td><td class="num">26.9–78.6</td><td class="num">100.0</td><td class="num">100.0</td><td class="num">97.0–100.0</td><td class="num">0.0</td><td class="num">−1.1</td></tr>
-    </tbody></table></div>
-  <p>Per-question changes: base → A fixed 345 questions and broke 30; A → B1 fixed 15 and broke 14; A → B2 fixed 11 and broke 18. On the X-ray subset alone, the CPT modality, B2 versus A is 74.5 versus 76.5 on open questions and 92.1 versus 91.2 on closed.</p>
-  <figure><div class="fr"><img src="figures/fig3_slake_by_type.png" alt="Dumbbell chart of SLAKE accuracy by question type for Base, A, B1, B2"></div>
-  <figcaption><b>Figure 4.</b> SLAKE test accuracy by question type. The grey bar spans base → A; the largest gains are on vocabulary-bound types (Organ, KG, Colour, Plane), the smallest on Abnormality and Position.</figcaption></figure>
-
-  <h3>5.3 What the image-text CPT stage learned</h3>
-  <p>Before the SFT stage, the B2 CPT adapter was asked to write reports for three held-out IU X-Ray images. The generations are fluent, correctly structured radiology reports ("Findings: The heart is normal in size. The lungs are clear. No pneumothorax or pleural effusion. Impression: No acute cardiopulmonary abnormality."), but two of the three reference reports describe abnormalities, bibasilar opacities in one and a right pleural opacity with effusion in the other, and both were reported as normal. The CPT loss fell from 2.17 to 1.06 in one epoch, so the objective was learned; what was learned is the dominant report template. In the IU X-Ray training split 36 % of reports are normal, and abnormal reports are still written mostly as negations ("no effusion"), so a caption loss with a frozen vision tower rewards the template rather than the image.</p>
-  <figure><div class="fr"><img src="figures/fig6_examples.png" alt="Three SLAKE examples with answers from each model, and one IU X-Ray with reference and generated reports"></div>
-  <figcaption><b>Figure 5.</b> Top: three SLAKE test questions the base model gets wrong and every fine-tuned model gets right. Bottom: an abnormal held-out IU X-Ray; the B2 CPT adapter writes a fluent normal report.</figcaption></figure>
-</section>
-
-<section id="analysis">
-  <h2><span class="n">6</span>Analysis</h2>
-  <p><b>Where SFT gains come from.</b> The largest jumps after SFT are on Organ (+61.6 open), Knowledge-graph (+50.5) and the closed Modality / Plane / Colour / Size types (to 100 %). These are questions the base model could already perceive but answered with the wrong vocabulary or format ("the lungs" versus "lung", full sentences versus a phrase). SFT is largely <i>vocabulary and format alignment</i> here. Genuine perception questions moved less: Abnormality-open reaches only 41.5 % and Position-open 57.7 %. Remaining errors are left/right and upper/lower confusions and lesion-category mix-ups.</p>
-  <p><b>MRI: data, not capacity.</b> MRI was the weakest modality at baseline (56.8) and becomes the strongest after SFT (93.2). SLAKE's training set is MRI-heavy, so the base model lacked domain exposure rather than the ability to read MR images.</p>
-  <div class="callout">
-    <p><b>Image-text CPT does not help, and slightly hurts lesion questions.</b> B2 matches A on closed questions (88.7 versus 89.2) and is 0.6 below on open recall; per question it fixes 11 and breaks 18. The one type that moves beyond noise is Abnormality-open, down from 41.5 to 31.7 (four of 41 questions). This is consistent with Section 5.3: the CPT stage instilled a "normal chest" prior in the language model without changing the visual features, and that prior is a liability on lesion questions. The X-ray closed-question gain (+0.9, one question of 114) is within noise.</p>
-    <p>Taken together, B1 and B2 say that in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage contributes nothing to the primary metric; text CPT helps only text tasks. Two changes would be needed for a CPT stage to matter: unfreezing the vision tower (or LoRA on the ViT), or a label-balanced image-report corpus (CheXpert Plus sampled by finding). The report therefore treats A as the main result and B1 / B2 as controlled evidence on when CPT does not help.</p>
+  <div class="pipe">
+    <div class="card"><span class="tag">Base</span><h3>基座模型</h3><p>出厂状态的 3B 模型，直接做题，作为起点。</p><span class="en">Qwen2.5-VL-3B-Instruct · 4-bit NF4 · vision tower frozen</span></div>
+    <div class="card"><span class="tag" style="background:var(--c-b1)">Stage 1 · CPT</span><h3>持续预训练</h3><p>让模型自己读材料，没有题目也没有答案，只学下一个词是什么。</p><span class="en">B1: 10k PubMed abstracts (text)<br>B2: 3.5k IU X-Ray image → report<br>LoRA r16 · lr 5e-5 · 1 epoch</span></div>
+    <div class="card"><span class="tag" style="background:var(--c-a)">Stage 2 · SFT</span><h3>指令微调</h3><p>做题对答案：一张图、一个问题、一个标准答案，答错就往标准答案改。</p><span class="en">SLAKE train 4,919 QA · same prompts as eval<br>LoRA r16 · lr 1e-4 · 3 epochs</span></div>
+    <div class="card planned"><span class="tag">Stage 3 · Alignment</span><h3>对齐（计划中）</h3><p>纠正回答习惯：该说「不确定」时不要硬答「是」。</p><span class="en">yes / no / maybe calibration<br>label-rebalanced SFT, then DPO</span></div>
   </div>
-  <p><b>Text CPT does not cross the modality gap.</b> B1 and A are indistinguishable on SLAKE: every metric within ±0.6, per-question changes 15 fixed versus 14 broken. Two explanations, both plausible: the CPT corpus (abstract-level biomedical text) does not contain the localisation and lesion vocabulary SLAKE tests, and CPT updates only the LLM while the vision side is frozen. The CPT stage is nevertheless effective in its own domain: PubMedQA improves by 2.2 accuracy and 1.8 macro-F1.</p>
-  <p><b>Forgetting is not measurable with the current probe.</b> TextVQA is unchanged after SFT and after CPT + SFT (83.89 / 83.89 / 83.78 / 84.00). Of the 300 answers, 81 differ from the base only in capitalisation. LoRA with a frozen vision tower and 3 epochs on 4.9k examples is a mild intervention, but the probe is also blunt: short-answer OCR questions are close to the SFT output format. A more sensitive general benchmark (open-ended description or an MMBench subset) is needed before experiment C can show anything. <span class="todo">todo: second retention probe</span></p>
-  <p><b>Reliability worsens in a specific way.</b> Every fine-tuning stage increases willingness to commit: predicted "maybe" falls from 158 (base) to 59 (A), 44 (B1) and 65 (B2) against 110 gold, while "no" → "yes" errors remain around 92. Accuracy rises because SLAKE-style short-answer training removes hedging, not because calibration improves. This is the concrete target for stage 3.</p>
-  <figure><div class="fr"><img src="figures/fig5_pubmedqa_distribution.png" alt="PubMedQA predicted label counts versus gold for each model"></div>
-  <figcaption><b>Figure 6.</b> PubMedQA predicted-label counts versus gold. Each fine-tuning stage shrinks "maybe" well below its true frequency.</figcaption></figure>
+  <div class="srcline">每个阶段都用同一套三张表评估：<span class="asof">SLAKE test · TextVQA-300 · PubMedQA labeled</span>。实验 A 跳过 Stage 1，B1 与 B2 只在 Stage 1 的语料上不同。</div>
 </section>
 
-<section id="limits">
-  <h2><span class="n">7</span>Limitations and Planned Work</h2>
-  <ul>
-    <li>Single seed per experiment; differences under ±1 point are treated as noise rather than tested statistically. <span class="todo">todo: 2 seeds for A vs B</span></li>
-    <li>Evaluation uses greedy decoding and string matching; open-ended recall rewards verbose answers. Exact match and F1 are reported alongside to bound this.</li>
-    <li>The vision tower is frozen throughout. Unfreezing it, or LoRA on the ViT, is the natural next ablation for B2 but roughly doubles memory.</li>
-    <li>Image-text CPT is prototyped on IU X-Ray (3.5k frontal images). CheXpert Plus is registered but not yet downloaded; the 5k → 20k scale-up and alignment-score filtering (B3) depend on it and on the teammate's scoring interface (week 6).</li>
-    <li>Kaggle's 30 h/week GPU quota bounds throughput at roughly three full experiments per week; the college GPU server, once available, removes the 4-bit requirement (bf16, larger batch).</li>
-  </ul>
+<!-- ============================ 2. 评估 ============================ -->
+<section class="section" id="eval">
+  <div class="prose">
+    <div class="kicker">02 · 怎么评</div>
+    <h2>三张表，固定不动</h2>
+    <p class="lede">提示词只写一次，训练数据生成和评估用同一套；解码用贪心，最多 32 个词，图片上限 512 像素。这样每一轮的分数才能直接相减。</p>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>表</th><th>数据</th><th>回答的问题</th><th>指标</th></tr></thead>
+    <tbody>
+      <tr><td><b>医学能力</b></td><td class="en">SLAKE test · 1,061 questions (416 closed / 645 open)</td><td>医学看图问答涨了多少</td><td class="en">closed acc · open EM / recall / F1 · by modality</td></tr>
+      <tr><td><b>通用保持</b></td><td class="en">TextVQA validation · fixed 300, seed 42</td><td>学了医学之后，通用能力掉了多少</td><td class="en">VQA accuracy</td></tr>
+      <tr><td><b>可靠性</b></td><td class="en">PubMedQA pqa_labeled · 1,000</td><td>证据不够时敢不敢说 maybe</td><td class="en">accuracy · macro-F1 · yes / no / maybe distribution</td></tr>
+    </tbody>
+  </table></div>
+  <div class="srcline">红线：<span class="asof">SLAKE test</span> 与 <span class="asof">PubMedQA labeled</span> 只评估、永不训练；切分文件固定入库；受控数据不进 git。</div>
 </section>
 
-<section id="repro">
-  <h2><span class="n">8</span>Reproducibility</h2>
-  <p>Every run is fully specified by one YAML (seed 42) and one evaluation tag; the JSON summaries in <code>results/</code> are the exact files behind Section 5. Kaggle notebooks that execute the sequences below end-to-end are under <code>notebooks/</code>.</p>
-<pre><code>git clone https://github.com/AugustLoo/MedLoRA &amp;&amp; cd MedLoRA
-pip install -r requirements.txt
-pip install "llamafactory[torch,metrics] @ git+https://github.com/hiyouga/LLaMA-Factory.git"
-
-python data/download_slake.py &amp;&amp; python data/convert_slake_sharegpt.py
-python data/download_pubmedqa.py &amp;&amp; python data/convert_pubmedqa_cpt.py --max 10000
-python data/convert_iu_xray.py --root &lt;IU_XRAY_DIR&gt; --max 5000      # B2 only
-
-bash train/eval_all.sh baseline                                       # experiment 0
-llamafactory-cli train configs/sft_slake_qlora.yaml                   # A
-bash train/eval_all.sh sft_r16 outputs/sft_slake_qlora_r16
-llamafactory-cli train configs/cpt_pubmed_qlora.yaml                  # B1
-llamafactory-cli train configs/sft_after_cpt.yaml
-bash train/eval_all.sh cpt_sft_r16 outputs/sft_after_cpt_r16
-llamafactory-cli train configs/cpt_iu_qlora.yaml                      # B2
-llamafactory-cli train configs/sft_after_cpt_iu.yaml
-bash train/eval_all.sh cpt_iu_sft_r16 outputs/sft_after_cpt_iu_r16
-python scripts/make_figures.py                                        # figures</code></pre>
+<!-- ============================ 3. 主结果 scrolly ============================ -->
+<section class="section deep" id="main">
+  <div class="prose">
+    <div class="kicker">03 · 主结果</div>
+    <h2>四组实验，一张图看完</h2>
+    <p class="lede">从基座开始，一步一步加上去：只做 SFT、文本 CPT 再 SFT、图文 CPT 再 SFT。往下滚动。</p>
+  </div>
+  <div class="scrolly" id="scrolly-main">
+    <div class="sticky-fig"><div class="card">
+      <div class="ttl">Main results · score (%) · higher is better</div>
+      <svg id="main-chart" viewBox="0 0 720 380" role="img" aria-label="Grouped bar chart of the five headline metrics"></svg>
+      <div class="legend"><span class="lb">Base (zero-shot)</span><span class="la">A: SFT</span><span class="lb1">B1: text CPT → SFT</span><span class="lb2">B2: image CPT → SFT</span></div>
+    </div></div>
+    <div class="steps">
+      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 05</div><h3>起点：基座直接做题</h3><p>SLAKE 封闭题 <span class="en">67.3</span>，开放题 recall <span class="en">46.7</span>。X 光片最好、MRI 最差，说明基座见过的胸片远多于 MRI。PubMedQA 明显偏 yes。</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 05</div><h3>A：只做 SFT，涨 22 分</h3><p>4,919 道 SLAKE 题做三遍，4 小时 28 分。封闭题 <span class="en">67.3 → 89.2</span>，开放题 recall <span class="en">46.7 → 82.2</span>。逐题看，修正 345 题，新错 30 题。</p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 05</div><h3>B1：先读一万篇医学摘要，再 SFT</h3><p>SLAKE 与 A 的差异全部在 <span class="en">±0.6</span> 以内，逐题互换 15 对 14，是随机波动。<strong>文本 CPT 没有跨过模态</strong>。它只帮到了自己的领域：PubMedQA <span class="en">70.6 → 72.8</span>。</p></div></div>
+      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 05</div><h3>B2：先看三千多张胸片配报告，再 SFT</h3><p>封闭题 <span class="en">88.7</span> 与 B1 持平，开放题略低 <span class="en">−0.6</span>，逐题修正 11 题、新错 18 题。<strong>图文 CPT 同样没有增益</strong>，原因在下一节。</p></div></div>
+      <div class="step" data-step="4"><div class="step-card"><div class="n">05 / 05</div><h3>通用能力：一分没掉，但探针太钝</h3><p>TextVQA 四个模型都是 <span class="en">84</span> 上下，300 题里 81 题只差大小写。冻结视觉塔加 LoRA 是很轻的干预，但 TextVQA 的短答题和我们的 SFT 输出格式太像，测不出退化。实验 C 之前要换一个更敏感的基准。</p></div></div>
+    </div>
+  </div>
 </section>
 
-<section id="refs">
-  <h2>References <span class="todo">todo: complete</span></h2>
-  <ol class="refs">
-    <li>Qwen team. Qwen2.5-VL technical report, 2025.</li>
-    <li>Hu et al. LoRA: Low-Rank Adaptation of Large Language Models, 2021.</li>
-    <li>Dettmers et al. QLoRA: Efficient Finetuning of Quantized LLMs, 2023.</li>
-    <li>Li et al. LLaVA-Med: Training a Large Language-and-Vision Assistant for Biomedicine in One Day, 2023.</li>
-    <li>Liu et al. SLAKE: A Semantically-Labeled Knowledge-Enhanced Dataset for Medical Visual Question Answering, 2021.</li>
-    <li>Jin et al. PubMedQA: A Dataset for Biomedical Research Question Answering, 2019.</li>
-    <li>Singh et al. Towards VQA Models That Can Read (TextVQA), 2019.</li>
-    <li>Demner-Fushman et al. Preparing a collection of radiology examinations for distribution and retrieval (OpenI / IU chest X-ray), 2016.</li>
-    <li>Chambon et al. CheXpert Plus, 2024.</li>
-    <li>Gururangan et al. Don't Stop Pretraining: Adapt Language Models to Domains and Tasks, 2020.</li>
-    <li>Zheng et al. LlamaFactory: Unified Efficient Fine-Tuning of 100+ Language Models, 2024.</li>
-  </ol>
+<!-- ============================ 4. 按题型 scrolly ============================ -->
+<section class="section" id="bytype">
+  <div class="prose">
+    <div class="kicker">04 · 拆开看</div>
+    <h2>涨的是词表对齐，没涨的是真识别</h2>
+    <p class="lede">把 SLAKE 的 1,061 道题按题型拆开，SFT 的 22 分来自哪里就清楚了。</p>
+  </div>
+  <div class="scrolly" id="scrolly-type">
+    <div class="sticky-fig"><div class="card">
+      <div class="ttl">SLAKE accuracy by question type · open questions scored by exact match</div>
+      <svg id="type-chart" viewBox="0 0 720 420" role="img" aria-label="Dumbbell chart of accuracy by question type"></svg>
+      <div class="legend"><span class="lb">Base</span><span class="la">A</span><span class="lb1">B1</span><span class="lb2">B2</span></div>
+    </div></div>
+    <div class="steps">
+      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>基座会看，但不会答</h3><p>器官、知识图谱、颜色、平面这些题型，基座只有 <span class="en">22 到 40</span> 分。不是看不懂，是答法不对：说「the lungs」而标准答案是「lung」，答一整句而题目要一个词。</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>SFT 把这些题一口气拉到 85 到 100</h3><p>Organ open <span class="en">+61.6</span>，KG open <span class="en">+50.5</span>，Modality / Plane / Color / Size 封闭题全部 <span class="en">100</span>。这是<strong>词表和格式的对齐</strong>，模型学会了 SLAKE 的说话方式。</p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>真正的识别题只到四成和六成</h3><p>Abnormality open（图里有什么病）<span class="en">41.5</span>，Position open（病灶在哪）<span class="en">57.7</span>。剩余错例是左右、上下弄反和病灶类别混淆。这两类是后面要攻的地方。</p></div></div>
+      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>B2 在病灶题上反而掉了</h3><p>Abnormality open <span class="en">41.5 → 31.7</span>，41 题少对 4 题，是四组实验里唯一超出噪声的下降。其余题型 B1、B2 都贴着 A。</p></div></div>
+    </div>
+  </div>
 </section>
 
-<footer>MedLoRA · draft v0.2 · generated from results/ and docs/figures/ in the repository</footer>
-</main>
-</div>
+<!-- ============================ 5. 样例 ============================ -->
+<section class="section deep" id="examples">
+  <div class="prose">
+    <div class="kicker">05 · 看几道题</div>
+    <h2>基座答错、微调后全对的三道题</h2>
+    <p class="lede">三道 CT 题，分别是病灶、位置、器官。基座的错各有各的样子，三个微调模型给出完全相同的正确答案。</p>
+  </div>
+  <div class="examples">
+    <div class="card ex"><img src="figures/slake/xmlab102.jpg" alt="Chest CT"><div class="t">CT · Abnormality · open</div><div class="q">What diseases are included in the picture?</div>
+      <div class="row"><span class="k">Gold</span><span>Lung Cancer</span></div><div class="row"><span class="k">Base</span><span class="no">Pneumonia ✗</span></div><div class="row"><span class="k">A / B1 / B2</span><span class="ok">Lung Cancer ✓</span></div></div>
+    <div class="card ex"><img src="figures/slake/xmlab103.jpg" alt="Chest CT"><div class="t">CT · Position · open</div><div class="q">Where is/are the abnormality located?</div>
+      <div class="row"><span class="k">Gold</span><span>Left Lung, Right</span></div><div class="row"><span class="k">Base</span><span class="no">Right lung ✗</span></div><div class="row"><span class="k">A / B1 / B2</span><span class="ok">Left Lung, Right ✓</span></div></div>
+    <div class="card ex"><img src="figures/slake/xmlab105.jpg" alt="Chest CT"><div class="t">CT · Organ · closed</div><div class="q">Does the picture contain heart?</div>
+      <div class="row"><span class="k">Gold</span><span>No</span></div><div class="row"><span class="k">Base</span><span class="no">Yes. ✗</span></div><div class="row"><span class="k">A / B1 / B2</span><span class="ok">No ✓</span></div></div>
+  </div>
+  <div class="srcline">SLAKE test，qid 11941 / 11953 / 11961。图片 CC BY 4.0。</div>
+</section>
+
+<!-- ============================ 6. CPT 学到了什么 ============================ -->
+<section class="section" id="cpt">
+  <div class="prose">
+    <div class="kicker">06 · CPT 到底学到了什么</div>
+    <h2>学会了报告怎么写，没学会片子怎么看</h2>
+    <p class="lede">B2 的 CPT 阶段结束后，先不做 SFT，直接让它给三张没见过的胸片写报告。写出来的东西很像放射科报告，但两张有异常的片子都被写成了正常。</p>
+    <p>原因有两个。<strong>眼睛没有参与学习</strong>：视觉塔是冻结的，三千张胸片交给大脑的特征和训练前一模一样，大脑只学到了「拿到这种特征之后通常写什么话」。<strong>材料本身有偏</strong>：IU X-Ray 训练集 36% 是正常报告，异常报告也大多用「no effusion」这种否定句写，caption 式的损失函数奖励的是高频模板。CPT 的损失从 <span class="en">2.17</span> 降到 <span class="en">1.06</span>，目标学会了，学会的是模板。这个「一切正常」的先验带进 SFT，就是病灶题掉 4 题的来源。</p>
+  </div>
+  <div class="xr">
+    <div><img src="figures/iu/1015_IM-0001-1001.jpg" alt="Frontal chest X-ray with bibasilar opacities"><div class="srcline" style="margin-top:10px">IU X-Ray held-out image · 1015_IM-0001-1001</div></div>
+    <div>
+      <div class="card rep"><div class="h">Reference report (radiologist)</div><p>Findings: <mark class="ok">Streaky and patchy bibasilar opacities</mark>, triangular density projected over the heart on the lateral view. No definite pleural effusion seen, no typical findings of pulmonary edema. Considering differences in technical factors stable cardiomediastinal silhouette with normal heart size. Impression: <mark class="ok">Bibasilar opacities, right greater than left, features suggest a combination of consolidation and atelectasis</mark>.</p></div>
+      <div class="card rep gen"><div class="h">Generated by the B2 CPT adapter, before SFT</div><p>Findings: <mark>The heart and lungs are grossly unremarkable.</mark> No pleural effusion or pneumothorax. Impression: <mark>No acute cardiopulmonary abnormality.</mark></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 7. 可靠性 ============================ -->
+<section class="section deep" id="reliab">
+  <div class="prose">
+    <div class="kicker">07 · 可靠性</div>
+    <h2>越训越不敢说「不确定」</h2>
+    <p class="lede">PubMedQA 一千题里真实答案有 110 个 maybe。基座答了 158 个，A 只剩 59，B1 剩 44。准确率在涨，是因为短答题训练把犹豫训掉了，不是因为判断变准了。</p>
+    <p>该答 no 的题里仍有 <span class="en">92</span> 题被答成 yes，四轮实验没有一轮改善。这是第三阶段「对齐」要打的靶子：先试成本最低的按标签重新平衡的 SFT，不行再上 DPO。</p>
+  </div>
+  <div class="viz"><div class="card" style="padding:22px 24px 18px">
+    <div class="ttl" style="font-family:var(--font-num);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin-bottom:10px">PubMedQA · predicted label counts vs. gold (n = 1,000)</div>
+    <svg id="pub-chart" viewBox="0 0 900 300" role="img" aria-label="Predicted yes/no/maybe counts for each model against gold"></svg>
+    <div class="legend"><span class="lg">Gold labels</span><span class="lb">Base</span><span class="la">A</span><span class="lb1">B1</span><span class="lb2">B2</span></div>
+  </div></div>
+</section>
+
+<!-- ============================ 8. 训练曲线 ============================ -->
+<section class="section" id="curves">
+  <div class="prose">
+    <div class="kicker">08 · 训练过程</div>
+    <h2>五次训练，没有一次出问题</h2>
+    <p class="lede">训练损失单调下降，验证损失到第三轮还在降，没有 NaN。A 的验证损失 <span class="en">0.225 → 0.145</span>，说明三轮没有过拟合。</p>
+  </div>
+  <div class="curves" id="curve-cards"></div>
+  <div class="srcline">Wall time on one T4: A 4 h 28 min · B1 CPT 2 h 39 min + SFT 4 h 07 min · B2 CPT 1 h 19 min + SFT 4 h 38 min · each evaluation ≈ 1.5 h.</div>
+</section>
+
+<!-- ============================ 9. 结论与下一步 ============================ -->
+<section class="section deep" id="next">
+  <div class="prose">
+    <div class="kicker">09 · 结论与下一步</div>
+    <h2>主结果是 A，B1 和 B2 是对照证据</h2>
+    <p class="lede">在 3B 模型、冻结视觉塔、几千条数据的条件下，CPT 阶段对医学 VQA 的主指标没有贡献。这是有对照的结论，不是失败的实验，报告里作为「CPT 何时无效」的一章保留。</p>
+  </div>
+  <div class="concl">
+    <div class="card"><div class="big" style="color:var(--c-a)">+21.9<small>SLAKE closed</small></div><h3>SFT 有效，而且主要是词表对齐</h3><p>真识别题只到四成和六成，是下一阶段的目标。</p></div>
+    <div class="card"><div class="big" style="color:var(--c-b1)">±0.6<small>B1 vs A</small></div><h3>文本 CPT 只帮文本任务</h3><p>PubMedQA +2.2，SLAKE 不动。内容和考题对不上就没有迁移。</p></div>
+    <div class="card"><div class="big" style="color:var(--c-b2)">−9.8<small>Abnormality open</small></div><h3>图文 CPT 学到模板，伤了病灶题</h3><p>要让 CPT 起作用只有两条路：解冻视觉塔，或换异常均衡的语料。</p></div>
+  </div>
+  <div class="prose" style="margin-top:44px">
+    <h3 style="margin-bottom:10px">接下来两周</h3>
+    <p><strong>收掉 CPT 这条线</strong>，或者在学院服务器上只跑一个解冻视觉塔的版本作对照。算力转向三件事：SFT 数据配比（<span class="en">SLAKE + IU 造题</span>）、换一个更敏感的遗忘基准、PubMedQA 的 yes 偏置校正。<span class="en">CheXpert Plus</span> 已注册，等队友第 5 周的子集和病人级切分，数据过滤实验（B3）才能开始。</p>
+  </div>
+  <div class="card ask">
+    <h3>需要老师定的四件事</h3>
+    <ol>
+      <li><strong>MIMIC-CXR 换成 CheXpert Plus</strong> 是否认可。数据结构相同，获取流程更轻，且与队友共用。</li>
+      <li><strong>CPT 这条线收掉</strong>，还是要看解冻视觉塔的版本？</li>
+      <li>报告的<strong>字数、格式</strong>要求，是否有答辩。</li>
+      <li>学院 GPU 服务器的<strong>账号与显卡型号</strong>。24 GB 以上就能不量化跑 bf16，一轮从 7 小时压到 1.5 小时。</li>
+    </ol>
+  </div>
+</section>
+
+<footer>MedLoRA · <a href="https://github.com/AugustLoo/MedLoRA">github.com/AugustLoo/MedLoRA</a> · configs, adapters, eval code and results/ reproduce every number on this page</footer>
+
+<script src="figures/loss_curves.js"></script>
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,text){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;return e;}
+var C={base:"#0E67B5",a:"#C25E28",b1:"#1F8A70",b2:"#B8860B",gold:"#9A9283",navy:"#14263B",soft:"#3D4E63",taupe:"#8C8577",rule:"#D8CFBA",idle:"#E4DBC4"};
+var MODELS=["base","a","b1","b2"], NAMES={base:"Base",a:"A",b1:"B1",b2:"B2"};
+
+/* ---------- data ---------- */
+var MAIN=[
+ {m:"SLAKE closed acc",v:{base:67.31,a:89.18,b1:88.70,b2:88.70}},
+ {m:"SLAKE open recall",v:{base:46.73,a:82.17,b1:82.72,b2:81.61}},
+ {m:"TextVQA acc",v:{base:83.89,a:83.89,b1:83.78,b2:84.00}},
+ {m:"PubMedQA acc",v:{base:65.80,a:70.60,b1:72.80,b2:70.80}},
+ {m:"PubMedQA macro-F1",v:{base:51.03,a:52.38,b1:54.19,b2:52.96}}
+];
+var TYPES=[
+ {t:"Position (open)",n:163,base:24.5,a:57.7,b1:60.1,b2:58.3,g:"perc"},
+ {t:"Organ (closed)",n:154,base:75.3,a:90.9,b1:90.3,b2:89.6,g:"vocab"},
+ {t:"Abnormality (closed)",n:109,base:68.8,a:82.6,b1:82.6,b2:84.4,g:"perc"},
+ {t:"KG (open)",n:109,base:22.0,a:72.5,b1:69.7,b2:70.6,g:"vocab"},
+ {t:"Organ (open)",n:99,base:23.2,a:84.8,b1:83.8,b2:84.8,g:"vocab"},
+ {t:"Modality (open)",n:75,base:92.0,a:94.7,b1:94.7,b2:94.7,g:"vocab"},
+ {t:"Quantity (open)",n:52,base:71.2,a:73.1,b1:76.9,b2:75.0,g:"other"},
+ {t:"Abnormality (open)",n:41,base:12.2,a:41.5,b1:39.0,b2:31.7,g:"perc"},
+ {t:"Size (open)",n:39,base:87.2,a:97.4,b1:100,b2:100,g:"vocab"},
+ {t:"Modality (closed)",n:33,base:57.6,a:100,b1:100,b2:97.0,g:"vocab"},
+ {t:"Plane (open)",n:30,base:53.3,a:100,b1:100,b2:100,g:"vocab"},
+ {t:"Color (open)",n:30,base:40.0,a:100,b1:100,b2:100,g:"vocab"},
+ {t:"Plane (closed)",n:28,base:78.6,a:100,b1:100,b2:100,g:"vocab"},
+ {t:"Size (closed)",n:26,base:26.9,a:100,b1:100,b2:100,g:"vocab"}
+];
+var PUB={gold:{yes:552,no:338,maybe:110},base:{yes:641,no:201,maybe:158},a:{yes:685,no:256,maybe:59},b1:{yes:670,no:286,maybe:44},b2:{yes:672,no:263,maybe:65}};
+
+/* ---------- main chart ---------- */
+var mainSvg=document.getElementById("main-chart");
+var mainState={shown:["base"],hi:null};
+function drawMain(){
+  while(mainSvg.firstChild)mainSvg.removeChild(mainSvg.firstChild);
+  var W=720,H=380,L=44,R=12,T=18,B=54,pw=W-L-R,ph=H-T-B;
+  var y=function(v){return T+ph-(v/100)*ph;};
+  [0,20,40,60,80,100].forEach(function(t){
+    mainSvg.appendChild(el("line",{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:C.rule,"stroke-width":1}));
+    mainSvg.appendChild(el("text",{x:L-8,y:y(t)+4,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":11,fill:C.taupe},t));
+  });
+  var gw=pw/MAIN.length, bw=Math.min(30,(gw*0.78)/4);
+  MAIN.forEach(function(d,i){
+    var cx=L+gw*i+gw/2;
+    var dim=mainState.hi!=null&&mainState.hi!==i;
+    MODELS.forEach(function(m,j){
+      var shown=mainState.shown.indexOf(m)>=0;
+      var x=cx+(j-1.5)*bw;
+      var v=d.v[m];
+      var r=el("rect",{x:x-bw/2+1,y:shown?y(v):y(0),width:bw-2,height:shown?(y(0)-y(v)):0,fill:shown?C[m]:C.idle,opacity:dim?0.28:1});
+      r.style.transition="all .5s ease";
+      mainSvg.appendChild(r);
+      if(shown){
+        var tx=el("text",{x:x,y:y(v)-6,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":10,fill:dim?C.taupe:C.navy},v.toFixed(1));
+        mainSvg.appendChild(tx);
+      }
+    });
+    var lab=el("text",{x:cx,y:H-B+22,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":11.5,fill:dim?C.taupe:C.navy,"font-weight":dim?400:700},d.m);
+    mainSvg.appendChild(lab);
+  });
+  mainSvg.appendChild(el("line",{x1:L,x2:W-R,y1:y(0),y2:y(0),stroke:C.navy,"stroke-width":1.5}));
+}
+var MAIN_STEPS=[
+  {shown:["base"],hi:null},
+  {shown:["base","a"],hi:null},
+  {shown:["base","a","b1"],hi:3},
+  {shown:["base","a","b1","b2"],hi:0},
+  {shown:["base","a","b1","b2"],hi:2}
+];
+
+/* ---------- type chart ---------- */
+var typeSvg=document.getElementById("type-chart");
+var typeState={shown:["base"],focus:null};
+function drawType(){
+  while(typeSvg.firstChild)typeSvg.removeChild(typeSvg.firstChild);
+  var W=720,H=420,L=190,R=40,T=14,B=30,pw=W-L-R,ph=H-T-B;
+  var rows=TYPES.length, rh=ph/rows;
+  var x=function(v){return L+(v/100)*pw;};
+  [0,20,40,60,80,100].forEach(function(t){
+    typeSvg.appendChild(el("line",{x1:x(t),x2:x(t),y1:T,y2:T+ph,stroke:C.rule,"stroke-width":1}));
+    typeSvg.appendChild(el("text",{x:x(t),y:H-B+18,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":10.5,fill:C.taupe},t));
+  });
+  TYPES.forEach(function(d,i){
+    var cy=T+rh*i+rh/2;
+    var dim=typeState.focus&&typeState.focus.indexOf(d.g)<0&&!(typeState.focus.indexOf("abn")>=0&&d.t==="Abnormality (open)");
+    if(typeState.focus&&typeState.focus.indexOf("abn")>=0)dim=d.t!=="Abnormality (open)";
+    var op=dim?0.22:1;
+    typeSvg.appendChild(el("text",{x:L-10,y:cy+4,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":11,fill:C.soft,opacity:op},d.t+"  n="+d.n));
+    if(typeState.shown.indexOf("a")>=0){
+      typeSvg.appendChild(el("line",{x1:x(d.base),x2:x(d.a),y1:cy,y2:cy,stroke:C.idle,"stroke-width":4,opacity:op}));
+    }
+    MODELS.forEach(function(m){
+      if(typeState.shown.indexOf(m)<0)return;
+      typeSvg.appendChild(el("circle",{cx:x(d[m]),cy:cy,r:5.2,fill:C[m],stroke:"#FDFAF2","stroke-width":1.2,opacity:op}));
+    });
+    if(!dim){
+      var right=Math.max.apply(null,typeState.shown.filter(function(m){return m!=="base";}).map(function(m){return d[m];}).concat([-1]));
+      typeSvg.appendChild(el("text",{x:x(d.base)-9,y:cy+3.5,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":10,fill:C.taupe},d.base.toFixed(0)));
+      if(right>=0)typeSvg.appendChild(el("text",{x:x(right)+9,y:cy+3.5,"font-family":"IBM Plex Mono,monospace","font-size":10,fill:C.navy,"font-weight":700},(typeState.shown.indexOf("b2")>=0&&d.t==="Abnormality (open)"?d.b2:d.a).toFixed(0)));
+    }
+  });
+}
+var TYPE_STEPS=[
+  {shown:["base"],focus:["vocab"]},
+  {shown:["base","a"],focus:["vocab"]},
+  {shown:["base","a"],focus:["perc"]},
+  {shown:["base","a","b1","b2"],focus:["abn"]}
+];
+
+/* ---------- pubmedqa chart ---------- */
+(function(){
+  var svg=document.getElementById("pub-chart");
+  var W=900,H=300,L=52,R=12,T=16,B=40,pw=W-L-R,ph=H-T-B;
+  var y=function(v){return T+ph-(v/720)*ph;};
+  [0,200,400,600].forEach(function(t){
+    svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:C.rule}));
+    svg.appendChild(el("text",{x:L-8,y:y(t)+4,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":11,fill:C.taupe},t));
+  });
+  var labels=["yes","no","maybe"], series=[["gold",C.gold],["base",C.base],["a",C.a],["b1",C.b1],["b2",C.b2]];
+  var gw=pw/3, bw=Math.min(40,(gw*0.8)/5);
+  labels.forEach(function(lb,i){
+    var cx=L+gw*i+gw/2;
+    series.forEach(function(s,j){
+      var v=PUB[s[0]][lb], x=cx+(j-2)*bw;
+      var r=el("rect",{x:x-bw/2+1.5,y:y(v),width:bw-3,height:y(0)-y(v),fill:s[1]});
+      if(s[0]==="gold")r.setAttribute("opacity","0.55");
+      svg.appendChild(r);
+      svg.appendChild(el("text",{x:x,y:y(v)-5,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":10.5,fill:C.navy},v));
+    });
+    svg.appendChild(el("text",{x:cx,y:H-B+24,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":13,fill:C.navy,"font-weight":700},lb));
+  });
+  svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(0),y2:y(0),stroke:C.navy,"stroke-width":1.5}));
+})();
+
+/* ---------- loss curves ---------- */
+(function(){
+  var host=document.getElementById("curve-cards");
+  if(!window.LOSS)return;
+  var runs=[["A_sft","A · SFT",C.a],["B1_cpt","B1 · text CPT",C.b1],["B1_sft","B1 · SFT after CPT",C.b1],["B2_cpt","B2 · image CPT",C.b2],["B2_sft","B2 · SFT after CPT",C.b2]];
+  runs.forEach(function(r){
+    var d=window.LOSS[r[0]]; if(!d)return;
+    var card=document.createElement("div"); card.className="card";
+    var ttl=document.createElement("div"); ttl.className="ttl"; ttl.textContent=r[1]; card.appendChild(ttl);
+    var W=200,H=120,L=30,R=6,T=8,B=20;
+    var svg=el("svg",{viewBox:"0 0 "+W+" "+H});
+    var xs=d.train.map(function(p){return p[0];}), ys=d.train.map(function(p){return p[1];});
+    var xmax=Math.max.apply(null,xs), ymin=Math.min.apply(null,ys.concat(d.eval.map(function(p){return p[1];}))), ymax=Math.max.apply(null,ys);
+    var x=function(v){return L+(v/xmax)*(W-L-R);}, y=function(v){return T+(1-(v-ymin)/(ymax-ymin||1))*(H-T-B);};
+    svg.appendChild(el("line",{x1:L,x2:W-R,y1:H-B,y2:H-B,stroke:C.rule}));
+    svg.appendChild(el("text",{x:L-4,y:y(ymax)+4,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":8.5,fill:C.taupe},ymax.toFixed(2)));
+    svg.appendChild(el("text",{x:L-4,y:y(ymin)+4,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":8.5,fill:C.taupe},ymin.toFixed(2)));
+    svg.appendChild(el("text",{x:W-R,y:H-B+13,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":8.5,fill:C.taupe},xmax+" steps"));
+    var path="M"+d.train.map(function(p){return x(p[0]).toFixed(1)+" "+y(p[1]).toFixed(1);}).join(" L");
+    svg.appendChild(el("path",{d:path,fill:"none",stroke:r[2],"stroke-width":1.8,"stroke-linejoin":"round"}));
+    d.eval.forEach(function(p){svg.appendChild(el("circle",{cx:x(p[0]),cy:y(p[1]),r:3,fill:C.navy}));});
+    card.appendChild(svg); host.appendChild(card);
+  });
+})();
+
+/* ---------- scrolly ---------- */
+function scrolly(id,onStep){
+  var root=document.getElementById(id); if(!root)return;
+  var steps=Array.prototype.slice.call(root.querySelectorAll(".step"));
+  var setActive=function(i){steps.forEach(function(s,j){s.classList.toggle("is-active",j===i);});onStep(i);};
+  setActive(0);
+  if(!("IntersectionObserver" in window))return;
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting)setActive(parseInt(e.target.getAttribute("data-step"),10));});
+  },{rootMargin:"-45% 0px -45% 0px",threshold:0});
+  steps.forEach(function(s){io.observe(s);});
+}
+scrolly("scrolly-main",function(i){mainState=MAIN_STEPS[i]||MAIN_STEPS[0];drawMain();});
+scrolly("scrolly-type",function(i){typeState=TYPE_STEPS[i]||TYPE_STEPS[0];drawType();});
+})();
+</script>
+</body>
+</html>
