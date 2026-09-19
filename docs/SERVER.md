@@ -60,7 +60,7 @@ python scripts/make_bf16_configs.py           # 显存 >= 24 GB 用 configs/bf16
 
 LOG=/workspace/ID/runs/A-$(date +%Y%m%d-%H%M%S).log
 CUDA_VISIBLE_DEVICES=0 bash -c '
-  llamafactory-cli train configs/bf16/sft_slake_qlora.yaml &&
+  CUDA_VISIBLE_DEVICES=0 llamafactory-cli train configs/bf16/sft_slake_qlora.yaml &&
   bash train/eval_all.sh sft_r16_server outputs/sft_slake_qlora_r16
 ' > "$LOG" 2>&1
 ```
@@ -95,12 +95,16 @@ maybe 只有 55 条唯一样本，会被重复约 5 次）。test 半边永不�
 tmux attach -t chunqian_train     # 没有会话就 tmux new -s chunqian_train
 source /opt/conda/etc/profile.d/conda.sh && conda activate chunqian && cd /workspace/chunqian/MedLoRA
 python data/convert_pubmedqa_sft.py --per-class 300
-llamafactory-cli train configs/bf16/sft_mix_pubmedqa.yaml 2>&1 | tail -40
+CUDA_VISIBLE_DEVICES=0 llamafactory-cli train configs/bf16/sft_mix_pubmedqa.yaml 2>&1 | tail -40
 rm -rf outputs/sft_mix_pubmedqa_r16/checkpoint-*
 CUDA_VISIBLE_DEVICES=0 bash train/eval_all.sh sft_mix_pubmedqa_r16 outputs/sft_mix_pubmedqa_r16   > /workspace/chunqian/runs/c1.log 2>&1
 ```
 
 训练约 1 小时，评估约 1 小时（另一账号的 srb 占着算力时会更久）。
+
+**训练必须绑单卡**：`llamafactory-cli` 看到两张卡会自动开分布式，有效 batch 从 16 变 32，
+和实验 A 就不止一个变量了（2026-09-19 踩过，步数从 1091 变成 546 是识别信号）。
+每条训练命令前面都要有 `CUDA_VISIBLE_DEVICES=0`，这也符合手册「多卡要事先商量」的要求。
 
 **已知风险**：这一轮把带图的 SLAKE 和纯文本的 PubMedQA 混在同一次 SFT 里。
 若 LLaMA-Factory 在预处理阶段报缺 `images` 字段，把报错发回来，
