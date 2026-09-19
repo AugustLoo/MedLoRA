@@ -78,7 +78,9 @@ tmux attach -t ID_train                              # 进去看进度; Ctrl+B �
 ```
 
 共享账号下别人的进程用户名和自己一样, 只能靠 tmux 会话名和命令行里的 `/workspace/ID/` 路径区分。
-训练进度看步数 (`{'loss': ...,  'epoch': ...}` 那几行), 单卡 bf16 的实验 A/C1 总步数应为 1091-1092。
+训练进度看步数 (`{'loss': ...,  'epoch': ...}` 那几行)。单卡 bf16 的总步数按数据量算:
+样本数 ÷ 4 (每卡 batch) 再 ÷ 4 (梯度累积) 再 ×3 轮 —— 实验 A 是 924, C1 是 1092。
+实际步数约为该值一半就是没绑住单卡。
 
 ## 5. 结果拿回本机
 ```bash
@@ -115,7 +117,7 @@ CUDA_VISIBLE_DEVICES=0 bash train/eval_all.sh sft_mix_pubmedqa_r16 outputs/sft_m
 训练约 1 小时，评估约 1 小时（另一账号的 srb 占着算力时会更久）。
 
 **训练必须绑单卡**：`llamafactory-cli` 看到两张卡会自动开分布式，有效 batch 从 16 变 32，
-和实验 A 就不止一个变量了（2026-09-19 踩过，步数从 1091 变成 546 是识别信号）。
+和实验 A 就不止一个变量了（2026-09-19 踩过，C1 的步数从 1092 变成 546 是识别信号）。
 每条训练命令前面都要有 `CUDA_VISIBLE_DEVICES=0`，这也符合手册「多卡要事先商量」的要求。
 
 **已知风险**：这一轮把带图的 SLAKE 和纯文本的 PubMedQA 混在同一次 SFT 里。
@@ -143,7 +145,12 @@ rm -rf outputs/sft_slake_qlora_r16/checkpoint-*
 CUDA_VISIBLE_DEVICES=0 bash train/eval_all.sh sft_a_server outputs/sft_slake_qlora_r16   > /workspace/chunqian/runs/a_server.log 2>&1
 ```
 
-训练约 1 小时（总步数应为 1091，出现 546 就是没绑住单卡，Ctrl+C 重来），评估约 1 小时。
+训练约 1 小时 15 分，评估约 1 小时。
+
+**总步数应为 924**（出现 462 左右就是没绑住单卡，Ctrl+C 重来）。
+算法：SLAKE train 4,919 条 ÷ 4（每卡 batch）= 1230 个 batch，÷ 4（梯度累积）= 308 步/轮，×3 轮 = 924。
+C1 的 1092 步是因为它多了 900 条 PubMedQA（5,819 条 → 364 步/轮）。两个实验步数不同是正常的，
+它们一致的是**有效 batch 16、3 轮、lr 1e-4、seed 42**，不是步数。
 
 **取回**（本机，注意别让 scp 把文件套进子目录）：
 ```bash
