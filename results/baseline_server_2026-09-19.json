@@ -1,0 +1,58 @@
+{
+  "slake": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": null,
+    "split": "test",
+    "n": 1061,
+    "load_4bit": false,
+    "max_pixels": 401408,
+    "seconds": 291.5,
+    "metrics": {
+      "open_em": 40.93,
+      "open_recall": 47.19,
+      "open_f1": 47.92,
+      "closed_acc": 66.35
+    },
+    "n_closed": 416,
+    "n_open": 645,
+    "by_modality": {
+      "CT": {
+        "open_recall": 47.98,
+        "closed_acc": 64.95
+      },
+      "X-Ray": {
+        "open_recall": 47.82,
+        "closed_acc": 78.95
+      },
+      "MRI": {
+        "open_recall": 44.64,
+        "closed_acc": 53.41
+      }
+    }
+  },
+  "textvqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": null,
+    "n": 300,
+    "seed": 42,
+    "textvqa_acc": 84.22
+  },
+  "pubmedqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": null,
+    "n": 1000,
+    "accuracy": 65.7,
+    "macro_f1": 50.9,
+    "pred_dist": {
+      "yes": 637,
+      "no": 206,
+      "maybe": 157
+    },
+    "gold_dist": {
+      "yes": 552,
+      "no": 338,
+      "maybe": 110
+    },
+    "unparsed": 0
+  }
+}
