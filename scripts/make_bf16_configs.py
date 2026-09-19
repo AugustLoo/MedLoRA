@@ -22,7 +22,10 @@ for fn in sorted(SRC.glob("*.yaml")):
         l = re.sub(r"^(\s*per_device_train_batch_size:)\s*\d+.*$", r"\1 4", l)
         l = re.sub(r"^(\s*per_device_eval_batch_size:)\s*\d+.*$", r"\1 4", l)
         l = re.sub(r"^(\s*gradient_accumulation_steps:)\s*\d+.*$", r"\1 4   # 有效 batch 16", l)
-        l = re.sub(r"^(\s*preprocessing_num_workers:)\s*\d+.*$", r"\1 8", l)
+        # 预处理并行度固定为 1: 服务器 5090 上 num_proc=8 会在 "Running tokenizer on dataset"
+        # 处稳定挂死 (worker 状态 R、烧 CPU、零写入, 2026-09-19 连挂三次)。主进程已初始化
+        # CUDA 之后再 fork 本就不安全。该参数只影响数据准备, 不改变训出来的模型。
+        l = re.sub(r"^(\s*preprocessing_num_workers:)\s*\d+.*$", r"\1 1   # 见 docs/SERVER.md", l)
         out.append(l)
     (DST / fn.name).write_text("\n".join(out) + "\n", encoding="utf-8")
     print("->", DST / fn.name)

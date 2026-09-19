@@ -25,7 +25,7 @@ template: qwen2_vl
 cutoff_len: 1024
 packing: true
 overwrite_cache: true
-preprocessing_num_workers: 8
+preprocessing_num_workers: 1   # 5090 上 num_proc>1 会在 tokenizer 阶段挂死, 见 docs/SERVER.md
 
 ### output
 output_dir: outputs/cpt_pubmed_qlora_r16
