@@ -126,3 +126,31 @@ CUDA_VISIBLE_DEVICES=0 bash train/eval_all.sh sft_mix_pubmedqa_r16 outputs/sft_m
 `python scripts/eval_pubmedqa_split.py --half test`，它会把 C1 和之前所有模型放在同一把尺子上。
 SLAKE 和 TextVQA 照旧全量，与 `baseline_server` 比。
 
+## 实验 A-server · 把实验 A 在服务器上用 C1 的条件重跑
+
+**为什么要跑**：实验 A 是在 Kaggle 上 4bit QLoRA + fp16 训的，C1 是服务器上不量化 bf16。
+两者差了「数据配比 / 量化 / 硬件」三项。校准结论幅度大（macro-F1 +9.4，maybe 5→19）不受影响，
+但「SLAKE 无代价」和「TextVQA −2.9」都是一分左右的判断，需要一个单变量对照才站得住。
+跑完 A-server 之后，A-server 与 C1 之间唯一的差别就是那 900 条 PubMedQA。
+
+```bash
+tmux attach -t chunqian_train     # 没有会话就 tmux new -s chunqian_train
+source /opt/conda/etc/profile.d/conda.sh && conda activate chunqian && cd /workspace/chunqian/MedLoRA
+nvidia-smi                        # 先确认 GPU 0 空着
+
+CUDA_VISIBLE_DEVICES=0 llamafactory-cli train configs/bf16/sft_slake_qlora.yaml 2>&1 | tail -40
+rm -rf outputs/sft_slake_qlora_r16/checkpoint-*
+CUDA_VISIBLE_DEVICES=0 bash train/eval_all.sh sft_a_server outputs/sft_slake_qlora_r16   > /workspace/chunqian/runs/a_server.log 2>&1
+```
+
+训练约 1 小时（总步数应为 1091，出现 546 就是没绑住单卡，Ctrl+C 重来），评估约 1 小时。
+
+**取回**（本机，注意别让 scp 把文件套进子目录）：
+```bash
+scp -P 20322 chunqian@221.239.50.147:/workspace/chunqian/MedLoRA/outputs/eval/'*sft_a_server*' outputs/eval/
+python scripts/eval_pubmedqa_split.py --half test
+```
+
+**看什么**：A-server 与 C1 比 SLAKE 封闭/开放，差值若在一分内则「回放不伤主任务」成立；
+A-server 的 TextVQA 若也低于 84.22，说明那 2.9 分是 SFT 本身造成的，不能算在回放头上。
+
