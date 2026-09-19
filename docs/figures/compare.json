@@ -1,0 +1,110 @@
+[
+ {
+  "name": "基座",
+  "tag": "baseline",
+  "where": "kaggle",
+  "slake_closed": 67.31,
+  "slake_recall": 46.73,
+  "slake_em": 40.62,
+  "textvqa": 83.89,
+  "pub_acc": 64.4,
+  "pub_f1": 48.87,
+  "maybe_ok": 7,
+  "no_as_yes": 43,
+  "dist": [
+   323,
+   96,
+   81
+  ]
+ },
+ {
+  "name": "A 只 SFT",
+  "tag": "sft_r16",
+  "where": "kaggle",
+  "slake_closed": 85.1,
+  "slake_recall": 82.17,
+  "slake_em": 75.35,
+  "textvqa": 83.89,
+  "pub_acc": 69.6,
+  "pub_f1": 51.69,
+  "maybe_ok": 5,
+  "no_as_yes": 59,
+  "dist": [
+   352,
+   118,
+   30
+  ]
+ },
+ {
+  "name": "B1 文本CPT→SFT",
+  "tag": "cpt_sft_r16",
+  "where": "kaggle",
+  "slake_closed": 83.89,
+  "slake_recall": 82.72,
+  "slake_em": 75.81,
+  "textvqa": 83.78,
+  "pub_acc": 72.2,
+  "pub_f1": 52.75,
+  "maybe_ok": 3,
+  "no_as_yes": 48,
+  "dist": [
+   337,
+   145,
+   18
+  ]
+ },
+ {
+  "name": "B2 图文CPT→SFT",
+  "tag": "cpt_iu_sft_r16",
+  "where": "kaggle",
+  "slake_closed": 84.13,
+  "slake_recall": 81.61,
+  "slake_em": 74.57,
+  "textvqa": 84.0,
+  "pub_acc": 70.2,
+  "pub_f1": 52.35,
+  "maybe_ok": 5,
+  "no_as_yes": 54,
+  "dist": [
+   343,
+   127,
+   30
+  ]
+ },
+ {
+  "name": "基座",
+  "tag": "baseline_server",
+  "where": "server",
+  "slake_closed": 66.35,
+  "slake_recall": 47.19,
+  "slake_em": 40.93,
+  "textvqa": 84.22,
+  "pub_acc": 64.0,
+  "pub_f1": 48.66,
+  "maybe_ok": 7,
+  "no_as_yes": 42,
+  "dist": [
+   320,
+   97,
+   83
+  ]
+ },
+ {
+  "name": "C1 SFT+三分类回放",
+  "tag": "sft_mix_pubmedqa_r16",
+  "where": "server",
+  "slake_closed": 84.13,
+  "slake_recall": 82.19,
+  "slake_em": 76.12,
+  "textvqa": 81.33,
+  "pub_acc": 71.6,
+  "pub_f1": 61.09,
+  "maybe_ok": 19,
+  "no_as_yes": 26,
+  "dist": [
+   269,
+   151,
+   80
+  ]
+ }
+]

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C1 校准对比</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --paper:#F7F2E7; --paper-deep:#EFE7D3; --card:#FDFAF2;
+  --navy:#14263B; --ink-soft:#3D4E63; --taupe:#8C8577; --rule:#D8CFBA; --idle:#E4DBC4;
+  --base:#0E67B5; --a:#C25E28; --b1:#1F8A70; --b2:#B8860B; --c1:#8E44AD;
+  --gold:#9A9283; --red:#C0392B;
+  --f-head:"Noto Serif SC","Songti SC","SimSun",serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-num:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--navy);font-family:var(--f-body);font-size:16px;line-height:1.85;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px 72px}
+header{padding:56px 0 26px;border-bottom:1px solid var(--rule)}
+.kicker{font-family:var(--f-num);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--taupe);margin-bottom:12px}
+h1{font-family:var(--f-head);font-weight:700;font-size:clamp(28px,4.2vw,40px);line-height:1.22;letter-spacing:.02em;margin-bottom:14px;text-wrap:balance}
+h1 .hi{color:var(--c1)}
+.sub{font-size:16.5px;color:var(--ink-soft);max-width:60ch}
+.hero{display:flex;gap:38px;flex-wrap:wrap;margin-top:28px}
+.hero .v{font-family:var(--f-num);font-size:34px;font-weight:700;line-height:1.1}
+.hero .v small{font-size:13px;font-weight:400;color:var(--taupe);margin-left:7px}
+.hero .bar{height:5px;width:116px;margin-top:7px}
+.hero .l{font-size:12.5px;color:var(--ink-soft);margin-top:7px;max-width:210px;line-height:1.55}
+section{padding:40px 0 4px;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+h2{font-family:var(--f-head);font-weight:700;font-size:23px;line-height:1.3;margin-bottom:8px;text-wrap:balance}
+h2 .n{font-family:var(--f-num);font-size:12px;color:var(--taupe);margin-right:11px;font-weight:400;vertical-align:.25em}
+.lede{font-size:15px;color:var(--ink-soft);max-width:66ch;margin-bottom:6px}
+.lede b{color:var(--navy)}
+.card{background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.15);padding:20px 22px 14px;margin-top:20px}
+.card .ttl{font-family:var(--f-num);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--taupe);margin-bottom:12px}
+svg{width:100%;height:auto;display:block;overflow:visible}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--f-num);font-size:11.5px;color:var(--ink-soft);margin-top:12px;align-items:center}
+.legend i{display:inline-block;width:13px;height:13px;margin-right:6px;vertical-align:-2px;border:1px solid rgba(20,38,59,.25)}
+.note{font-size:13px;color:var(--taupe);margin-top:12px;line-height:1.7;max-width:74ch}
+.note b{color:var(--ink-soft)}
+.tw{overflow-x:auto;margin-top:20px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.15)}
+th,td{padding:8px 11px;text-align:left;border-bottom:1px solid var(--rule);white-space:nowrap}
+thead th{font-family:var(--f-num);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);background:var(--paper-deep);border-bottom:2px solid var(--navy)}
+td.num{text-align:right;font-family:var(--f-num);font-variant-numeric:tabular-nums}
+td.best{font-weight:700}
+td.bad{color:var(--red);font-weight:700}
+tbody tr:last-child td{border-bottom:0}
+#tip{position:fixed;z-index:50;background:var(--navy);color:var(--paper);font-family:var(--f-num);font-size:12px;line-height:1.7;padding:8px 11px;box-shadow:5px 5px 0 rgba(20,38,59,.25);pointer-events:none;opacity:0;transition:opacity .12s;max-width:270px}
+#tip b{color:#fff}
+footer{padding:34px 0 0;font-family:var(--f-num);font-size:11.5px;color:var(--taupe)}
+@media (max-width:640px){.hero{gap:24px}h2{font-size:20px}}
+</style>
+</head>
+<body>
+<div id="tip"></div>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Topic 6 · 服务器 RTX 5090 与 Kaggle T4 对照 · 2026-09-19</div>
+  <h1>六轮实验横向对比：<span class="hi">C1</span> 是第一个把校准修回来的</h1>
+  <p class="sub">左边四轮在 Kaggle 上测，右边两轮在学院服务器上测。两台机器的基座先对齐过，差异在一分以内，所以可以放在同一张图里看。</p>
+  <div class="hero">
+    <div><div class="v" style="color:var(--c1)">61.1<small>← 51.7</small></div><div class="bar" style="background:var(--c1)"></div><div class="l">PubMedQA macro-F1，C1 相对实验 A，考卷半边</div></div>
+    <div><div class="v" style="color:var(--c1)">19<small>← 5 / 共 55</small></div><div class="bar" style="background:var(--c1)"></div><div class="l">该答 maybe 且答对的题数</div></div>
+    <div><div class="v" style="color:var(--navy)">84.1<small>≈ A 的 85.1</small></div><div class="bar" style="background:var(--navy)"></div><div class="l">SLAKE 封闭题，与 A 持平，没有代价</div></div>
+    <div><div class="v" style="color:var(--red)">81.3<small>← 84.2</small></div><div class="bar" style="background:var(--red)"></div><div class="l">TextVQA，唯一测出的退化</div></div>
+  </div>
+</header>
+
+<section>
+  <h2><span class="n">01</span>先校准尺子：两台机器的基座</h2>
+  <p class="lede">同一个模型、同一套题、同一份评分代码，在两台机器上各跑一遍。<b>五项指标的差异都在一分以内</b>，PubMedQA 一千题只差一题、TextVQA 三百题差一题。差异来自计算精度：T4 不支持 bf16 走 fp16，5090 走 bf16。</p>
+  <div class="card">
+    <div class="ttl">基座 · Kaggle T4 vs 服务器 5090</div>
+    <svg id="c-ruler" viewBox="0 0 760 210" role="img" aria-label="基座在两台机器上的五项指标对比"></svg>
+    <div class="legend"><span><i style="background:var(--base)" class="hatch-legend"></i>Kaggle T4（斜纹）</span><span><i style="background:var(--base)"></i>服务器 5090（实心）</span></div>
+  </div>
+  <p class="note"><b>这一节的作用</b>是证明后面的跨机器对比站得住。规则：服务器的实验和服务器基座比，一分以内的差异不解读。</p>
+</section>
+
+<section>
+  <h2><span class="n">02</span>核心结果：答案分布有没有对上真实</h2>
+  <p class="lede">PubMedQA 考卷半边五百题，真实答案 276 个 yes、169 个 no、55 个 maybe。<b>前四轮全都过度偏向 yes、几乎不答 maybe</b>；C1 的分布是六个模型里最贴近真实的。灰色斜纹是真实分布。</p>
+  <div class="card">
+    <div class="ttl">PubMedQA 预测分布 vs 真实 · 考卷半边 500 题</div>
+    <svg id="c-dist" viewBox="0 0 760 280" role="img" aria-label="各模型预测的 yes/no/maybe 数量与真实分布对比"></svg>
+    <div class="legend" id="lg-dist"></div>
+  </div>
+  <p class="note"><b>不是简单多猜 maybe。</b>基座也答了 83 次 maybe，只对 7 次，精确率 8.4%；C1 答 80 次对 19 次，精确率 23.8%。次数相当，准确率约三倍。</p>
+</section>
+
+<section>
+  <h2><span class="n">03</span>校准指标：macro-F1 与两个错误计数</h2>
+  <p class="lede">macro-F1 把三类同等看待，最能反映校准。<b>C1 的 61.1 是唯一跳出 48 到 53 这个区间的</b>。右边两个小图是具体的错误：该答 maybe 答对了几题，该答 no 却答成 yes 有几题。</p>
+  <div class="card">
+    <div class="ttl">PubMedQA 校准三项 · 考卷半边</div>
+    <svg id="c-cal" viewBox="0 0 760 250" role="img" aria-label="macro-F1、maybe 答对数、no 误判成 yes 的对比"></svg>
+    <div class="legend" id="lg-cal"></div>
+  </div>
+  <p class="note">A 只做 SFT 之后，把 no 答成 yes 的错误反而比基座<b>更多</b>，59 例对 43 例。C1 降到 26 例，比基座还低。</p>
+</section>
+
+<section>
+  <h2><span class="n">04</span>代价在哪：SLAKE 没掉，TextVQA 掉了</h2>
+  <p class="lede">左边是医学看图问答，C1 和前三轮微调模型挤在一起，<b>混入九百条纯文本没有伤到主任务</b>。右边是通用能力探针，C1 掉了 2.9 分，是四轮实验里第一次测出退化。</p>
+  <div class="card">
+    <div class="ttl">SLAKE 封闭题 / 开放题 recall &nbsp;·&nbsp; TextVQA</div>
+    <svg id="c-cost" viewBox="0 0 760 250" role="img" aria-label="SLAKE 与 TextVQA 上各模型的表现"></svg>
+    <div class="legend" id="lg-cost"></div>
+  </div>
+  <p class="note">TextVQA 掉的那 2.9 分逐题看是变差 14 题、变好 6 题，净 8 题。答案平均长度 1.39 词变 1.43 词，不是答长了。一半是写法差异（one penny 变 1 penny），一半是真读错（Vietnam 变 us army）。<b>归因待定</b>：实验 A 在 Kaggle 上 TextVQA 没掉，但那是跨机器比较，要等 A 在服务器上重跑一遍才能确认这 2.9 分是混入纯文本造成的，还是这块卡上 SFT 本来就会掉。</p>
+</section>
+
+<section>
+  <h2><span class="n">05</span>全部数字</h2>
+  <p class="lede">SLAKE 与 TextVQA 为全量测试集；PubMedQA 一律只算考卷半边五百题，训练用的另一半永不计分。</p>
+  <div class="tw"><table id="tbl">
+    <thead><tr><th>模型</th><th>测量机器</th><th class="num">SLAKE 封闭</th><th class="num">开放 recall</th><th class="num">开放 EM</th><th class="num">TextVQA</th><th class="num">PubMedQA acc</th><th class="num">macro-F1</th><th class="num">maybe 答对</th><th class="num">no→yes</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+</section>
+
+<footer>MedLoRA · github.com/AugustLoo/MedLoRA · 数字来自 results/ 与 outputs/eval/，可一条命令复现</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(t,a,x){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;return e;}
+var C={navy:"#14263B",soft:"#3D4E63",taupe:"#8C8577",rule:"#D8CFBA",card:"#FDFAF2",idle:"#E4DBC4",red:"#C0392B",gold:"#9A9283"};
+var HUE={base:"#0E67B5",a:"#C25E28",b1:"#1F8A70",b2:"#B8860B",c1:"#8E44AD"};
+
+var M=[
+ {k:"base",  n:"基座",            w:"kaggle", closed:67.31, rec:46.73, em:40.62, tv:83.89, acc:64.40, f1:48.87, mb:7,  ny:43, d:[323,96,81]},
+ {k:"a",     n:"A 只 SFT",        w:"kaggle", closed:85.10, rec:82.17, em:75.35, tv:83.89, acc:69.60, f1:51.69, mb:5,  ny:59, d:[352,118,30]},
+ {k:"b1",    n:"B1 文本CPT→SFT",  w:"kaggle", closed:83.89, rec:82.72, em:75.81, tv:83.78, acc:72.20, f1:52.75, mb:3,  ny:48, d:[337,145,18]},
+ {k:"b2",    n:"B2 图文CPT→SFT",  w:"kaggle", closed:84.13, rec:81.61, em:74.57, tv:84.00, acc:70.20, f1:52.35, mb:5,  ny:54, d:[343,127,30]},
+ {k:"base",  n:"基座",            w:"server", closed:66.35, rec:47.19, em:40.93, tv:84.22, acc:64.00, f1:48.66, mb:7,  ny:42, d:[320,97,83]},
+ {k:"c1",    n:"C1 SFT+三分类回放", w:"server", closed:84.13, rec:82.19, em:76.12, tv:81.33, acc:71.60, f1:61.09, mb:19, ny:26, d:[269,151,80]}
+];
+var GOLD=[276,169,55];
+var tip=document.getElementById("tip");
+function hook(node,html){
+  node.addEventListener("mouseenter",function(e){tip.innerHTML=html;tip.style.opacity=1;});
+  node.addEventListener("mousemove",function(e){
+    var x=Math.min(e.clientX+14,window.innerWidth-280), y=Math.max(e.clientY-14,8);
+    tip.style.left=x+"px";tip.style.top=y+"px";});
+  node.addEventListener("mouseleave",function(){tip.style.opacity=0;});
+  node.style.cursor="crosshair";
+}
+function defsFor(svg){
+  var d=el("defs",{});
+  Object.keys(HUE).forEach(function(k){
+    var p=el("pattern",{id:"h-"+k+"-"+svg.id,width:6,height:6,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
+    p.appendChild(el("rect",{width:6,height:6,fill:C.card}));
+    p.appendChild(el("rect",{width:2.6,height:6,fill:HUE[k]}));
+    d.appendChild(p);
+  });
+  var pg=el("pattern",{id:"h-gold-"+svg.id,width:6,height:6,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
+  pg.appendChild(el("rect",{width:6,height:6,fill:C.card}));
+  pg.appendChild(el("rect",{width:2.6,height:6,fill:C.gold}));
+  d.appendChild(pg);
+  svg.appendChild(d);
+}
+function fillOf(svg,m){return m.w==="kaggle"?"url(#h-"+m.k+"-"+svg.id+")":HUE[m.k];}
+function label(m){return m.n+(m.w==="server"?"（服务器）":"");}
+
+/* ---------- 01 ruler ---------- */
+(function(){
+  var svg=document.getElementById("c-ruler"); defsFor(svg);
+  var W=760,H=210,L=56,R=16,T=16,B=48,pw=W-L-R,ph=H-T-B;
+  var mets=[["SLAKE 封闭","closed"],["开放 recall","rec"],["TextVQA","tv"],["PubMedQA acc","acc"],["macro-F1","f1"]];
+  var K=M[0],S=M[4];
+  var y=function(v){return T+ph-(v/100)*ph;};
+  [0,25,50,75,100].forEach(function(t){
+    svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:C.rule}));
+    svg.appendChild(el("text",{x:L-9,y:y(t)+4,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":10.5,fill:C.taupe},t));
+  });
+  var gw=pw/mets.length, bw=Math.min(34,gw*0.3);
+  mets.forEach(function(mt,i){
+    var cx=L+gw*i+gw/2;
+    [[K,-0.55],[S,0.55]].forEach(function(pair){
+      var m=pair[0], off=pair[1]*bw, v=m[mt[1]];
+      var r=el("rect",{x:cx+off-bw/2,y:y(v),width:bw,height:y(0)-y(v),fill:fillOf(svg,m),stroke:HUE.base,"stroke-width":1.2,rx:2});
+      hook(r,"<b>"+mt[0]+"</b><br>"+(m.w==="kaggle"?"Kaggle T4":"服务器 5090")+"：<b>"+v+"</b>");
+      svg.appendChild(r);
+      svg.appendChild(el("text",{x:cx+off,y:y(v)-6,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":10,fill:C.navy},v));
+    });
+    var dv=(S[mt[1]]-K[mt[1]]).toFixed(2);
+    svg.appendChild(el("text",{x:cx,y:H-B+18,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":11,fill:C.navy},mt[0]));
+    svg.appendChild(el("text",{x:cx,y:H-B+33,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":10.5,fill:Math.abs(dv)<1?C.taupe:C.red},(dv>0?"+":"")+dv));
+  });
+  svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(0),y2:y(0),stroke:C.navy,"stroke-width":1.5}));
+})();
+
+/* ---------- 02 distribution ---------- */
+(function(){
+  var svg=document.getElementById("c-dist"); defsFor(svg);
+  var W=760,H=280,L=50,R=16,T=18,B=52,pw=W-L-R,ph=H-T-B;
+  var y=function(v){return T+ph-(v/380)*ph;};
+  [0,100,200,300].forEach(function(t){
+    svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:C.rule}));
+    svg.appendChild(el("text",{x:L-9,y:y(t)+4,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":10.5,fill:C.taupe},t));
+  });
+  var labs=["yes","no","maybe"], gw=pw/3, n=M.length+1, bw=Math.min(22,(gw*0.86)/n);
+  labs.forEach(function(lb,i){
+    var cx=L+gw*i+gw/2;
+    var series=[{gold:true,v:GOLD[i]}].concat(M.map(function(m){return {m:m,v:m.d[i]};}));
+    series.forEach(function(s,j){
+      var x=cx+(j-(n-1)/2)*bw, v=s.v;
+      var fill=s.gold?("url(#h-gold-"+svg.id+")"):fillOf(svg,s.m);
+      var stroke=s.gold?C.gold:HUE[s.m.k];
+      var r=el("rect",{x:x-bw/2+1,y:y(v),width:bw-2,height:y(0)-y(v),fill:fill,stroke:stroke,"stroke-width":1.2,rx:2});
+      hook(r,"<b>"+lb+"</b><br>"+(s.gold?"真实标签":label(s.m))+"：<b>"+v+"</b> 题");
+      svg.appendChild(r);
+      if(s.gold||s.m.k==="c1") svg.appendChild(el("text",{x:x,y:y(v)-6,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":10,fill:C.navy,"font-weight":700},v));
+    });
+    svg.appendChild(el("text",{x:cx,y:H-B+22,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":13,fill:C.navy,"font-weight":700},lb));
+    svg.appendChild(el("text",{x:cx,y:H-B+38,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":10.5,fill:C.taupe},"真实 "+GOLD[i]));
+  });
+  svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(0),y2:y(0),stroke:C.navy,"stroke-width":1.5}));
+  var lg=document.getElementById("lg-dist");
+  lg.innerHTML='<span><i style="background:'+C.gold+';opacity:.6"></i>真实标签</span>'+M.map(function(m){
+    return '<span><i style="background:'+HUE[m.k]+';opacity:'+(m.w==="kaggle"?".55":"1")+'"></i>'+label(m)+'</span>';}).join("");
+})();
+
+/* ---------- 03 calibration ---------- */
+(function(){
+  var svg=document.getElementById("c-cal"); defsFor(svg);
+  var W=760,H=250,T=18,B=54;
+  var panels=[{t:"macro-F1",f:"f1",max:70,fmt:function(v){return v.toFixed(1);}},
+              {t:"maybe 答对 / 55",f:"mb",max:24,fmt:function(v){return v;}},
+              {t:"no 误判成 yes",f:"ny",max:64,fmt:function(v){return v;},bad:true}];
+  var pw=(W-40)/3, ph=H-T-B;
+  panels.forEach(function(p,pi){
+    var x0=pi*(pw+20)+34, y=function(v){return T+ph-(v/p.max)*ph;};
+    svg.appendChild(el("text",{x:x0,y:T-4,"font-family":"IBM Plex Mono,monospace","font-size":11,fill:C.soft},p.t));
+    svg.appendChild(el("line",{x1:x0,x2:x0+pw-26,y1:y(0),y2:y(0),stroke:C.navy,"stroke-width":1.5}));
+    var bw=Math.min(24,(pw-30)/M.length);
+    M.forEach(function(m,i){
+      var v=m[p.f], x=x0+i*((pw-26)/M.length)+bw*0.1;
+      var r=el("rect",{x:x,y:y(v),width:bw-3,height:y(0)-y(v),fill:fillOf(svg,m),stroke:HUE[m.k],"stroke-width":1.2,rx:2});
+      hook(r,"<b>"+label(m)+"</b><br>"+p.t+"：<b>"+p.fmt(v)+"</b>");
+      svg.appendChild(r);
+      var hl=(p.bad? m.k==="c1" : m.k==="c1");
+      svg.appendChild(el("text",{x:x+(bw-3)/2,y:y(v)-6,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace",
+        "font-size":hl?10.5:9.5,fill:hl?(p.bad?C.navy:HUE.c1):C.taupe,"font-weight":hl?700:400},p.fmt(v)));
+    });
+  });
+  var lg=document.getElementById("lg-cal");
+  lg.innerHTML=M.map(function(m){
+    return '<span><i style="background:'+HUE[m.k]+';opacity:'+(m.w==="kaggle"?".55":"1")+'"></i>'+label(m)+'</span>';}).join("")
+    +'<span style="color:#8C8577">左两图越高越好，右图越低越好</span>';
+})();
+
+/* ---------- 04 cost ---------- */
+(function(){
+  var svg=document.getElementById("c-cost"); defsFor(svg);
+  var W=760,H=250,T=18,B=54;
+  var panels=[{t:"SLAKE 封闭题",f:"closed",min:60,max:90},
+              {t:"SLAKE 开放题 recall",f:"rec",min:40,max:90},
+              {t:"TextVQA（通用保持）",f:"tv",min:78,max:88}];
+  var pw=(W-40)/3, ph=H-T-B;
+  panels.forEach(function(p,pi){
+    var x0=pi*(pw+20)+34, y=function(v){return T+ph-((v-p.min)/(p.max-p.min))*ph;};
+    svg.appendChild(el("text",{x:x0,y:T-4,"font-family":"IBM Plex Mono,monospace","font-size":11,fill:C.soft},p.t));
+    [p.min,(p.min+p.max)/2,p.max].forEach(function(t){
+      svg.appendChild(el("line",{x1:x0,x2:x0+pw-26,y1:y(t),y2:y(t),stroke:C.rule}));
+      svg.appendChild(el("text",{x:x0-5,y:y(t)+3.5,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":9,fill:C.taupe},t));
+    });
+    var bw=Math.min(24,(pw-30)/M.length);
+    M.forEach(function(m,i){
+      var v=m[p.f], x=x0+i*((pw-26)/M.length)+bw*0.1, yy=Math.min(y(v),y(p.min));
+      var r=el("rect",{x:x,y:yy,width:bw-3,height:Math.max(y(p.min)-y(v),1),fill:fillOf(svg,m),stroke:HUE[m.k],"stroke-width":1.2,rx:2});
+      hook(r,"<b>"+label(m)+"</b><br>"+p.t+"：<b>"+v+"</b>");
+      svg.appendChild(r);
+      var hl=m.k==="c1";
+      svg.appendChild(el("text",{x:x+(bw-3)/2,y:yy-6,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace",
+        "font-size":hl?10.5:9.5,fill:hl?(p.f==="tv"?C.red:HUE.c1):C.taupe,"font-weight":hl?700:400},v));
+    });
+    svg.appendChild(el("line",{x1:x0,x2:x0+pw-26,y1:y(p.min),y2:y(p.min),stroke:C.navy,"stroke-width":1.5}));
+    svg.appendChild(el("text",{x:x0,y:H-B+26,"font-family":"IBM Plex Mono,monospace","font-size":9.5,fill:C.taupe},"纵轴从 "+p.min+" 起"));
+  });
+  var lg=document.getElementById("lg-cost");
+  lg.innerHTML=M.map(function(m){
+    return '<span><i style="background:'+HUE[m.k]+';opacity:'+(m.w==="kaggle"?".55":"1")+'"></i>'+label(m)+'</span>';}).join("");
+})();
+
+/* ---------- table ---------- */
+(function(){
+  var tb=document.querySelector("#tbl tbody");
+  M.forEach(function(m){
+    var tr=document.createElement("tr");
+    function td(v,cls){var d=document.createElement("td");d.textContent=v;if(cls)d.className=cls;tr.appendChild(d);}
+    td(label(m)); td(m.w==="kaggle"?"Kaggle T4":"服务器 5090");
+    td(m.closed,"num"); td(m.rec,"num"); td(m.em,"num");
+    td(m.tv,"num"+(m.k==="c1"?" bad":"")); td(m.acc,"num");
+    td(m.f1,"num"+(m.k==="c1"?" best":"")); td(m.mb+" / 55","num"+(m.k==="c1"?" best":"")); td(m.ny,"num");
+    tb.appendChild(tr);
+  });
+})();
+})();
+</script>
+</body>
+</html>
