@@ -68,6 +68,18 @@ Ctrl+B 再按 D 离开会话; 回来 `tmux attach -t ID_train`; `tail -f $LOG` �
 B1 / B2 把 yaml 换成 `cpt_pubmed_qlora` + `sft_after_cpt`、`cpt_iu_qlora` + `sft_after_cpt_iu` 即可 (见 `scripts/run_workstation.sh` 里的顺序)。
 `CUDA_VISIBLE_DEVICES` 选哪张卡只对那条命令生效; 代码里一律 cuda:0, 不要写 cuda:1。
 
+## 4b. 看现在有没有在跑
+
+```bash
+tmux ls                                              # 自己的会话名以 ID_ 开头; 会话在 != 任务在跑
+nvidia-smi                                           # 下半部分 Processes 空的就是没人跑
+ps -eo pid,etime,cmd | grep llamafactory | grep -v grep   # 路径带 /workspace/ID/ 的才是自己的, etime 是已跑时长
+tmux attach -t ID_train                              # 进去看进度; Ctrl+B 松开再按 D 离开, 任务不停
+```
+
+共享账号下别人的进程用户名和自己一样, 只能靠 tmux 会话名和命令行里的 `/workspace/ID/` 路径区分。
+训练进度看步数 (`{'loss': ...,  'epoch': ...}` 那几行), 单卡 bf16 的实验 A/C1 总步数应为 1091-1092。
+
 ## 5. 结果拿回本机
 ```bash
 scp -P 20322 -r user0@221.239.50.147:/workspace/ID/MedLoRA/outputs/eval ./outputs/eval-server
