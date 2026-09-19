@@ -22,10 +22,12 @@ for fn in sorted(SRC.glob("*.yaml")):
         l = re.sub(r"^(\s*per_device_train_batch_size:)\s*\d+.*$", r"\1 4", l)
         l = re.sub(r"^(\s*per_device_eval_batch_size:)\s*\d+.*$", r"\1 4", l)
         l = re.sub(r"^(\s*gradient_accumulation_steps:)\s*\d+.*$", r"\1 4   # 有效 batch 16", l)
-        # 预处理并行度固定为 1: 服务器 5090 上 num_proc=8 会在 "Running tokenizer on dataset"
-        # 处稳定挂死 (worker 状态 R、烧 CPU、零写入, 2026-09-19 连挂三次)。主进程已初始化
-        # CUDA 之后再 fork 本就不安全。该参数只影响数据准备, 不改变训出来的模型。
-        l = re.sub(r"^(\s*preprocessing_num_workers:)\s*\d+.*$", r"\1 1   # 见 docs/SERVER.md", l)
+        # 预处理: 8 个 worker + 每批 64 条。默认一批 1000 条时进度条要等一整批才跳一次,
+        # 8 个 worker 各分 ~615 条就永远显示 0%, 看着像挂死其实在干活 (2026-09-19 误杀过两次)。
+        # 每张图要几秒 CPU, 4919 条单进程需 7-8 小时, 8 进程约 1 小时。两个参数都不影响训出的模型。
+        l = re.sub(r"^(\s*preprocessing_num_workers:)\s*\d+.*$", r"\1 8", l)
         out.append(l)
+        if l.startswith("preprocessing_num_workers:"):
+            out.append("preprocessing_batch_size: 64   # 进度条每 64 条跳一次, 否则一批 1000 条前一直显示 0%")
     (DST / fn.name).write_text("\n".join(out) + "\n", encoding="utf-8")
     print("->", DST / fn.name)

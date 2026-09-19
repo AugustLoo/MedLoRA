@@ -161,41 +161,37 @@ python scripts/eval_pubmedqa_split.py --half test
 **看什么**：A-server 与 C1 比 SLAKE 封闭/开放，差值若在一分内则「回放不伤主任务」成立；
 A-server 的 TextVQA 若也低于 84.22，说明那 2.9 分是 SFT 本身造成的，不能算在回放头上。
 
-## 故障: 训练卡在 "Running tokenizer on dataset" 不动
+## 「训练卡在 Running tokenizer on dataset 不动」—— 其实没卡, 是进度条粗
 
-**症状**：数据集 `Converting format` 两行正常打完, 下一行的进度条永远停在
+**症状**: 数据集 `Converting format` 打完之后, 下一行进度条长时间停在
 `0%| | 0/4919 [00:00<?, ? examples/s]`, GPU 只占几百 MiB、利用率 0%。
-`ps` 能看到 1 个主进程 + 8 个 worker, worker 状态是 **R**、CPU 23-75%, 但 `/proc/<pid>/io`
-的 `write_bytes` 一直是 0 —— 在烧 CPU 却没有任何产出。
+`ps` 里 worker 状态是 **R**、CPU 20-85%。
 
-**不是这些原因**（都已排查掉）：
-- 不是双卡: `nvidia-smi` 里 GPU 1 是 2MiB, 只有一个进程占显存。
-- 不是内存: `free -g` 显示 478 GB available。
-- 不是磁盘: `/workspace` 还有 456 G。
-- 不是网络: worker 状态是 R 不是 S, 等网络的进程不烧 CPU; 而且模型此时已加载完毕。
-- 不是图像分辨率: 配置里 `image_max_pixels: 262144` 在。
+**真相** (2026-09-19 排查了两小时才弄清): LLaMA-Factory 的预处理是 `batched=True`,
+默认 **一批 1000 条**, tqdm 只在每批完成时更新。8 个 worker 各分 ~615 条, 不到一批,
+所以谁都没完成过一批, 进度条全程显示 0%。而每张 SLAKE 图要几秒 CPU 处理,
+4919 条: 单进程约 7-8 小时, 8 进程约 1 小时。它一直在干活, 只是我们看不见。
+当天连着误杀了两个健康的运行。
 
-**原因**：主进程已经初始化 CUDA, `datasets.map(num_proc=8)` 再 fork 出 worker,
-fork 一个带 CUDA 上下文的进程本就不安全, 在这台机器上 100% 复现地挂死。
-
-**修法**：`preprocessing_num_workers: 1`。单进程不 fork, 代价是预处理慢十几分钟。
-**该参数只影响数据准备, 不改变训出来的模型**, 所以不破坏实验之间的可比性。
-`scripts/make_bf16_configs.py` 和 `configs/bf16/*.yaml` 已统一改成 1 (2026-09-19)。
-
-**注意一处记录**：实验 C1 (2026-09-19) 实际是用 `preprocessing_num_workers: 8` 跑成的 ——
-它侥幸没挂。仓库里 `configs/bf16/sft_mix_pubmedqa.yaml` 现在写的是 1, 与当时跑的那一次不同,
-但两者训出的模型相同, 重跑复现不受影响。
-
-**排查用的三条命令**（下次直接抄）：
+**怎么确认它活着** (不需要任何权限, py-spy 在这个容器里被 ptrace 禁用):
 ```bash
-ps -eo pid,stat,etime,%cpu,cmd | grep llamafactory | grep -v grep   # STAT: R=在算 S=在等
-for p in <workerPID>; do grep write_bytes /proc/$p/io; done         # 有没有产出
-pip install -q py-spy && py-spy dump --pid <PID>                    # 卡在哪一行 Python
+grep rchar /proc/<主进程PID>/io; sleep 30; grep rchar /proc/<主进程PID>/io
 ```
+`rchar` (累计读取字节) 30 秒内涨了 1 MB 以上就是在一张张读图, 别杀。
+注意 `write_bytes` 在一批完成前会一直是 0, 不能拿它判断。
 
-**另外两条教训**（同一天踩的）：
-- 训练命令的输出**不要**重定向进文件。tqdm 在非终端环境不刷新, 进度条永远停在第一帧,
-  看不出卡没卡。在 tmux 里直接跑, tmux 本身是终端, 事后用 `tmux capture-pane -p -t <会话> -S -400` 捞。
-- 多条命令要用 `&&` 串起来。用换行分隔时训练失败了评估照样跑, 会伪装成"评估出错", 掩盖真正的问题。
+**修法**: 配置里加 `preprocessing_batch_size: 64`, 进度条每 64 条跳一次,
+右边会显示 `examples/s` 和 ETA, 一眼能看出速度。`preprocessing_num_workers` 保持 8
+(机器核数够的话 16 更快)。两个参数都只影响数据准备, **不改变训出来的模型**。
+`scripts/make_bf16_configs.py` 和 `configs/bf16/*.yaml` 已统一 (2026-09-19)。
+
+**已排除的原因** (都查过, 不是):
+双卡 (GPU 1 是 2MiB)、内存 (478 GB available)、磁盘 (456 G 空闲)、
+网络 (worker 是 R 不是 S)、图像分辨率 (`image_max_pixels: 262144` 在)、
+多进程 fork 死锁 (改成单进程一样 0%, 但 rchar 在涨)。
+
+**另外三条教训** (同一天踩的):
+- 训练命令的输出**不要**重定向进文件。tqdm 在非终端环境不刷新, 看不出进度。
+  在 tmux 里直接跑, 事后用 `tmux capture-pane -p -t <会话> -S -400` 捞。
+- 多条命令要用 `&&` 串起来。用换行分隔时训练失败了评估照样跑, 伪装成"评估出错"。
 - `tmux attach` 不要和后面的命令一起粘贴, 先单独执行 attach 进去, 再粘后面的。
-
