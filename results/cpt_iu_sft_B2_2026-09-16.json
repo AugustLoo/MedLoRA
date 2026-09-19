@@ -11,24 +11,25 @@
       "open_em": 74.57,
       "open_recall": 81.61,
       "open_f1": 80.88,
-      "closed_acc": 88.7
+      "closed_acc": 84.13
     },
     "n_closed": 416,
     "n_open": 645,
     "by_modality": {
       "CT": {
         "open_recall": 82.2,
-        "closed_acc": 85.05
+        "closed_acc": 82.71
       },
       "X-Ray": {
         "open_recall": 81.05,
-        "closed_acc": 92.11
+        "closed_acc": 85.09
       },
       "MRI": {
         "open_recall": 81.5,
-        "closed_acc": 93.18
+        "closed_acc": 86.36
       }
-    }
+    },
+    "scoring": "closed_score v2 (2026-09-19): 标准答案非 yes/no 的封闭题按字面比"
   },
   "textvqa": {
     "model": "Qwen/Qwen2.5-VL-3B-Instruct",

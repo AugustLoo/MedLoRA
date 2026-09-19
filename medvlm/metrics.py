@@ -28,6 +28,19 @@ def yes_no(s: str) -> str:
     return "other"
 
 
+def closed_score(pred: str, gold: str) -> float:
+    """CLOSED 题评分。
+
+    SLAKE 的 CLOSED 不等于 yes/no: 416 道里有 61 道的标准答案是 Lung / Liver / T2 /
+    Coronal Plane 这类封闭词表。对这些题只能按字面比, 若沿用 yes_no() 折叠,
+    任何非 yes/no 的回答都会折成 "other" 并与标准答案相等, 白送分 (2026-09-19 修正)。
+    """
+    g = yes_no(gold)
+    if g == "other":
+        return exact_match(pred, gold)
+    return float(yes_no(pred) == g)
+
+
 def exact_match(pred: str, gold: str) -> float:
     return float(normalize(pred) == normalize(gold))
 

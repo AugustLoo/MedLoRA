@@ -153,11 +153,11 @@ footer a{color:var(--ink-soft)}
   </svg>
   <div class="inner">
     <div class="kicker">Topic 6 · Task 1.3 · 第 1 周进展汇报 · 2026-09-17</div>
-    <h1>SFT 涨了 22 分，<br><span class="hi">CPT</span> 没有增益</h1>
+    <h1>SFT 涨了 18 分，<br><span class="hi">CPT</span> 没有增益</h1>
     <p class="sub">医学视觉语言模型的参数高效增量预训练与指令微调。两周，四组实验，三张固定的评估表，每一个数字都能在仓库里复现。</p>
     <div class="asof-line">Qwen2.5-VL-3B-Instruct · QLoRA r16 · Kaggle T4 · results as of 2026-09-16</div>
     <div class="stats">
-      <div class="stat"><div class="v" style="color:var(--c-a)">89.2<small>← 67.3</small></div><div class="bar" style="background:var(--c-a)"></div><div class="l">SLAKE closed accuracy，SFT 之后（实验 A）</div></div>
+      <div class="stat"><div class="v" style="color:var(--c-a)">85.1<small>← 67.3</small></div><div class="bar" style="background:var(--c-a)"></div><div class="l">SLAKE closed accuracy，SFT 之后（实验 A）</div></div>
       <div class="stat"><div class="v" style="color:var(--c-a)">82.2<small>← 46.7</small></div><div class="bar" style="background:var(--c-a)"></div><div class="l">SLAKE open recall，同一个 adapter</div></div>
       <div class="stat"><div class="v" style="color:var(--navy)">83.9<small>= 83.9</small></div><div class="bar" style="background:var(--navy)"></div><div class="l">TextVQA，通用能力没有可测的退化</div></div>
     </div>
@@ -197,7 +197,7 @@ footer a{color:var(--ink-soft)}
       <tr><td><b>可靠性</b></td><td class="en">PubMedQA pqa_labeled · 1,000</td><td>证据不够时敢不敢说 maybe</td><td class="en">accuracy · macro-F1 · yes / no / maybe distribution</td></tr>
     </tbody>
   </table></div>
-  <div class="srcline">红线：<span class="asof">SLAKE test</span> 与 <span class="asof">PubMedQA labeled</span> 只评估、永不训练；切分文件固定入库；受控数据不进 git。</div>
+  <div class="srcline">红线：<span class="asof">SLAKE test</span> 与 <span class="asof">PubMedQA labeled</span> 只评估、永不训练；切分文件固定入库；受控数据不进 git。<br><b>2026-09-19 评分修正：</b>SLAKE 的封闭题并非全是是非题，416 道里有 61 道标准答案是 <span class="asof">Lung / Liver / T2 / Coronal Plane</span> 这类词。原先的评分把预测和标准答案都折成 yes/no/其他再比，这 61 道只要不答 yes 或 no 就白算对，使三个微调模型各高估 4 到 5 分，基座不受影响。现在标准答案是是非的按是非比，其余按字面比，本页所有数字均为修正后的值。</div>
 </section>
 
 <!-- ============================ 3. 主结果 scrolly ============================ -->
@@ -215,9 +215,9 @@ footer a{color:var(--ink-soft)}
     </div></div>
     <div class="steps">
       <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 05</div><h3>起点：基座直接做题</h3><p>SLAKE 封闭题 <span class="en">67.3</span>，开放题 recall <span class="en">46.7</span>。X 光片最好、MRI 最差，说明基座见过的胸片远多于 MRI。PubMedQA 明显偏 yes。</p></div></div>
-      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 05</div><h3>A：只做 SFT，涨 22 分</h3><p>4,919 道 SLAKE 题做三遍，4 小时 28 分。封闭题 <span class="en">67.3 → 89.2</span>，开放题 recall <span class="en">46.7 → 82.2</span>。逐题看，修正 345 题，新错 30 题。</p></div></div>
-      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 05</div><h3>B1：先读一万篇医学摘要，再 SFT</h3><p>SLAKE 与 A 的差异全部在 <span class="en">±0.6</span> 以内，逐题互换 15 对 14，是随机波动。<strong>文本 CPT 没有跨过模态</strong>。它只帮到了自己的领域：PubMedQA <span class="en">70.6 → 72.8</span>。</p></div></div>
-      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 05</div><h3>B2：先看三千多张胸片配报告，再 SFT</h3><p>封闭题 <span class="en">88.7</span> 与 B1 持平，开放题略低 <span class="en">−0.6</span>，逐题修正 11 题、新错 18 题。<strong>图文 CPT 同样没有增益</strong>，原因在下一节。</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 05</div><h3>A：只做 SFT，涨 18 分</h3><p>4,919 道 SLAKE 题做三遍，4 小时 28 分。封闭题 <span class="en">67.3 → 85.1</span>，开放题 recall <span class="en">46.7 → 82.2</span>。逐题看，修正 328 题，新错 30 题。</p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 05</div><h3>B1：先读一万篇医学摘要，再 SFT</h3><p>SLAKE 与 A 的差异全部在 <span class="en">±0.6</span> 以内，逐题互换 15 对 17，是随机波动。<strong>文本 CPT 没有跨过模态</strong>。它只帮到了自己的领域：PubMedQA <span class="en">70.6 → 72.8</span>。</p></div></div>
+      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 05</div><h3>B2：先看三千多张胸片配报告，再 SFT</h3><p>封闭题 <span class="en">84.1</span> 与 B1 持平，开放题略低 <span class="en">−0.6</span>，逐题修正 13 题、新错 22 题。<strong>图文 CPT 同样没有增益</strong>，原因在下一节。</p></div></div>
       <div class="step" data-step="4"><div class="step-card"><div class="n">05 / 05</div><h3>通用能力：一分没掉，但探针太钝</h3><p>TextVQA 四个模型都是 <span class="en">84</span> 上下，300 题里 81 题只差大小写。冻结视觉塔加 LoRA 是很轻的干预，但 TextVQA 的短答题和我们的 SFT 输出格式太像，测不出退化。实验 C 之前要换一个更敏感的基准。</p></div></div>
     </div>
   </div>
@@ -238,7 +238,7 @@ footer a{color:var(--ink-soft)}
     </div></div>
     <div class="steps">
       <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>基座会看，但不会答</h3><p>器官、知识图谱、颜色、平面这些题型，基座只有 <span class="en">22 到 40</span> 分。不是看不懂，是答法不对：说「the lungs」而标准答案是「lung」，答一整句而题目要一个词。</p></div></div>
-      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>SFT 把这些题一口气拉到 85 到 100</h3><p>Organ open <span class="en">+61.6</span>，KG open <span class="en">+50.5</span>，Modality / Plane / Color / Size 封闭题全部 <span class="en">100</span>。这是<strong>词表和格式的对齐</strong>，模型学会了 SLAKE 的说话方式。</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>SFT 把这些题一口气拉到 83 到 100</h3><p>Organ open <span class="en">+61.6</span>，KG open <span class="en">+50.5</span>，Plane / Color 全对，Modality / Size / Position 封闭题也到 <span class="en">83 到 94</span>。这是<strong>词表和格式的对齐</strong>，模型学会了 SLAKE 的说话方式。</p></div></div>
       <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>真正的识别题只到四成和六成</h3><p>Abnormality open（图里有什么病）<span class="en">41.5</span>，Position open（病灶在哪）<span class="en">57.7</span>。剩余错例是左右、上下弄反和病灶类别混淆。这两类是后面要攻的地方。</p></div></div>
       <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>B2 在病灶题上反而掉了</h3><p>Abnormality open <span class="en">41.5 → 31.7</span>，41 题少对 4 题，是四组实验里唯一超出噪声的下降。其余题型 B1、B2 都贴着 A。</p></div></div>
     </div>
@@ -315,7 +315,7 @@ footer a{color:var(--ink-soft)}
     <p class="lede">在 3B 模型、冻结视觉塔、几千条数据的条件下，CPT 阶段对医学 VQA 的主指标没有贡献。这是有对照的结论，不是失败的实验，报告里作为「CPT 何时无效」的一章保留。</p>
   </div>
   <div class="concl">
-    <div class="card"><div class="big" style="color:var(--c-a)">+21.9<small>SLAKE closed</small></div><h3>SFT 有效，而且主要是词表对齐</h3><p>真识别题只到四成和六成，是下一阶段的目标。</p></div>
+    <div class="card"><div class="big" style="color:var(--c-a)">+17.8<small>SLAKE closed</small></div><h3>SFT 有效，而且主要是词表对齐</h3><p>真识别题只到四成和六成，是下一阶段的目标。</p></div>
     <div class="card"><div class="big" style="color:var(--c-b1)">±0.6<small>B1 vs A</small></div><h3>文本 CPT 只帮文本任务</h3><p>PubMedQA +2.2，SLAKE 不动。内容和考题对不上就没有迁移。</p></div>
     <div class="card"><div class="big" style="color:var(--c-b2)">−9.8<small>Abnormality open</small></div><h3>图文 CPT 学到模板，伤了病灶题</h3><p>要让 CPT 起作用只有两条路：解冻视觉塔，或换异常均衡的语料。</p></div>
   </div>
@@ -334,7 +334,7 @@ var MODELS=["base","a","b1","b2"], NAMES={base:"Base",a:"A",b1:"B1",b2:"B2"};
 
 /* ---------- data ---------- */
 var MAIN=[
- {m:"SLAKE closed acc",v:{base:67.31,a:89.18,b1:88.70,b2:88.70}},
+ {m:"SLAKE closed acc",v:{base:67.31,a:85.10,b1:83.89,b2:84.13}},
  {m:"SLAKE open recall",v:{base:46.73,a:82.17,b1:82.72,b2:81.61}},
  {m:"TextVQA acc",v:{base:83.89,a:83.89,b1:83.78,b2:84.00}},
  {m:"PubMedQA acc",v:{base:65.80,a:70.60,b1:72.80,b2:70.80}},
@@ -343,7 +343,7 @@ var MAIN=[
 var TYPES=[
  {t:"Position (open)",n:163,base:24.5,a:57.7,b1:60.1,b2:58.3,g:"perc"},
  {t:"Organ (closed)",n:154,base:75.3,a:90.9,b1:90.3,b2:89.6,g:"vocab"},
- {t:"Abnormality (closed)",n:109,base:68.8,a:82.6,b1:82.6,b2:84.4,g:"perc"},
+ {t:"Abnormality (closed)",n:109,base:68.8,a:78.0,b1:75.2,b2:78.9,g:"perc"},
  {t:"KG (open)",n:109,base:22.0,a:72.5,b1:69.7,b2:70.6,g:"vocab"},
  {t:"Organ (open)",n:99,base:23.2,a:84.8,b1:83.8,b2:84.8,g:"vocab"},
  {t:"Modality (open)",n:75,base:92.0,a:94.7,b1:94.7,b2:94.7,g:"vocab"},
@@ -351,12 +351,12 @@ var TYPES=[
  {t:"Abnormality (open)",n:41,base:12.2,a:41.5,b1:39.0,b2:31.7,g:"perc"},
  {t:"Size (open)",n:39,base:87.2,a:97.4,b1:100,b2:100,g:"vocab"},
  {t:"KG (closed)",n:39,base:66.7,a:69.2,b1:66.7,b2:66.7,g:"other"},
- {t:"Modality (closed)",n:33,base:57.6,a:100,b1:100,b2:97.0,g:"vocab"},
+ {t:"Modality (closed)",n:33,base:57.6,a:93.9,b1:93.9,b2:90.9,g:"vocab"},
  {t:"Plane (open)",n:30,base:53.3,a:100,b1:100,b2:100,g:"vocab"},
  {t:"Color (open)",n:30,base:40.0,a:100,b1:100,b2:100,g:"vocab"},
  {t:"Plane (closed)",n:28,base:78.6,a:100,b1:100,b2:100,g:"vocab"},
- {t:"Size (closed)",n:26,base:26.9,a:100,b1:100,b2:100,g:"vocab"},
- {t:"Position (closed)",n:23,base:65.2,a:100,b1:100,b2:100,g:"vocab"}
+ {t:"Size (closed)",n:26,base:26.9,a:84.6,b1:84.6,b2:84.6,g:"vocab"},
+ {t:"Position (closed)",n:23,base:65.2,a:82.6,b1:82.6,b2:78.3,g:"vocab"}
 ];
 var PUB={gold:{yes:552,no:338,maybe:110},base:{yes:641,no:201,maybe:158},a:{yes:685,no:256,maybe:59},b1:{yes:670,no:286,maybe:44},b2:{yes:672,no:263,maybe:65}};
 

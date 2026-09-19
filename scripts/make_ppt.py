@@ -105,12 +105,12 @@ def footer(s, n):
 s = new_slide()
 kicker(s, Inches(1.0), Inches(1.15), "Topic 6 · Task 1.3 · 第 1 周进展汇报 · 2026-09-17")
 text(s, Inches(1.0), Inches(1.5), Inches(11), Inches(2.4),
-     [[("SFT 涨了 22 分，", {"color": NAVY}), ("CPT", {"color": RED}), (" 没有增益", {"color": NAVY})]],
+     [[("SFT 涨了 18 分，", {"color": NAVY}), ("CPT", {"color": RED}), (" 没有增益", {"color": NAVY})]],
      size=56, font=F_HEAD, bold=True, spacing=1.15)
 text(s, Inches(1.0), Inches(3.55), Inches(8.6), Inches(0.9),
      "医学视觉语言模型的参数高效增量预训练与指令微调。两周，四组实验，三张固定的评估表，每一个数字都能在仓库里复现。", size=16, color=SOFT)
 text(s, Inches(1.0), Inches(4.4), Inches(10), Inches(0.3), "Qwen2.5-VL-3B-Instruct · QLoRA r16 · Kaggle T4 · results as of 2026-09-16", size=10.5, font=F_NUM, color=TAUPE)
-for i, (v, frm, lab, col) in enumerate([("89.2", "← 67.3", "SLAKE closed accuracy，SFT 之后（实验 A）", ORANGE),
+for i, (v, frm, lab, col) in enumerate([("85.1", "← 67.3", "SLAKE closed accuracy，SFT 之后（实验 A）", ORANGE),
                                         ("82.2", "← 46.7", "SLAKE open recall，同一个 adapter", ORANGE),
                                         ("83.9", "= 83.9", "TextVQA，通用能力没有可测的退化", NAVY)]):
     x = Inches(1.0 + i * 3.4)
@@ -173,7 +173,7 @@ for ri, row in enumerate(rows):
                  size=11 if mono else 12.5, font=F_NUM if mono else F_BODY, color=SOFT if mono else NAVY, bold=(ci == 0), spacing=1.2)
         x += colw[ci]
     y += rh[ri]
-text(s, Inches(0.8), Inches(6.4), Inches(11.6), Inches(0.5), [[("红线：", {}), en("SLAKE test", color=SOFT), (" 与 ", {}), en("PubMedQA labeled", color=SOFT), (" 只评估、永不训练；切分文件固定入库；受控数据不进 git。", {})]], size=11.5, color=TAUPE)
+text(s, Inches(0.8), Inches(6.4), Inches(11.6), Inches(0.5), [[("红线：", {}), en("SLAKE test", color=SOFT), (" 与 ", {}), en("PubMedQA labeled", color=SOFT), (" 只评估、永不训练。2026-09-19 修正评分：封闭题里 61 道标准答案非是非（Lung / T2 等），原折叠式评分让它们白得分，三个微调模型各高估 4–5 分，现已按字面比，本页为修正后数字。", {})]], size=11.5, color=TAUPE)
 footer(s, 3)
 
 # ---------------- 4-6. main results (3 slides, chart + step cards) ----------------
@@ -194,10 +194,10 @@ def result_slide(n, deep, chart, title, steps):
 
 result_slide(4, True, "main_a.png", "起点，以及只做 SFT 涨了多少",
              [("01 / 05", "起点：基座直接做题", "SLAKE 封闭题 67.3，开放题 recall 46.7。X 光片最好、MRI 最差，说明基座见过的胸片远多于 MRI。PubMedQA 明显偏 yes。"),
-              ("02 / 05", "A：只做 SFT，涨 22 分", "4,919 道 SLAKE 题做三遍，4 小时 28 分。封闭题 67.3 → 89.2，开放题 recall 46.7 → 82.2。逐题看，修正 345 题，新错 30 题。")])
+              ("02 / 05", "A：只做 SFT，涨 18 分", "4,919 道 SLAKE 题做三遍，4 小时 28 分。封闭题 67.3 → 85.1，开放题 recall 46.7 → 82.2。逐题看，修正 328 题，新错 30 题。")])
 result_slide(5, True, "main_all.png", "加上 CPT 之后，曲线没有再往上走",
-             [("03 / 05", "B1：先读一万篇医学摘要，再 SFT", "SLAKE 与 A 的差异全部在 ±0.6 以内，逐题互换 15 对 14，是随机波动。文本 CPT 没有跨过模态，只帮到了自己的领域：PubMedQA 70.6 → 72.8。"),
-              ("04 / 05", "B2：先看三千多张胸片配报告，再 SFT", "封闭题 88.7 与 B1 持平，开放题略低 −0.6，逐题修正 11 题、新错 18 题。图文 CPT 同样没有增益。"),
+             [("03 / 05", "B1：先读一万篇医学摘要，再 SFT", "SLAKE 与 A 的差异全部在 ±0.6 以内，逐题互换 15 对 17，是随机波动。文本 CPT 没有跨过模态，只帮到了自己的领域：PubMedQA 70.6 → 72.8。"),
+              ("04 / 05", "B2：先看三千多张胸片配报告，再 SFT", "封闭题 84.1 与 B1 持平，开放题略低 −0.6，逐题修正 13 题、新错 22 题。图文 CPT 同样没有增益。"),
               ("05 / 05", "通用能力：一分没掉，但探针太钝", "TextVQA 四个模型都是 84 上下，300 题里 81 题只差大小写。短答题和 SFT 输出格式太像，测不出退化，实验 C 之前要换基准。")])
 
 # ---------------- 7. by type ----------------
@@ -206,7 +206,7 @@ kicker(s, Inches(0.8), Inches(0.55), "04 · 拆开看")
 h2(s, Inches(0.8), Inches(0.85), "涨的是词表对齐，没涨的是真识别", size=28)
 picture(s, CH / "bytype.png", Inches(0.92), Inches(2.0), w=Inches(7.45))
 x, y = Inches(8.95), Inches(1.9)
-for num, t, body in [("01 / 03", "基座会看，但不会答", "器官、知识图谱、颜色、平面这些题型，基座只有 22 到 40 分。不是看不懂，是答法不对。SFT 把它们一口气拉到 85 到 100，这是词表和格式的对齐。"),
+for num, t, body in [("01 / 03", "基座会看，但不会答", "器官、知识图谱、颜色、平面这些题型，基座只有 22 到 40 分。不是看不懂，是答法不对。SFT 把它们一口气拉到 83 到 100，这是词表和格式的对齐。"),
                      ("02 / 03", "真正的识别题只到四成和六成", "Abnormality open 41.5，Position open 57.7。剩余错例是左右、上下弄反和病灶类别混淆，是后面要攻的地方。"),
                      ("03 / 03", "B2 在病灶题上反而掉了", "Abnormality open 41.5 → 31.7，41 题少对 4 题，是四组实验里唯一超出噪声的下降。其余题型 B1、B2 都贴着 A。")]:
     hgt = Inches(1.5)
@@ -292,7 +292,7 @@ s = new_slide(deep=True)
 kicker(s, Inches(0.8), Inches(0.55), "09 · 结论")
 h2(s, Inches(0.8), Inches(0.85), "主结果是 A，B1 和 B2 是对照证据", size=28)
 text(s, Inches(0.8), Inches(1.85), Inches(11.6), Inches(0.9), "在 3B 模型、冻结视觉塔、几千条数据的条件下，CPT 阶段对医学 VQA 的主指标没有贡献。这是有对照的结论，不是失败的实验，报告里作为「CPT 何时无效」的一章保留。", size=14)
-concl = [("+21.9", "SLAKE closed", ORANGE, "SFT 有效，而且主要是词表对齐", "真识别题只到四成和六成，是下一阶段的目标。"),
+concl = [("+17.8", "SLAKE closed", ORANGE, "SFT 有效，而且主要是词表对齐", "真识别题只到四成和六成，是下一阶段的目标。"),
          ("±0.6", "B1 vs A", GREEN, "文本 CPT 只帮文本任务", "PubMedQA +2.2，SLAKE 不动。内容和考题对不上就没有迁移。"),
          ("−9.8", "Abnormality open", GOLDC, "图文 CPT 学到模板，伤了病灶题", "要让 CPT 起作用只有两条路：解冻视觉塔，或换异常均衡的语料。")]
 cw, x0, y0 = Inches(3.75), Inches(0.8), Inches(3.1)

@@ -21,21 +21,33 @@ plt.rcParams.update({"font.family": ["Consolas", "DejaVu Sans Mono"], "font.size
                      "axes.spines.right": False, "savefig.dpi": 220, "savefig.bbox": "tight",
                      "figure.facecolor": CARD, "axes.facecolor": CARD, "savefig.facecolor": CARD})
 
-MAIN = [("SLAKE closed acc", {"base": 67.31, "a": 89.18, "b1": 88.70, "b2": 88.70}),
-        ("SLAKE open recall", {"base": 46.73, "a": 82.17, "b1": 82.72, "b2": 81.61}),
-        ("TextVQA acc", {"base": 83.89, "a": 83.89, "b1": 83.78, "b2": 84.00}),
-        ("PubMedQA acc", {"base": 65.80, "a": 70.60, "b1": 72.80, "b2": 70.80}),
-        ("PubMedQA macro-F1", {"base": 51.03, "a": 52.38, "b1": 54.19, "b2": 52.96})]
-TYPES = [("Position (open)", 163, 24.5, 57.7, 60.1, 58.3), ("Organ (closed)", 154, 75.3, 90.9, 90.3, 89.6),
-         ("Abnormality (closed)", 109, 68.8, 82.6, 82.6, 84.4), ("KG (open)", 109, 22.0, 72.5, 69.7, 70.6),
-         ("Organ (open)", 99, 23.2, 84.8, 83.8, 84.8), ("Modality (open)", 75, 92.0, 94.7, 94.7, 94.7),
-         ("Quantity (open)", 52, 71.2, 73.1, 76.9, 75.0), ("Abnormality (open)", 41, 12.2, 41.5, 39.0, 31.7),
-         ("Size (open)", 39, 87.2, 97.4, 100, 100), ("KG (closed)", 39, 66.7, 69.2, 66.7, 66.7),
-         ("Modality (closed)", 33, 57.6, 100, 100, 97.0), ("Plane (open)", 30, 53.3, 100, 100, 100),
-         ("Color (open)", 30, 40.0, 100, 100, 100), ("Plane (closed)", 28, 78.6, 100, 100, 100),
-         ("Size (closed)", 26, 26.9, 100, 100, 100), ("Position (closed)", 23, 65.2, 100, 100, 100)]
-PUB = {"gold": {"yes": 552, "no": 338, "maybe": 110}, "base": {"yes": 641, "no": 201, "maybe": 158},
-       "a": {"yes": 685, "no": 256, "maybe": 59}, "b1": {"yes": 670, "no": 286, "maybe": 44}, "b2": {"yes": 672, "no": 263, "maybe": 65}}
+# 数据一律从仓库结果算, 不写死, 避免和 results/ 不同步
+import collections
+RES = REPO / "results"
+EV = REPO / "outputs" / "eval"
+_R = {k: json.load(open(RES / f, encoding="utf-8")) for k, f in
+      [("base", "baseline_2026-09-15.json"), ("a", "sft_A_2026-09-15.json"),
+       ("b1", "cpt_sft_B_2026-09-16.json"), ("b2", "cpt_iu_sft_B2_2026-09-16.json")]}
+MAIN = [("SLAKE closed acc", {k: v["slake"]["metrics"]["closed_acc"] for k, v in _R.items()}),
+        ("SLAKE open recall", {k: v["slake"]["metrics"]["open_recall"] for k, v in _R.items()}),
+        ("TextVQA acc", {k: v["textvqa"]["textvqa_acc"] for k, v in _R.items()}),
+        ("PubMedQA acc", {k: v["pubmedqa"]["accuracy"] for k, v in _R.items()}),
+        ("PubMedQA macro-F1", {k: v["pubmedqa"]["macro_f1"] for k, v in _R.items()})]
+PUB = {"gold": _R["base"]["pubmedqa"]["gold_dist"],
+       **{k: v["pubmedqa"]["pred_dist"] for k, v in _R.items()}}
+
+def _preds(tag):
+    return {json.loads(l)["qid"]: json.loads(l) for l in open(EV / f"slake_{tag}_preds.jsonl", encoding="utf-8")}
+
+_P = {k: _preds(t) for k, t in [("base", "baseline"), ("a", "sft_r16"), ("b1", "cpt_sft_r16"), ("b2", "cpt_iu_sft_r16")]}
+_g = collections.defaultdict(list)
+for _q, _r in _P["base"].items():
+    _g[(_r["content_type"], _r["answer_type"])].append(_q)
+TYPES = []
+for _k, _qs in sorted([(k, v) for k, v in _g.items() if len(v) >= 20], key=lambda kv: -len(kv[1])):
+    _v = {m: 100 * sum(_P[m][q]["score"] for q in _qs) / len(_qs) for m in _P}
+    TYPES.append((f'{_k[0]} ({_k[1].lower()})', len(_qs), round(_v["base"], 1), round(_v["a"], 1),
+                  round(_v["b1"], 1), round(_v["b2"], 1)))
 
 
 def style(ax, axis="y"):
@@ -116,7 +128,7 @@ runs = [("A · SFT", "sft_slake_qlora_r16", "a"), ("B1 · text CPT", "cpt_pubmed
         ("B2 · SFT after CPT", "sft_after_cpt_iu_r16", "b2")]
 fig, axes = plt.subplots(1, 5, figsize=(13.2, 2.9))
 for ax, (title, d, m) in zip(axes, runs):
-    rows = [json.loads(l) for l in open(REPO / "outputs" / d / "trainer_log.jsonl")]
+    rows = [json.loads(l) for l in open(REPO / "outputs" / d / "trainer_log.jsonl", encoding="utf-8")]
     tr = [(r["current_steps"], r["loss"]) for r in rows if "loss" in r]
     ev = [(r["current_steps"], r["eval_loss"]) for r in rows if "eval_loss" in r]
     ax.plot(*zip(*tr), color=C[m], lw=1.7, label="train")

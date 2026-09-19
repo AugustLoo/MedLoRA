@@ -59,7 +59,7 @@ def main():
             pred = generate(model, processor, prompt, open_image(r), args.max_new_tokens)
             closed = str(r["answer_type"]).upper() == "CLOSED"
             if closed:
-                score = float(M.yes_no(pred) == M.yes_no(r["answer"]))
+                score = M.closed_score(pred, r["answer"])
                 agg["closed_acc"].append(score)
                 by_modality[r["modality"]]["closed_acc"].append(score)
             else:

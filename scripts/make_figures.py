@@ -34,9 +34,9 @@ for name, fn, tag in MODELS:
     if not p.exists():
         alt = [EV / f"{k}_{tag}.json" for k in ("slake", "textvqa", "pubmedqa")]
         if all(a.exists() for a in alt):
-            res[name] = {k: json.load(open(a)) for k, a in zip(("slake", "textvqa", "pubmedqa"), alt)}
+            res[name] = {k: json.load(open(a, encoding="utf-8")) for k, a in zip(("slake", "textvqa", "pubmedqa"), alt)}
     else:
-        res[name] = json.load(open(p))
+        res[name] = json.load(open(p, encoding="utf-8"))
     if name in res:
         tags[name] = tag
 names = [n for n, _, _ in MODELS if n in res]
@@ -112,7 +112,7 @@ if runs:
     fig, axes = plt.subplots(1, len(runs), figsize=(2.6 * len(runs) + 0.8, 2.8), sharey=False)
     axes = [axes] if len(runs) == 1 else list(axes)
     for ax, (title, d, n) in zip(axes, runs):
-        rows = [json.loads(l) for l in open(REPO / "outputs" / d / "trainer_log.jsonl")]
+        rows = [json.loads(l) for l in open(REPO / "outputs" / d / "trainer_log.jsonl", encoding="utf-8")]
         tr = [(r["current_steps"], r["loss"]) for r in rows if "loss" in r]
         ev = [(r["current_steps"], r["eval_loss"]) for r in rows if "eval_loss" in r]
         ax.plot(*zip(*tr), color=COL[n], lw=1.6, label="train")

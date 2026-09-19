@@ -1,6 +1,6 @@
 # Parameter-Efficient Continued Pre-training and Instruction Tuning of a Medical Vision-Language Model
 
-**Course project, Topic 6 (Task 1.3)** · Draft v0.3, 2026-09-17 · Author: Chunqian Loo
+**Course project, Topic 6 (Task 1.3)** · Draft v0.4, 2026-09-19 · Author: Chunqian Loo
 
 > **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1 and B2 are complete. Section 2 (Related Work) is an outline with citation placeholders. Everything marked `[TODO]` still needs work. Repository: https://github.com/AugustLoo/MedLoRA
 
@@ -8,7 +8,7 @@
 
 ## Abstract
 
-Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 89.2 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 88.7) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. The residual errors concentrate in lesion identification and spatial localisation, and a persistent "yes" bias on PubMedQA is identified as the target for the alignment stage. All adapters, data-generation scripts, evaluation code and configurations are released for one-command reproduction.
+Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 85.1 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 84.1) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. The residual errors concentrate in lesion identification and spatial localisation, and a persistent "yes" bias on PubMedQA is identified as the target for the alignment stage. All adapters, data-generation scripts, evaluation code and configurations are released for one-command reproduction.
 
 ---
 
@@ -112,9 +112,11 @@ All three tables are produced by `train/eval_all.sh <tag> <adapter>` with greedy
 
 | Table | Data | Metrics |
 |---|---|---|
-| Medical VQA | SLAKE test | closed: accuracy after folding the answer to yes/no; open: exact match, token recall (LLaVA-Med convention) and token F1, all after lower-casing, stripping punctuation and articles; both split by modality (X-Ray / CT / MRI) |
+| Medical VQA | SLAKE test | closed: see the scoring note below; open: exact match, token recall (LLaVA-Med convention) and token F1, all after lower-casing, stripping punctuation and articles; both split by modality (X-Ray / CT / MRI) |
 | General retention | TextVQA 300 | VQA accuracy, min(#matching annotators / 3, 1) |
 | Reliability | PubMedQA labeled | accuracy, macro-F1 over {yes, no, maybe}, predicted-label distribution versus gold (552 / 338 / 110) |
+
+**Scoring note on closed questions (corrected 2026-09-19).** SLAKE's CLOSED category is not purely yes/no: 61 of the 416 closed test questions have a closed-vocabulary gold answer such as *Lung*, *Liver*, *T2* or *Coronal Plane*. Our first implementation folded both prediction and gold through a yes/no/other mapping, so on those 61 questions any answer that was not literally "yes" or "no" collapsed to "other" and matched the gold, scoring as correct for free. This inflated every instruction-tuned adapter, which had learned to answer those questions with a content word, by 4 to 5 points; the zero-shot base was unaffected because it forced yes/no answers there and was scored correctly. Closed questions are now scored as yes/no agreement when the gold is yes/no, and as exact match otherwise (`medvlm.metrics.closed_score`). All numbers in Section 5 use the corrected scorer; `scripts/rescore_slake.py` recomputes them from the stored per-question predictions without re-running the models. The correction lowers experiment A from 89.18 to 85.10, B1 from 88.70 to 83.89 and B2 from 88.70 to 84.13, and leaves every conclusion unchanged.
 
 ### 4.3 Hardware and cost
 
@@ -151,11 +153,11 @@ All training and evaluation ran on Kaggle (one NVIDIA T4, 16 GB, fp16). A local 
 
 | Metric | Base (0) | A: SFT | B1: text CPT → SFT | B2: image CPT → SFT |
 |---|---|---|---|---|
-| SLAKE closed acc | 67.31 | **89.18** | 88.70 | 88.70 |
+| SLAKE closed acc | 67.31 | **85.10** | 83.89 | 84.13 |
 | SLAKE open EM | 40.62 | 75.35 | **75.81** | 74.57 |
 | SLAKE open recall | 46.73 | 82.17 | **82.72** | 81.61 |
 | SLAKE open F1 | 47.53 | 81.56 | **82.07** | 80.88 |
-| SLAKE closed, X-Ray / CT / MRI | 80.70 / 64.49 / 56.82 | 91.23 / 86.45 / 93.18 | 91.23 / 85.51 / 93.18 | **92.11** / 85.05 / 93.18 |
+| SLAKE closed, X-Ray / CT / MRI | 80.70 / 64.49 / 56.82 | 85.09 / 84.58 / 86.36 | 82.46 / 83.64 / 86.36 | 85.09 / 82.71 / 86.36 |
 | TextVQA acc (retention) | 83.89 | 83.89 | 83.78 | 84.00 |
 | PubMedQA acc | 65.80 | 70.60 | **72.80** | 70.80 |
 | PubMedQA macro-F1 | 51.03 | 52.38 | **54.19** | 52.96 |
@@ -177,15 +179,15 @@ Training curves: A, train loss 0.736 → 0.082, validation loss 0.225 → 0.145 
 |---|---|---|---|---|---|---|---|
 | Position, open | 163 | 24.5 | 57.7 | 60.1 | 58.3 | +2.5 | +0.6 |
 | Organ, closed | 154 | 75.3 | 90.9 | 90.3 | 89.6 | −0.6 | −1.3 |
-| Abnormality, closed | 109 | 68.8 | 82.6 | 82.6 | 84.4 | 0.0 | +1.8 |
+| Abnormality, closed | 109 | 68.8 | 78.0 | 75.2 | 78.9 | −2.8 | +0.9 |
 | Knowledge-graph, open | 109 | 22.0 | 72.5 | 69.7 | 70.6 | −2.8 | −1.8 |
 | Organ, open | 99 | 23.2 | 84.8 | 83.8 | 84.8 | −1.0 | 0.0 |
 | Modality, open | 75 | 92.0 | 94.7 | 94.7 | 94.7 | 0.0 | 0.0 |
 | Quantity, open | 52 | 71.2 | 73.1 | 76.9 | 75.0 | +3.8 | +1.9 |
 | Abnormality, open | 41 | 12.2 | 41.5 | 39.0 | **31.7** | −2.4 | **−9.8** |
-| Modality / Plane / Colour / Size, closed | 91 | 26.9–78.6 | 100.0 | 100.0 | 97.0–100.0 | 0.0 | −1.1 |
+| Modality / Plane / Colour / Size, closed | 91 | 26.9–78.6 | 84.6–100.0 | 84.6–100.0 | 84.6–100.0 | 0.0 | −1.4 |
 
-Per-question changes: base → A fixed 345 questions and broke 30; A → B1 fixed 15 and broke 14; A → B2 fixed 11 and broke 18. On the X-ray subset alone (the CPT modality), B2 versus A is 74.5 versus 76.5 on open questions and 92.1 versus 91.2 on closed.
+Per-question changes: base → A fixed 328 questions and broke 30; A → B1 fixed 15 and broke 17; A → B2 fixed 13 and broke 22. On the X-ray subset alone (the CPT modality), B2 versus A is 74.5 versus 76.5 on open questions and 85.1 versus 85.1 on closed.
 
 ![Figure 3. SLAKE accuracy by question type.](figures/fig3_slake_by_type.png)
 
@@ -197,7 +199,7 @@ To separate what the CPT stage itself does from what the SFT stage overwrites, t
 
 | Metric | Base | B1 CPT only | B2 CPT only | A: SFT |
 |---|---|---|---|---|
-| SLAKE closed acc | 67.31 | 69.95 | 70.43 | 89.18 |
+| SLAKE closed acc | 67.31 | 69.71 | 68.27 | 85.10 |
 | SLAKE open EM / recall | 40.62 / 46.73 | 34.11 / 44.87 | 36.43 / 44.65 | 75.35 / 82.17 |
 | TextVQA acc | 83.89 | 81.67 | 83.56 | 83.89 |
 | PubMedQA acc / macro-F1 | 65.80 / 51.03 | 66.70 / 53.25 | 68.40 / 53.20 | 70.60 / 52.38 |
@@ -221,7 +223,7 @@ Before the SFT stage, the B2 CPT adapter was asked to write reports for three he
 
 **MRI: data, not capacity.** MRI was the weakest modality at baseline (56.8) and becomes the strongest after SFT (93.2). SLAKE's training set is MRI-heavy, so the base model lacked domain exposure rather than the ability to read MR images.
 
-**Image-text CPT does not help either, and slightly hurts lesion questions.** B2 matches A on closed questions (88.7 versus 89.2) and is 0.6 below on open recall; per question it fixes 11 and breaks 18. The one type that moves beyond noise is Abnormality-open, down from 41.5 to 31.7 (four of 41 questions). This is consistent with Section 5.3: the CPT stage instilled a "normal chest" prior in the language model without changing the visual features, and that prior is a liability on lesion questions. The X-ray closed-question gain (+0.9, one question of 114) is within noise. Taken together, B1 and B2 say that in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage contributes nothing to the primary metric; text CPT helps only text tasks. Two changes would be needed for a CPT stage to matter: unfreezing the vision tower (or LoRA on the ViT), or a label-balanced image-report corpus (CheXpert Plus sampled by finding). The report therefore treats A as the main result and B1/B2 as controlled evidence on when CPT does not help.
+**Image-text CPT does not help either, and slightly hurts lesion questions.** B2 matches A on closed questions (84.1 versus 85.1) and is 0.6 below on open recall; per question it fixes 11 and breaks 18. The one type that moves beyond noise is Abnormality-open, down from 41.5 to 31.7 (four of 41 questions). This is consistent with Section 5.3: the CPT stage instilled a "normal chest" prior in the language model without changing the visual features, and that prior is a liability on lesion questions. The X-ray closed-question gain (+0.9, one question of 114) is within noise. Taken together, B1 and B2 say that in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage contributes nothing to the primary metric; text CPT helps only text tasks. Two changes would be needed for a CPT stage to matter: unfreezing the vision tower (or LoRA on the ViT), or a label-balanced image-report corpus (CheXpert Plus sampled by finding). The report therefore treats A as the main result and B1/B2 as controlled evidence on when CPT does not help.
 
 **Text CPT does not cross the modality gap.** B1 and A are indistinguishable on SLAKE: every metric within ±0.6, per-question changes 15 fixed versus 14 broken. Two explanations, both plausible: the CPT corpus (abstract-level biomedical text) does not contain the localisation and lesion vocabulary SLAKE tests, and CPT updates only the LLM while the vision side is frozen. The CPT stage is nevertheless effective in its own domain: PubMedQA improves by 2.2 accuracy and 1.8 macro-F1. This motivates image-text CPT (B2) as the only CPT variant that can plausibly help the primary metric.
 
