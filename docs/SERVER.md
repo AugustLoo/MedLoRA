@@ -161,37 +161,70 @@ python scripts/eval_pubmedqa_split.py --half test
 **看什么**：A-server 与 C1 比 SLAKE 封闭/开放，差值若在一分内则「回放不伤主任务」成立；
 A-server 的 TextVQA 若也低于 84.22，说明那 2.9 分是 SFT 本身造成的，不能算在回放头上。
 
-## 「训练卡在 Running tokenizer on dataset 不动」—— 其实没卡, 是进度条粗
+## 运维笔记 (2026-09-19/20 排查了一整天, 下次直接看这里)
 
-**症状**: 数据集 `Converting format` 打完之后, 下一行进度条长时间停在
-`0%| | 0/4919 [00:00<?, ? examples/s]`, GPU 只占几百 MiB、利用率 0%。
-`ps` 里 worker 状态是 **R**、CPU 20-85%。
+### 账号和环境
+- SSH 账号是 **`user0`**, 不是 `chunqian`。`chunqian` 是个人标识, 只出现在路径和 conda 环境名里。
+  `scp -P 20322 user0@221.239.50.147:/workspace/chunqian/...`
+- 每开一个新终端都要 `source /opt/conda/etc/profile.d/conda.sh` 再 `conda activate chunqian`。
+  **不要跑 `conda init`**, 它会改共享账号的 `~/.bashrc`, 手册禁止。
+- `scp` 取回多个文件时通配符要加单引号, 让它在服务器端展开, 否则会套出一层子目录:
+  `scp -P 20322 user0@...:/workspace/chunqian/MedLoRA/outputs/eval/'*sft_a_server*' outputs/eval/`
 
-**真相** (2026-09-19 排查了两小时才弄清): LLaMA-Factory 的预处理是 `batched=True`,
-默认 **一批 1000 条**, tqdm 只在每批完成时更新。8 个 worker 各分 ~615 条, 不到一批,
-所以谁都没完成过一批, 进度条全程显示 0%。而每张 SLAKE 图要几秒 CPU 处理,
-4919 条: 单进程约 7-8 小时, 8 进程约 1 小时。它一直在干活, 只是我们看不见。
-当天连着误杀了两个健康的运行。
+### 预处理「卡住」其实没卡
+进度条长时间停在 `0%| | 0/4919 [00:00<?, ? examples/s]` 是正常的:
+LLaMA-Factory 用 `batched=True`, 默认**一批 1000 条**, tqdm 只在每批完成时更新。
+32 个 worker 各分 ~154 条, 不到一批, 所以全程显示 0%。加 `preprocessing_batch_size: 64` 就能看见进度和 ETA。
 
-**怎么确认它活着** (不需要任何权限, py-spy 在这个容器里被 ptrace 禁用):
+**判断死活的正确方法** (py-spy 在这个容器里被 ptrace 禁用, strace 同理):
 ```bash
-grep rchar /proc/<主进程PID>/io; sleep 30; grep rchar /proc/<主进程PID>/io
+grep rchar /proc/<PID>/io; sleep 30; grep rchar /proc/<PID>/io
 ```
-`rchar` (累计读取字节) 30 秒内涨了 1 MB 以上就是在一张张读图, 别杀。
-注意 `write_bytes` 在一批完成前会一直是 0, 不能拿它判断。
+`rchar` 30 秒涨了 1 MB 以上就是在一张张读图, 别杀。
+`write_bytes` 在一批完成前一直是 0, **不能**拿它判断。
 
-**修法**: 配置里加 `preprocessing_batch_size: 64`, 进度条每 64 条跳一次,
-右边会显示 `examples/s` 和 ETA, 一眼能看出速度。`preprocessing_num_workers` 保持 8
-(机器核数够的话 16 更快)。两个参数都只影响数据准备, **不改变训出来的模型**。
-`scripts/make_bf16_configs.py` 和 `configs/bf16/*.yaml` 已统一 (2026-09-19)。
+### 线程超额: 预处理阶段最致命的一项
+实测同一张 256×256 的图, 处理耗时随 torch 线程数剧变:
 
-**已排除的原因** (都查过, 不是):
-双卡 (GPU 1 是 2MiB)、内存 (478 GB available)、磁盘 (456 G 空闲)、
-网络 (worker 是 R 不是 S)、图像分辨率 (`image_max_pixels: 262144` 在)、
-多进程 fork 死锁 (改成单进程一样 0%, 但 rchar 在涨)。
+| torch 线程 | 每张图 |
+|---|---|
+| 128 | 7.862 s |
+| 16 | 1.220 s |
+| 4 | 0.099 s |
+| **1** | **0.021 s** |
 
-**另外三条教训** (同一天踩的):
-- 训练命令的输出**不要**重定向进文件。tqdm 在非终端环境不刷新, 看不出进度。
-  在 tmux 里直接跑, 事后用 `tmux capture-pane -p -t <会话> -S -400` 捞。
-- 多条命令要用 `&&` 串起来。用换行分隔时训练失败了评估照样跑, 伪装成"评估出错"。
+1 个线程比 128 个快 **374 倍**。默认值是 64, 所以不设就是灾难。
+症状是 CPU 只占百分之几却极慢 —— 线程都在互相等, 不是在算。
+`export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1` 只影响数据准备的速度, **不改变训出来的模型**。
+
+### 训练慢 (未解决的开放问题)
+C1 是 4.67 秒一步, A-server 是 38 秒一步, **同一台机器、同一个模型、同样的批大小**。
+已排除: 双卡、内存 (478 GB 空闲)、磁盘 (`read_bytes` 为 0, 数据在页缓存)、
+别人抢资源 (`%Cpu(s)` 78% 空闲, 负载 3.76)、图像分辨率 (`image_max_pixels` 生效)、
+显卡性能 (实测 68.5 TFLOPS bf16, 5090 正常水平)、显存抖动 (28140 MiB 十次采样不变)、
+网络 (加离线变量无变化)、线程数 (1 / 16 / 默认都是 38 秒)。
+`faulthandler` 抓到主线程卡在 `torch/autograd/graph.py _engine_run_backward`, 即反向传播,
+但 GPU 利用率只有 5-10%, 算下来每步约 31 秒什么都没发生。原因未找到。
+**排期时按 10 小时一轮算, 放 tmux 里过夜。**
+
+不能用 ptrace 时抓 Python 栈的办法:
+```bash
+export PYTHONFAULTHANDLER=1      # 启动训练前设置
+kill -ABRT <PID>                 # 打印所有线程的调用栈, 然后进程退出
+```
+
+### 断了怎么办
+- `save_steps: 400` 会存检查点。续跑把 `resume_from_checkpoint: outputs/xxx/checkpoint-400`
+  **写进 YAML**, 不能用命令行参数 —— `llamafactory-cli` 不接受配置文件之外的参数, 会报
+  `Some keys are not used by the HfArgumentParser`。同时把 `overwrite_output_dir` 改成 `false`。
+- `overwrite_cache: false` **救不了预处理**。HF datasets 的缓存指纹包含预处理函数的哈希, 而那个
+  哈希在 LLaMA-Factory 里不稳定, 所以几乎必然不命中。要复用得用 `tokenized_path: data/tokenized/xxx`,
+  它按你给的文件夹名存取, 不算哈希。
+- tmux 服务器本身会没 (`no server running on /tmp/tmux-20003/default`), 里面的任务跟着死。
+  每次跑之前先 `tmux ls` 确认会话在。
+
+### 三条流程纪律
+- 训练输出**不要**重定向进文件。tqdm 在非终端环境不刷新, 进度条永远停在第一帧, 看不出死活。
+  在 tmux 里直接跑 (tmux 本身是终端), 事后用 `tmux capture-pane -p -t <会话> -S -400` 捞。
+- 多条命令用 `&&` 串起来。用换行分隔时训练失败了评估照样跑, 会伪装成「评估出错」掩盖真正的问题。
 - `tmux attach` 不要和后面的命令一起粘贴, 先单独执行 attach 进去, 再粘后面的。

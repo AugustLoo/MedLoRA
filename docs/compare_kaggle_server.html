@@ -61,14 +61,14 @@ footer{padding:34px 0 0;font-family:var(--f-num);font-size:11.5px;color:var(--ta
 <div class="wrap">
 
 <header>
-  <div class="kicker">Topic 6 · 服务器 RTX 5090 与 Kaggle T4 对照 · 2026-09-19</div>
-  <h1>六轮实验横向对比：<span class="hi">C1</span> 是第一个把校准修回来的</h1>
-  <p class="sub">左边四轮在 Kaggle 上测，右边两轮在学院服务器上测。两台机器的基座先对齐过，差异在一分以内，所以可以放在同一张图里看。</p>
+  <div class="kicker">Topic 6 · 服务器 RTX 5090 与 Kaggle T4 对照 · 2026-09-21</div>
+  <h1>七轮实验横向对比：<span class="hi">C1</span> 是第一个把校准修回来的</h1>
+  <p class="sub">四轮在 Kaggle 上测，三轮在学院服务器上测。两台机器的基座先对齐过，实验 A 又在服务器上重跑了一遍，所以 C1 的每一项对照都只差「那 900 条数据」一个变量。</p>
   <div class="hero">
-    <div><div class="v" style="color:var(--c1)">61.1<small>← 51.7</small></div><div class="bar" style="background:var(--c1)"></div><div class="l">PubMedQA macro-F1，C1 相对实验 A，考卷半边</div></div>
-    <div><div class="v" style="color:var(--c1)">19<small>← 5 / 共 55</small></div><div class="bar" style="background:var(--c1)"></div><div class="l">该答 maybe 且答对的题数</div></div>
-    <div><div class="v" style="color:var(--navy)">84.1<small>≈ A 的 85.1</small></div><div class="bar" style="background:var(--navy)"></div><div class="l">SLAKE 封闭题，与 A 持平，没有代价</div></div>
-    <div><div class="v" style="color:var(--red)">81.3<small>← 84.2</small></div><div class="bar" style="background:var(--red)"></div><div class="l">TextVQA，唯一测出的退化</div></div>
+    <div><div class="v" style="color:var(--c1)">61.1<small>← 51.5</small></div><div class="bar" style="background:var(--c1)"></div><div class="l">PubMedQA macro-F1，C1 相对 A-server，考卷半边</div></div>
+    <div><div class="v" style="color:var(--c1)">19<small>← 6 / 共 55</small></div><div class="bar" style="background:var(--c1)"></div><div class="l">该答 maybe 且答对的题数，三倍于 A-server</div></div>
+    <div><div class="v" style="color:var(--navy)">−1 题<small>共 1061 题</small></div><div class="bar" style="background:var(--navy)"></div><div class="l">SLAKE 全测试集净变化，封闭题掉 5 题、开放题涨 4 题</div></div>
+    <div><div class="v" style="color:var(--red)">−2.2<small>A-server 83.6 → 81.3</small></div><div class="bar" style="background:var(--red)"></div><div class="l">TextVQA，已归因于那 900 条纯文本</div></div>
   </div>
 </header>
 
@@ -80,12 +80,12 @@ footer{padding:34px 0 0;font-family:var(--f-num);font-size:11.5px;color:var(--ta
     <svg id="c-ruler" viewBox="0 0 760 210" role="img" aria-label="基座在两台机器上的五项指标对比"></svg>
     <div class="legend"><span><i style="background:var(--base)" class="hatch-legend"></i>Kaggle T4（斜纹）</span><span><i style="background:var(--base)"></i>服务器 5090（实心）</span></div>
   </div>
-  <p class="note"><b>这一节的作用</b>是证明后面的跨机器对比站得住。规则：服务器的实验和服务器基座比，一分以内的差异不解读。</p>
+  <p class="note"><b>这一节的作用</b>是证明后面的跨机器对比站得住。规则：服务器的实验和服务器基座比，一分以内的差异不解读。<br><b>后来有了更强的证据</b>：实验 A 在服务器上用不量化的 bf16 完整重跑了一遍（图中的「A 只 SFT（服务器）」），五项指标和 Kaggle 那次全部差在半分以内，连最终验证损失都是 0.145 对 0.1446。换硬件、换量化方式，结果重现了。</p>
 </section>
 
 <section>
   <h2><span class="n">02</span>核心结果：答案分布有没有对上真实</h2>
-  <p class="lede">PubMedQA 考卷半边五百题，真实答案 276 个 yes、169 个 no、55 个 maybe。<b>前四轮全都过度偏向 yes、几乎不答 maybe</b>；C1 的分布是六个模型里最贴近真实的。灰色斜纹是真实分布。</p>
+  <p class="lede">PubMedQA 考卷半边五百题，真实答案 276 个 yes、169 个 no、55 个 maybe。<b>除 C1 外全都过度偏向 yes、几乎不答 maybe</b>；C1 的 269/151/80 是七个模型里最贴近真实的。灰色斜纹是真实分布。</p>
   <div class="card">
     <div class="ttl">PubMedQA 预测分布 vs 真实 · 考卷半边 500 题</div>
     <svg id="c-dist" viewBox="0 0 760 280" role="img" aria-label="各模型预测的 yes/no/maybe 数量与真实分布对比"></svg>
@@ -102,23 +102,23 @@ footer{padding:34px 0 0;font-family:var(--f-num);font-size:11.5px;color:var(--ta
     <svg id="c-cal" viewBox="0 0 760 250" role="img" aria-label="macro-F1、maybe 答对数、no 误判成 yes 的对比"></svg>
     <div class="legend" id="lg-cal"></div>
   </div>
-  <p class="note">A 只做 SFT 之后，把 no 答成 yes 的错误反而比基座<b>更多</b>，59 例对 43 例。C1 降到 26 例，比基座还低。</p>
+  <p class="note">只做 SFT 之后，把 no 答成 yes 的错误反而比基座<b>更多</b>：Kaggle 上的 A 是 59 例，服务器上的 A 是 63 例，而基座只有 42 例。两台机器各自独立地重现了这一点，说明<b>短答式微调会系统性地把模型推向 yes</b>，与硬件无关。C1 降到 26 例，比没微调过的基座还低。</p>
 </section>
 
 <section>
   <h2><span class="n">04</span>代价在哪：SLAKE 没掉，TextVQA 掉了</h2>
-  <p class="lede">左边是医学看图问答，C1 和前三轮微调模型挤在一起，<b>混入九百条纯文本没有伤到主任务</b>。右边是通用能力探针，C1 掉了 2.9 分，是四轮实验里第一次测出退化。</p>
+  <p class="lede">左边是医学看图问答，C1 和其余微调模型挤在一起，<b>混入九百条纯文本基本没有伤到主任务</b>——封闭题掉 1.2 分（416 题里约 5 题），开放题 EM 反涨 0.6 分（645 题里约 4 题），全测试集净变化约一题。右边是通用能力探针，这是整个项目<b>唯一测出的退化</b>。</p>
   <div class="card">
     <div class="ttl">SLAKE 封闭题 / 开放题 recall &nbsp;·&nbsp; TextVQA</div>
     <svg id="c-cost" viewBox="0 0 760 250" role="img" aria-label="SLAKE 与 TextVQA 上各模型的表现"></svg>
     <div class="legend" id="lg-cost"></div>
   </div>
-  <p class="note">TextVQA 掉的那 2.9 分逐题看是变差 14 题、变好 6 题，净 8 题。答案平均长度 1.39 词变 1.43 词，不是答长了。一半是写法差异（one penny 变 1 penny），一半是真读错（Vietnam 变 us army）。<b>归因待定</b>：实验 A 在 Kaggle 上 TextVQA 没掉，但那是跨机器比较，要等 A 在服务器上重跑一遍才能确认这 2.9 分是混入纯文本造成的，还是这块卡上 SFT 本来就会掉。</p>
+  <p class="note"><b>归因已经定了</b>，而且分得很干净：服务器基座 84.22 → 只做 SLAKE 微调的 A-server 83.56（掉 0.66，噪声级）→ 再混入 900 条纯文本的 C1 81.33（又掉 2.23）。两段相加正好是之前测到的 2.89。<b>所以退化不是微调本身造成的，是那 900 条纯文本造成的。</b><br>逐题看是变差 14 题、变好 6 题，净 8 题。答案平均长度 1.39 词变 1.43 词，不是答长了；一半是写法差异（one penny 变 1 penny），一半是真读错（Vietnam 变 us army）。要留意的是这个探针只有 300 题，2.2 分即约 7 题，方向可信但幅度不够精确。</p>
 </section>
 
 <section>
   <h2><span class="n">05</span>全部数字</h2>
-  <p class="lede">SLAKE 与 TextVQA 为全量测试集；PubMedQA 一律只算考卷半边五百题，训练用的另一半永不计分。</p>
+  <p class="lede">SLAKE 与 TextVQA 为全量测试集；PubMedQA 一律只算考卷半边五百题，训练用的另一半永不计分。两行「基座」和两行「A 只 SFT」分别是同一个模型在两台机器上各测一次的结果。</p>
   <div class="tw"><table id="tbl">
     <thead><tr><th>模型</th><th>测量机器</th><th class="num">SLAKE 封闭</th><th class="num">开放 recall</th><th class="num">开放 EM</th><th class="num">TextVQA</th><th class="num">PubMedQA acc</th><th class="num">macro-F1</th><th class="num">maybe 答对</th><th class="num">no→yes</th></tr></thead>
     <tbody></tbody>
@@ -142,6 +142,7 @@ var M=[
  {k:"b1",    n:"B1 文本CPT→SFT",  w:"kaggle", closed:83.89, rec:82.72, em:75.81, tv:83.78, acc:72.20, f1:52.75, mb:3,  ny:48, d:[337,145,18]},
  {k:"b2",    n:"B2 图文CPT→SFT",  w:"kaggle", closed:84.13, rec:81.61, em:74.57, tv:84.00, acc:70.20, f1:52.35, mb:5,  ny:54, d:[343,127,30]},
  {k:"base",  n:"基座",            w:"server", closed:66.35, rec:47.19, em:40.93, tv:84.22, acc:64.00, f1:48.66, mb:7,  ny:42, d:[320,97,83]},
+ {k:"a",     n:"A 只 SFT",        w:"server", closed:85.34, rec:82.07, em:75.50, tv:83.56, acc:68.80, f1:51.45, mb:6,  ny:63, d:[356,112,32]},
  {k:"c1",    n:"C1 SFT+三分类回放", w:"server", closed:84.13, rec:82.19, em:76.12, tv:81.33, acc:71.60, f1:61.09, mb:19, ny:26, d:[269,151,80]}
 ];
 var GOLD=[276,169,55];
