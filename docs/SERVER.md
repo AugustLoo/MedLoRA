@@ -161,6 +161,81 @@ python scripts/eval_pubmedqa_split.py --half test
 **看什么**：A-server 与 C1 比 SLAKE 封闭/开放，差值若在一分内则「回放不伤主任务」成立；
 A-server 的 TextVQA 若也低于 84.22，说明那 2.9 分是 SFT 本身造成的，不能算在回放头上。
 
+## 实验 C2 · 回放比例的消融 (300 / 900 / 1800)
+
+**要回答的问题**: C1 证明混入 900 条三分类样本有效 (macro-F1 51.45 → 61.09, 代价 TextVQA −2.23)，
+但 900 是拍出来的。变动条数, 把一个孤点做成一条「校准收益 vs 通用能力代价」的曲线,
+回答「最少补多少条够用」。
+
+**三个点**: 300 (每类 100)、900 (每类 300, **就是 C1, 已完成, 不用重跑**)、1800 (每类 600)。
+配置之间只差 `dataset` 和 `output_dir` 两行, 其余超参与实验 A 和 C1 完全一致。
+
+| 点 | 回放条数 | 训练样本 | 应有总步数 | maybe 平均重复 |
+|---|---|---|---|---|
+| C2-300 | 300 | 4,919 + 300 | **981** | 1.8 次 |
+| C1 | 900 | 4,919 + 900 | 1,092 ✅已完成 | 5.5 次 |
+| C2-1800 | 1,800 | 4,919 + 1,800 | **1,260** | 10.9 次 |
+
+**maybe 重复次数是这个实验的内在限制**: 训练半边只有 55 条唯一的 maybe 样本,
+1800 条那一档等于每条重复近 11 次。如果曲线在 1800 处不再上升甚至回落,
+要先怀疑是重复导致的过拟合, 而不是「回放到顶了」。写结论时必须说明这一点。
+
+### 跑法
+
+```bash
+tmux ls                            # 先确认会话在; 没有就 tmux new -s chunqian_train
+tmux attach -t chunqian_train
+```
+
+进去之后（**attach 单独执行, 不要和下面一起粘贴**）:
+
+```bash
+source /opt/conda/etc/profile.d/conda.sh && conda activate chunqian && cd /workspace/chunqian/MedLoRA
+export CUDA_VISIBLE_DEVICES=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false
+nvidia-smi                         # 确认 GPU 0 空着
+
+# --- 第一档: 300 条 ---
+python data/convert_pubmedqa_sft.py --per-class 100 --tag 300
+llamafactory-cli train configs/bf16/sft_mix_pubmedqa_300.yaml && \
+rm -rf outputs/sft_mix_pubmedqa_300_r16/checkpoint-* && \
+bash train/eval_all.sh sft_mix_300 outputs/sft_mix_pubmedqa_300_r16
+
+# --- 第二档: 1800 条 ---
+python data/convert_pubmedqa_sft.py --per-class 600 --tag 1800
+llamafactory-cli train configs/bf16/sft_mix_pubmedqa_1800.yaml && \
+rm -rf outputs/sft_mix_pubmedqa_1800_r16/checkpoint-* && \
+bash train/eval_all.sh sft_mix_1800 outputs/sft_mix_pubmedqa_1800_r16
+```
+
+三步用 `&&` 串起来, 训练失败就不会往下跑评估 (2026-09-19 踩过这个坑)。
+Ctrl+B 松开按 D 离开。
+
+### 时长预估与一条线索
+
+C1 (混合配置) 是 **4.67 秒一步**, A-server (纯 SLAKE) 是 **38 秒一步**, 同一台机器差八倍。
+C2 两轮都是混合配置, 和 C1 同一个形状, **所以很可能也是 4-5 秒一步, 一轮约 1.5 小时**,
+加评估一小时, 两档一天之内能跑完。
+
+如果 C2 也快, 那就是一条新线索: 慢的那次是纯 SLAKE 配置, 快的两次都混了纯文本样本。
+把这个观察记下来, 它可能是那个未解决的 38 秒问题的突破口。
+**开跑后 20 分钟先看一眼步速**, 别等到第二天才发现是 38 秒一步。
+
+```bash
+tmux capture-pane -p -t chunqian_train -S -3 | tail -2
+```
+
+### 取回与计分
+
+```bash
+scp -P 20322 user0@221.239.50.147:/workspace/chunqian/MedLoRA/outputs/eval/'*sft_mix_300*' outputs/eval/
+scp -P 20322 user0@221.239.50.147:/workspace/chunqian/MedLoRA/outputs/eval/'*sft_mix_1800*' outputs/eval/
+python scripts/eval_pubmedqa_split.py --half test
+```
+
+PubMedQA 一律只算考卷半边; SLAKE 和 TextVQA 全量, 与 **A-server** 比 (不是与基座比,
+A-server 才是零回放那个点)。曲线的横轴是回放条数 0 / 300 / 900 / 1800,
+其中 0 就是 A-server。
+
 ## 运维笔记 (2026-09-19/20 排查了一整天, 下次直接看这里)
 
 ### 账号和环境

@@ -1,0 +1,61 @@
+# 实验 C2-300: SLAKE SFT + PubMedQA 三分类回放 300 条 (不量化, bf16, 24-32 GB 单卡)
+# 目的: C1 证明 900 条有效 (macro-F1 +9.63, 代价 TextVQA -2.23)。C2 变动回放条数, 画出
+# 「校准收益 vs 通用能力代价」的取舍曲线。本文件是 300 条这一点, 与 C1 只差 dataset 与 output_dir。
+# 与 configs/bf16/sft_slake_qlora.yaml 唯一的差别是 dataset 多了 pubmedqa_sft_train 与 output_dir。
+# 前置: python data/convert_slake_sharegpt.py && python data/convert_pubmedqa_sft.py --per-class 100 --tag 300
+# 运行: llamafactory-cli train configs/bf16/sft_mix_pubmedqa_300.yaml
+
+### model
+model_name_or_path: Qwen/Qwen2.5-VL-3B-Instruct
+trust_remote_code: true
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_target: all
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+freeze_vision_tower: true
+freeze_multi_modal_projector: true
+
+### dataset
+dataset: slake_train,pubmedqa_sft_train_300
+dataset_dir: data/processed
+template: qwen2_vl
+cutoff_len: 1024
+image_max_pixels: 262144
+overwrite_cache: true
+preprocessing_num_workers: 32
+preprocessing_batch_size: 64   # 进度条每 64 条跳一次, 否则一批 1000 条前一直显示 0%
+
+### output
+output_dir: outputs/sft_mix_pubmedqa_300_r16
+logging_steps: 10
+save_steps: 400
+save_total_limit: 3
+plot_loss: true
+overwrite_output_dir: true
+report_to: none
+
+### train
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 4   # 有效 batch 16, 与实验 A 一致
+learning_rate: 1.0e-4
+num_train_epochs: 3.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.05
+bf16: true
+gradient_checkpointing: true
+seed: 42
+
+### eval
+eval_dataset: slake_validation
+per_device_eval_batch_size: 4
+eval_strategy: steps
+eval_steps: 400
+
+### 预处理线程
+# 跑之前务必 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1, 否则单张图处理耗时从 0.02 秒涨到 7.8 秒。
+# 见 docs/SERVER.md 运维笔记。

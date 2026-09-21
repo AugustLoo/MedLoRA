@@ -11,7 +11,9 @@
 --per-class 0 表示不平衡, 原样使用。
 
 用法 (服务器上):
-  python data/convert_pubmedqa_sft.py --per-class 300
+  python data/convert_pubmedqa_sft.py --per-class 300               # C1, 900 条
+  python data/convert_pubmedqa_sft.py --per-class 100 --tag 300     # C2 小剂量, 300 条
+  python data/convert_pubmedqa_sft.py --per-class 600 --tag 1800    # C2 大剂量, 1800 条
 输出: data/processed/pubmedqa_sft_train.json, 并登记进 dataset_info.json
 """
 import argparse
@@ -33,6 +35,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--per-class", type=int, default=300, help="每个标签抽多少条; 0 = 不平衡")
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--tag", default="", help='数据集名后缀, 如 "300"; 留空沿用 C1 的 pubmedqa_sft_train')
     args = ap.parse_args()
 
     if not SPLIT.exists():
@@ -73,12 +76,13 @@ def main():
     rng.shuffle(samples)
 
     OUT.mkdir(parents=True, exist_ok=True)
-    fn = OUT / "pubmedqa_sft_train.json"
+    name = "pubmedqa_sft_train" + (f"_{args.tag}" if args.tag else "")
+    fn = OUT / f"{name}.json"
     fn.write_text(json.dumps(samples, ensure_ascii=False, indent=1), encoding="utf-8")
 
     info_fn = OUT / "dataset_info.json"
     info = json.loads(info_fn.read_text(encoding="utf-8")) if info_fn.exists() else {}
-    info["pubmedqa_sft_train"] = {
+    info[name] = {
         "file_name": fn.name,
         "formatting": "sharegpt",
         "columns": {"messages": "messages"},
