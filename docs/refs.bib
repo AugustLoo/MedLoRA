@@ -1,10 +1,13 @@
 % MedLoRA — references
 %
-% ⚠️ VERIFY BEFORE SUBMISSION. These entries were drafted from memory, not fetched from a
-% bibliographic database. Author lists, years, venues, arXiv identifiers and page numbers must
-% each be checked against the actual paper (arxiv.org, ACL Anthology, or the publisher's page)
-% before this bibliography is submitted. A wrong citation is a hard error in a report; treat
-% every field below as a claim to confirm, not as ground truth.
+% VERIFIED 2026-09-23. All 29 entries were checked against the arXiv abstract page (25 entries)
+% or the publisher page / PMLR (4 entries without arXiv). Titles, first authors, arXiv ids and
+% years all matched. Corrections made during the check: MMBench is ECCV 2024 (Oral), not a
+% preprint; Model Cards is a FAT* 2019 proceedings paper (type fixed); Med-Flamingo author order
+% corrected to the PMLR listing. Completed: PMLR volume/pages for Med-Flamingo, NEJM AI volume/
+% issue/DOI for Med-PaLM M, article number/DOI for PubMedBERT, pages/DOI for VQA-RAD, OpenI,
+% MIMIC-CXR and Robins 1995. Venues for LoRA (ICLR 2022), InstructGPT and DPO (NeurIPS 2022/2023)
+% and EWC (PNAS 2017) are not stated on their arXiv pages and rest on general knowledge.
 
 % ---------------- Parameter-efficient adaptation ----------------
 
@@ -93,9 +96,12 @@
 @inproceedings{moor2023medflamingo,
   title     = {Med-Flamingo: a Multimodal Medical Few-shot Learner},
   author    = {Moor, Michael and Huang, Qian and Wu, Shirley and Yasunaga, Michihiro and
-               Zakka, Cyril and Dalmia, Yash and Reis, Eduardo Pontes and Rajpurkar, Pranav and
-               Leskovec, Jure},
+               Dalmia, Yash and Leskovec, Jure and Zakka, Cyril and Reis, Eduardo Pontes and
+               Rajpurkar, Pranav},
   booktitle = {Machine Learning for Health (ML4H)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {225},
+  pages     = {353--367},
   year      = {2023},
   eprint    = {2307.15189},
   archivePrefix = {arXiv}
@@ -106,7 +112,10 @@
   author  = {Tu, Tao and Azizi, Shekoofeh and Driess, Danny and Schaekermann, Mike and
              Amin, Mohamed and Chang, Pi-Chuan and Carroll, Andrew and Lau, Charles and others},
   journal = {NEJM AI},
+  volume  = {1},
+  number  = {3},
   year    = {2024},
+  doi     = {10.1056/AIoa2300138},
   eprint  = {2307.14334},
   archivePrefix = {arXiv}
 }
@@ -127,7 +136,9 @@
   author  = {Lau, Jason J. and Gayen, Soumya and Ben Abacha, Asma and Demner-Fushman, Dina},
   journal = {Scientific Data},
   volume  = {5},
-  year    = {2018}
+  pages   = {180251},
+  year    = {2018},
+  doi     = {10.1038/sdata.2018.251}
 }
 
 @article{he2020pathvqa,
@@ -157,7 +168,9 @@
   journal = {Journal of the American Medical Informatics Association (JAMIA)},
   volume  = {23},
   number  = {2},
-  year    = {2016}
+  pages   = {304--310},
+  year    = {2016},
+  doi     = {10.1093/jamia/ocv080}
 }
 
 @inproceedings{irvin2019chexpert,
@@ -190,7 +203,9 @@
              Mark, Roger G. and Horng, Steven},
   journal = {Scientific Data},
   volume  = {6},
-  year    = {2019}
+  pages   = {317},
+  year    = {2019},
+  doi     = {10.1038/s41597-019-0322-0}
 }
 
 % ---------------- General-ability probes ----------------
@@ -205,13 +220,14 @@
   archivePrefix = {arXiv}
 }
 
-@article{liu2023mmbench,
-  title   = {{MMBench}: Is Your Multi-modal Model an All-around Player?},
+@inproceedings{liu2023mmbench,
+  title     = {{MMBench}: Is Your Multi-modal Model an All-around Player?},
   author  = {Liu, Yuan and Duan, Haodong and Zhang, Yuanhan and Li, Bo and Zhang, Songyang and
              Zhao, Wangbo and Yuan, Yike and Wang, Jiaqi and He, Conghui and Liu, Ziwei and others},
-  journal = {arXiv preprint},
-  year    = {2023},
-  eprint  = {2307.06281},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  note      = {Oral},
+  year      = {2024},
+  eprint    = {2307.06281},
   archivePrefix = {arXiv}
 }
 
@@ -234,7 +250,9 @@
   journal = {ACM Transactions on Computing for Healthcare},
   volume  = {3},
   number  = {1},
+  articleno = {2},
   year    = {2021},
+  doi     = {10.1145/3458754},
   eprint  = {2007.15779},
   archivePrefix = {arXiv}
 }
@@ -247,6 +265,7 @@
   journal = {Connection Science},
   volume  = {7},
   number  = {2},
+  pages   = {123--146},
   year    = {1995}
 }
 
@@ -303,13 +322,13 @@
   archivePrefix = {arXiv}
 }
 
-@article{mitchell2019modelcards,
+@inproceedings{mitchell2019modelcards,
   title   = {Model Cards for Model Reporting},
   author  = {Mitchell, Margaret and Wu, Simone and Zaldivar, Andrew and Barnes, Parker and
              Vasserman, Lucy and Hutchinson, Ben and Spitzer, Elena and Raji, Inioluwa Deborah and
              Gebru, Timnit},
-  journal = {Conference on Fairness, Accountability, and Transparency (FAT*)},
-  year    = {2019},
-  eprint  = {1810.03993},
+  booktitle = {Proceedings of the Conference on Fairness, Accountability, and Transparency (FAT*)},
+  year      = {2019},
+  eprint    = {1810.03993},
   archivePrefix = {arXiv}
 }

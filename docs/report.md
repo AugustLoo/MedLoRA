@@ -557,9 +557,10 @@ Every run is fully specified by one YAML (seed 42) and one evaluation tag; the J
 
 BibTeX entries: `docs/refs.bib`.
 
-> **Verification note.** The bibliography was drafted from memory rather than fetched from a
-> bibliographic database. Every author list, year, venue and arXiv identifier must be checked
-> against the actual paper before submission.
+> **Verification.** All 29 entries were checked on 2026-09-23 against the arXiv abstract page or the
+> publisher page. Titles, first authors, identifiers and years all matched; three entries were corrected
+> (MMBench venue, Model Cards entry type, Med-Flamingo author order) and seven were completed with
+> volume, page or DOI fields. Details in the header of `docs/refs.bib`.
 
 1. Qwen2.5-VL technical report.
 2. Hu et al., LoRA: Low-Rank Adaptation of Large Language Models, 2021.
