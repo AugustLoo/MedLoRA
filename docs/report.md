@@ -473,10 +473,9 @@ base → A-server on the server. Of the 300 answers, 81 differ from the base onl
 vision tower and three epochs on 4.9k examples is simply a mild intervention. C1 is the first run to move the probe
 (−2.23 against A-server), and the control in Section 5.5 attributes that to the replay data rather than to instruction
 tuning. This is a real signal on a blunt instrument: 2.23 points is about seven questions of 300, and the probe's
-short-answer OCR format is close to the SFT output format, so it under-reports drift in longer-form ability. A more
-sensitive general benchmark (open-ended description or an MMBench subset) is still needed to size the effect properly,
-and was, until Section 5.6, the main measurement gap in the project. The second probe resolves it in an unexpected
-direction. The prior concern was that TextVQA *under*-reports drift because its format is close to the SFT output;
+short-answer OCR format is close to the SFT output format, so the obvious worry was that it under-reports drift in
+longer-form ability — which made a second, format-insensitive benchmark the main measurement gap in the project until
+Section 5.6. The second probe resolves that worry in an unexpected direction:
 MMBench (500 multiple-choice items, `eval/eval_mmbench.py`, now a fourth table in `train/eval_all.sh`) shows the
 opposite: the replay cost that TextVQA measures at −1.23 / −2.23 is 0.00 / +0.60 on MMBench, within noise. TextVQA
 *over*-reports relative to a format-insensitive probe, because what replay perturbs is the short-answer output
