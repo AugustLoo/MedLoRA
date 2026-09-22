@@ -2,7 +2,7 @@
 
 **Course project, Topic 6 (Task 1.3)** · Draft v0.5, 2026-09-21 · Author: Chunqian Loo
 
-> **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1 and the A-server control are complete. Section 2 (Related Work) is an outline with citation placeholders. Everything marked `[TODO]` still needs work. Repository: https://github.com/AugustLoo/MedLoRA
+> **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1 and the A-server control are complete. Section 2 (Related Work) is written, with the bibliography in `docs/refs.bib` — every entry there still needs checking against the actual paper. Everything marked `[TODO]` still needs work. Repository: https://github.com/AugustLoo/MedLoRA
 
 ---
 
@@ -29,14 +29,83 @@ The rest of the report is organised as follows. Section 2 reviews related work. 
 
 ---
 
-## 2. Related Work `[TODO: expand to ~1 page, add citations]`
+## 2. Related Work
 
-- **General VLMs.** Qwen2.5-VL [ref], LLaVA-1.5 / LLaVA-NeXT [ref], InternVL [ref]. Architecture: ViT vision tower, projector, decoder-only LLM. Dynamic-resolution vision tokens in Qwen2.5-VL.
-- **Medical VLMs.** LLaVA-Med [ref] (two-stage: caption alignment on PMC figure-caption pairs, then instruction tuning); Med-Flamingo [ref]; BiomedGPT [ref]; CheXagent [ref]; RadFM [ref]. Note that LLaVA-Med's first stage is exactly image-caption CPT, which our B2 experiment reproduces at small scale.
-- **Parameter-efficient fine-tuning.** LoRA [Hu et al. 2021], QLoRA [Dettmers et al. 2023] (4-bit NF4 base weights, paged optimisers). Reported to match full fine-tuning on instruction tasks at a fraction of memory.
-- **Continued pre-training for domain adaptation.** Gururangan et al. 2020 (don't stop pretraining), BioMedLM / PubMedBERT [ref], Med-PaLM [ref]. Open question addressed here: does text CPT help a *multimodal* downstream task.
-- **Catastrophic forgetting in fine-tuned VLMs.** Rehearsal / replay [ref], LoRA as implicit regulariser [ref], evaluation on general VQA after domain SFT [ref].
-- **Benchmarks.** SLAKE [Liu et al. 2021], VQA-RAD [ref], PubMedQA [Jin et al. 2019], TextVQA [Singh et al. 2019], IU X-Ray / OpenI [Demner-Fushman et al. 2016], CheXpert Plus [Chambon et al. 2024], MIMIC-CXR [Johnson et al. 2019].
+**Open vision-language models at the 2–7B scale.** Contemporary open VLMs share an architecture:
+a ViT vision tower, a projector that maps visual features into the language model's embedding
+space, and a decoder-only LLM. LLaVA \citep{liu2023llava} established visual instruction tuning as
+the standard recipe, and the Qwen2-VL / Qwen2.5-VL line \citep{wang2024qwen2vl, bai2025qwen25vl}
+added dynamic-resolution visual tokens, which matters here because it lets a 3B model take a
+512×512 radiograph without a fixed-grid resize. Earlier few-shot multimodal work such as Flamingo
+\citep{alayrac2022flamingo} used frozen backbones with cross-attention adapters; the projector-based
+design has since become dominant because it fine-tunes more cheaply. This project takes
+Qwen2.5-VL-3B-Instruct as given and asks what can be added to it under a 16 GB memory budget.
+
+**Medical vision-language models.** LLaVA-Med \citep{li2023llavamed} is the closest reference point:
+it adapts LLaVA to biomedicine in two stages — caption-style alignment on PMC figure-caption pairs,
+then instruction tuning on generated biomedical dialogues. Med-Flamingo \citep{moor2023medflamingo}
+pursues few-shot medical reasoning from interleaved textbook data, and Med-PaLM M
+\citep{tu2024medpalmm} scales a generalist biomedical model far beyond the compute available here.
+**Our experiment B2 is a deliberately small-scale reproduction of LLaVA-Med's first stage**: caption
+loss over image-report pairs with a frozen vision tower. The result — the adapter learns the report
+template and not the findings — is reported as a negative result about that stage at this scale,
+not as a criticism of the original work, which uses two orders of magnitude more data and trains the
+projector.
+
+**Parameter-efficient adaptation.** LoRA \citep{hu2022lora} injects trainable low-rank matrices into
+frozen weights; QLoRA \citep{dettmers2023qlora} adds a 4-bit NF4 quantised base and paged optimisers,
+bringing 7B-scale fine-tuning within a single consumer GPU. Both are reported to approach full
+fine-tuning on instruction-following tasks at a fraction of the memory. All training here runs
+through LLaMA-Factory \citep{zheng2024llamafactory}, with 0.79 % of parameters trainable and the
+vision tower frozen throughout — a choice that makes every measured change attributable to the
+language model, and that also bounds what the CPT stages could possibly achieve.
+
+**Domain-adaptive continued pre-training.** Gururangan et al. \citep{gururangan2020dapt} showed that
+continued pre-training on in-domain text reliably helps in-domain downstream tasks, and
+domain-specific encoders such as PubMedBERT \citep{gu2021pubmedbert} make the same case for
+biomedicine. That literature is almost entirely unimodal. **The question this project actually tests
+is whether the finding survives a modality gap**: does continued pre-training on biomedical
+*text* improve a *visual* question-answering task? Experiments B1 and B2 answer no at this scale,
+while confirming that text CPT does help the text-only reliability table — the gain stays inside its
+own modality.
+
+**Forgetting and replay.** Rehearsal — mixing samples from the original distribution into new
+training — is the oldest remedy for catastrophic forgetting \citep{robins1995rehearsal}, alongside
+regularisation approaches such as EWC \citep{kirkpatrick2017ewc}. LoRA is often argued to forget less
+than full fine-tuning simply because it changes less. This project uses replay for an unusual
+purpose: not to preserve a previous *task*, but to preserve a previous *answer format*. The
+three-class PubMedQA examples mixed into the SFT set (experiments C1, C2) exist to stop the model
+losing the ability to say "maybe", and the general-ability probe then measures what that costs.
+
+**Alignment and calibration.** The standard third stage after instruction tuning is preference
+optimisation, whether RLHF \citep{ouyang2022instructgpt} or the simpler DPO
+\citep{rafailov2023dpo}. Separately, a long line of work documents that neural networks are poorly
+calibrated \citep{guo2017calibration} and that language models have some latent, recoverable sense
+of their own uncertainty \citep{kadavath2022know}. **This project's main finding sits between those
+two literatures**: the reliability failure it measures is not inherited from pre-training but
+*manufactured by the instruction-tuning data*, and correcting the stage-2 data mixture recovers most
+of it without a preference-optimisation stage at all. Section 5.5 quantifies both the recovery and
+its cost.
+
+**Benchmarks and data.** Medical VQA is evaluated on SLAKE \citep{liu2021slake}, chosen over VQA-RAD
+\citep{lau2018vqarad} and PathVQA \citep{he2020pathvqa} for its size, its English subset and its
+question-type annotations, which make the error analysis in Section 5.2 possible. Reliability is
+measured on PubMedQA \citep{jin2019pubmedqa}, whose three-way {yes, no, maybe} label is what makes
+hedging measurable at all. General-ability retention uses TextVQA \citep{singh2019textvqa}; its
+limitations as a probe are discussed in Section 6, and MMBench \citep{liu2023mmbench} is the planned
+replacement. Image-report pairs come from IU X-Ray / OpenI \citep{demnerfushman2016openi}, with
+CheXpert Plus \citep{chambon2024chexpertplus} — the report-augmented extension of CheXpert
+\citep{irvin2019chexpert} — registered for the scale-up; MIMIC-CXR
+\citep{johnson2019mimiccxr} was in the original task description but was replaced for access
+reasons (Section 4.1). Model and data documentation follows the model-card convention
+\citep{mitchell2019modelcards}.
+
+**Position of this work.** Nothing here is a new method. The contribution is a controlled
+measurement on one small open model under a fixed compute budget: three evaluation tables held
+constant across eight adapters, a single-variable control run to separate hardware from data
+effects, per-question predictions stored so every number is recomputable, and one negative result
+(CPT does not cross the modality gap at this scale) reported as carefully as the positive one
+(the calibration failure is a data-mixture artefact and is fixable as such).
 
 ---
 
@@ -412,7 +481,13 @@ Every run is fully specified by one YAML (seed 42) and one evaluation tag; the J
 
 ---
 
-## References `[TODO: fill in, BibTeX in docs/refs.bib]`
+## References
+
+BibTeX entries: `docs/refs.bib`.
+
+> **Verification note.** The bibliography was drafted from memory rather than fetched from a
+> bibliographic database. Every author list, year, venue and arXiv identifier must be checked
+> against the actual paper before submission.
 
 1. Qwen2.5-VL technical report.
 2. Hu et al., LoRA: Low-Rank Adaptation of Large Language Models, 2021.
