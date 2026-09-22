@@ -17,3 +17,7 @@ venv/
 wandb/
 .DS_Store
 Thumbs.db
+
+# 传给服务器的临时代码包
+*-update.tar.gz
+medlora-code.tar.gz

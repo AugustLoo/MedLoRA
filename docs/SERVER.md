@@ -302,6 +302,40 @@ scp -P 20322 user0@221.239.50.147:/workspace/chunqian/MedLoRA/outputs/eval/'*sft
 python scripts/eval_pubmedqa_split.py --half test
 ```
 
+## 第二个通用能力探针 · MMBench (2026-09-22 加入)
+
+**为什么**: TextVQA 只有 300 题, 还是短答式 OCR 题, 和微调后的输出格式太像, 会低估遗忘。
+C2 那条「回放代价」曲线 (−1.23 / −2.23) 的纵轴就架在它上面 —— 形状可信, 幅度不可信。
+MMBench 覆盖 20 个能力维度, 四选一, 与 SLAKE 的短答格式无关, 更能暴露长程能力的漂移。
+
+**做法**: `eval/eval_mmbench.py`, 与 TextVQA 探针同一套约定 —— 固定种子抽 500 题, 同一批题在
+基座和每个 adapter 上各跑一次, 差值就是遗忘量。评分只取输出里第一个 A–D 字母。
+不做 CircularEval (选项轮换要 4 倍推理); 作为遗忘探针, 各模型条件完全相同的单次准确率差值够用。
+`train/eval_all.sh` 已接成四张表, **以后新 adapter 自动包含**。
+
+**已有的 adapter 只需补跑这一张表** (每个约 15–20 分钟), 基座也要跑一次当零点:
+
+```bash
+# 首次要联网拉数据 (走镜像); 之后可以加 HF_HUB_OFFLINE=1
+export CUDA_VISIBLE_DEVICES=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false HF_ENDPOINT=https://hf-mirror.com HF_HUB_DISABLE_XET=1
+python eval/eval_mmbench.py --tag baseline_server
+python eval/eval_mmbench.py --tag sft_a_server        --adapter outputs/sft_slake_qlora_r16
+python eval/eval_mmbench.py --tag sft_mix_300         --adapter outputs/sft_mix_pubmedqa_300_r16
+python eval/eval_mmbench.py --tag sft_mix_pubmedqa_r16 --adapter outputs/sft_mix_pubmedqa_r16
+```
+
+四个跑完就是回放 0 / 300 / 900 在第二探针上的曲线, 与 TextVQA 的曲线并排看:
+**若两条曲线方向一致、MMBench 的幅度更大**, 说明 TextVQA 确实低估了代价, 报告里的幅度要按 MMBench 改;
+**若 MMBench 几乎不动**, 说明遗忘确实局限在短答格式附近, 那是个更好的消息。
+
+数据集名 `lmms-lab/MMBench` / config `en` / split `dev` 写在脚本顶部的常量里, 若拉不到, 报错贴回来。
+
+### 取回
+
+```bash
+scp -P 20322 user0@221.239.50.147:/workspace/chunqian/MedLoRA/outputs/eval/'mmbench_*' outputs/eval/
+```
+
 ## 运维笔记 (2026-09-19/20 排查了一整天, 下次直接看这里)
 
 ### 账号和环境

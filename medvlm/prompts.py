@@ -12,6 +12,13 @@ PUBMEDQA = (
 
 GENERAL_VQA = "{question}\nAnswer with a single word or short phrase."
 
+# 第二个通用能力探针 (MMBench 四选一)。hint 为空时占位为空串, 见 eval/eval_mmbench.py。
+MMBENCH = (
+    "{hint}{question}\n"
+    "{options}\n"
+    "Answer with the option's letter from the given choices directly."
+)
+
 
 def slake_prompt(question: str, answer_type: str) -> str:
     tpl = SLAKE_CLOSED if str(answer_type).upper() == "CLOSED" else SLAKE_OPEN
