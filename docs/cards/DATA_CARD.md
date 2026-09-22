@@ -15,7 +15,8 @@ it, and the rules that govern it. Each row of the pipeline is reproducible from 
 | SLAKE (English) | SFT training; validation loss; **medical VQA test set** | 4,919 / 1,053 / 1,061 | CC BY 4.0 |
 | PubMedQA `pqa_artificial` | text CPT corpus | 10,000 documents | MIT |
 | PubMedQA `pqa_labeled` | **reliability evaluation**; from C1 on, also a three-class SFT source | 1,000, split 500 / 500 | MIT |
-| TextVQA validation | **general-ability retention probe** | fixed 300-question sample | CC BY 4.0 |
+| TextVQA validation | **general-ability retention probe** (short-answer) | fixed 300-question sample | CC BY 4.0 |
+| MMBench (en, dev) | **general-ability retention probe** (multiple-choice) | fixed 500-question sample | see dataset card |
 | IU X-Ray (OpenI, Kaggle mirror) | image-text CPT prototype | ≈3,483 frontal image-report pairs | public |
 | CheXpert Plus | image-text CPT at scale (planned, B3) | 5k → 20k studies | registered; download pending |
 
@@ -129,7 +130,26 @@ accuracy `min(#matching annotators / 3, 1)`.
 so this probe under-reports drift in longer-form ability. 300 questions also means one accuracy
 point is three questions. It was sensitive enough to detect the replay cost (−2.23 for C1, clearly
 attributed by a control run) but is not sensitive enough to bound that cost tightly. Replacing it
-with an MMBench subset or an open-ended description task is the main outstanding measurement gap.
+with an MMBench subset or an open-ended description task was the main outstanding measurement gap; the MMBench
+probe below now closes half of it.
+
+## 4b. MMBench (second retention probe, added 2026-09-23)
+
+**Source** `lmms-lab/MMBench`, config `en`, split `dev` (the test split has no answers). A **fixed 500-question
+sample drawn with seed 42** by `eval/eval_mmbench.py`; every model sees the same questions.
+
+**Role** A format-insensitive general-ability probe: four-way (sometimes two- or three-way) multiple choice over
+20 ability dimensions. Scored on the first A–D letter in the output; no circular evaluation (option rotation
+would quadruple inference and is unnecessary for a differential probe where every model sees identical inputs).
+Per-category accuracy is stored in the summary JSON. Zero unparsed answers across the four models evaluated.
+
+**What it showed** Replay cost 0.00 / +0.60 at 300 / 900 examples, against −1.23 / −2.23 on TextVQA. The
+TextVQA cost is therefore a short-answer-format perturbation, not general forgetting. Neither probe measures
+open-ended generation, which remains the unmeasured case.
+
+**Licence / access** Public on the Hugging Face Hub; fetched through the mirror on the GPU server. Licence per
+the dataset card — verify before any redistribution of the sampled subset (none is redistributed here; only
+per-question predictions and scores are stored).
 
 ---
 

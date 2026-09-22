@@ -1,6 +1,6 @@
 # Parameter-Efficient Continued Pre-training and Instruction Tuning of a Medical Vision-Language Model
 
-**Course project, Topic 6 (Task 1.3)** · Draft v0.6, 2026-09-22 · Author: Chunqian Loo
+**Course project, Topic 6 (Task 1.3)** · Draft v0.7, 2026-09-23 · Author: Chunqian Loo
 
 > **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1, C2-300 and the A-server control are complete. Section 2 (Related Work) is written, with the bibliography in `docs/refs.bib` — every entry there still needs checking against the actual paper. Everything marked `[TODO]` still needs work. Repository: https://github.com/AugustLoo/MedLoRA
 
@@ -8,7 +8,7 @@
 
 ## Abstract
 
-Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 85.1 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 84.1) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. Evaluating the CPT-stage adapters without SFT localises a persistent "yes" bias to the short-answer SFT data rather than to CPT or to the base model. Acting on that diagnosis, mixing 900 three-class text examples into the SFT set (experiment C1) raises PubMedQA macro-F1 from 51.5 to 61.1 and triples the number of correctly answered "maybe" questions, at a cost of 2.2 points of general VQA accuracy and roughly one net SLAKE question; a single-variable control run on the same GPU isolates that trade-off to the replay data itself. Varying the replay budget shows the calibration gain saturates by 300 examples (94 % of the 900-example gain at half the retention cost and no main-task cost), while the per-class balance of the fix continues to improve up to 900. The alignment problem in this pipeline is therefore a data-mixture problem, addressable without a separate preference-optimisation stage. All adapters, data-generation scripts, evaluation code and configurations are released for one-command reproduction.
+Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 85.1 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 84.1) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. Evaluating the CPT-stage adapters without SFT localises a persistent "yes" bias to the short-answer SFT data rather than to CPT or to the base model. Acting on that diagnosis, mixing 900 three-class text examples into the SFT set (experiment C1) raises PubMedQA macro-F1 from 51.5 to 61.1 and triples the number of correctly answered "maybe" questions, at a cost of 2.2 points of general VQA accuracy and roughly one net SLAKE question; a single-variable control run on the same GPU isolates that trade-off to the replay data itself. Varying the replay budget shows the calibration gain saturates by 300 examples (94 % of the 900-example gain at half the retention cost and no main-task cost), while the per-class balance of the fix continues to improve up to 900. A second, broader retention probe (MMBench, 500 fixed multiple-choice questions) shows no replay cost at all, which localises the measured loss to short-answer output format rather than to visual ability. The alignment problem in this pipeline is therefore a data-mixture problem, addressable without a separate preference-optimisation stage. All adapters, data-generation scripts, evaluation code and configurations are released for one-command reproduction.
 
 ---
 
@@ -182,7 +182,8 @@ calibration — which, on the evidence so far, it does not.
 | SLAKE (English) | SFT training; validation loss; **test set for medical VQA** | train 4,919 / val 1,053 / test 1,061 (416 closed, 645 open) | CC BY 4.0 |
 | PubMedQA `pqa_artificial` | text CPT corpus | 10,000 documents | MIT |
 | PubMedQA `pqa_labeled` | **reliability evaluation** (yes/no/maybe); from experiment C1 on, a fixed stratified half is also a three-class SFT source | 1,000, split 500 train / 500 test (seed 42, stratified) | MIT; the test half is never trained on |
-| TextVQA validation | **general-ability retention** | fixed 300-question sample, seed 42 | CC BY 4.0 |
+| TextVQA validation | **general-ability retention** (short-answer) | fixed 300-question sample, seed 42 | CC BY 4.0 |
+| MMBench (en, dev) | **general-ability retention** (multiple-choice, 20 ability dimensions) | fixed 500-question sample, seed 42 | see dataset card |
 | IU X-Ray (OpenI, Kaggle mirror) | image-text CPT prototype | ≈3.3k frontal images with non-empty reports, 95/5 split by report id | public |
 | CheXpert Plus | image-text CPT at scale (planned, B3) | 5k → 20k studies | registered; download pending |
 
@@ -199,6 +200,7 @@ All three tables are produced by `train/eval_all.sh <tag> <adapter>` with greedy
 | Medical VQA | SLAKE test | closed: see the scoring note below; open: exact match, token recall (LLaVA-Med convention) and token F1, all after lower-casing, stripping punctuation and articles; both split by modality (X-Ray / CT / MRI) |
 | General retention | TextVQA 300 | VQA accuracy, min(#matching annotators / 3, 1) |
 | Reliability | PubMedQA labeled, **held-out half only from C1 on** | accuracy, macro-F1 over {yes, no, maybe}, predicted-label distribution versus gold (full 1,000: 552 / 338 / 110; held-out 500: 276 / 169 / 55) |
+| General retention (2nd probe) | MMBench en-dev, 500 fixed | accuracy on the option letter (first A–D in the output); no circular evaluation; per-category breakdown stored |
 
 **Scoring note on closed questions (corrected 2026-09-19).** SLAKE's CLOSED category is not purely yes/no: 61 of the 416 closed test questions have a closed-vocabulary gold answer such as *Lung*, *Liver*, *T2* or *Coronal Plane*. Our first implementation folded both prediction and gold through a yes/no/other mapping, so on those 61 questions any answer that was not literally "yes" or "no" collapsed to "other" and matched the gold, scoring as correct for free. This inflated every instruction-tuned adapter, which had learned to answer those questions with a content word, by 4 to 5 points; the zero-shot base was unaffected because it forced yes/no answers there and was scored correctly. Closed questions are now scored as yes/no agreement when the gold is yes/no, and as exact match otherwise (`medvlm.metrics.closed_score`). All numbers in Section 5 use the corrected scorer; `scripts/rescore_slake.py` recomputes them from the stored per-question predictions without re-running the models. The correction lowers experiment A from 89.18 to 85.10, B1 from 88.70 to 83.89 and B2 from 88.70 to 84.13, and leaves every conclusion unchanged.
 
@@ -428,6 +430,15 @@ The 300-example point therefore dominates the 900-example point on cost while ca
 gain — and the earlier statement that C1's SLAKE cost was "offset" is superseded by the cleaner observation that
 a smaller budget has no such cost to offset.
 
+*The cost is confined to short-answer format.* A second retention probe run after the above — MMBench, 500 fixed
+multiple-choice questions across 20 ability dimensions — moves 0.00 at 300 and +0.60 at 900 relative to zero
+replay (base 88.40, A-server 87.40, C2-300 87.40, C1 88.00; one point is five questions; zero unparsed answers).
+The largest per-category movements are single questions. So the TextVQA decline is not a loss of visual ability: it
+is a perturbation of the short-answer output distribution by the one-word replay targets, which a letter-choice
+probe does not see. This is consistent with the per-question finding in Section 5.5 that about half of the TextVQA
+regressions are surface variants. The cost side of the trade-off is therefore smaller than the TextVQA number
+alone suggests.
+
 *But the small budget over-corrects, and the larger one is better balanced.* At 300 examples the model swings
 past the target: "no"→"yes" errors drop from 63 to 14 — below the untuned base model's 42 — but "yes"→"no" errors
 rise from 18 to 32, "yes" recall falls from 91.7 to 69.9, and the model now predicts 228 "yes" against 276 gold.
@@ -464,10 +475,13 @@ vision tower and three epochs on 4.9k examples is simply a mild intervention. C1
 tuning. This is a real signal on a blunt instrument: 2.23 points is about seven questions of 300, and the probe's
 short-answer OCR format is close to the SFT output format, so it under-reports drift in longer-form ability. A more
 sensitive general benchmark (open-ended description or an MMBench subset) is still needed to size the effect properly,
-and is the main measurement gap in the project. The C2 cost curve (−1.23 at 300, −2.23 at 900) is measured on
-this same blunt instrument, so its *shape* is trustworthy and its *magnitude* is not. A second probe
-(MMBench, 500 fixed questions, `eval/eval_mmbench.py`) is implemented and wired into `train/eval_all.sh`;
-it has not yet been run. `[TODO: run the MMBench probe on base, A-server, C2-300 and C1]`
+and was, until Section 5.6, the main measurement gap in the project. The second probe resolves it in an unexpected
+direction. The prior concern was that TextVQA *under*-reports drift because its format is close to the SFT output;
+MMBench (500 multiple-choice items, `eval/eval_mmbench.py`, now a fourth table in `train/eval_all.sh`) shows the
+opposite: the replay cost that TextVQA measures at −1.23 / −2.23 is 0.00 / +0.60 on MMBench, within noise. TextVQA
+*over*-reports relative to a format-insensitive probe, because what replay perturbs is the short-answer output
+distribution. Two probes with different formats now agree that instruction tuning itself costs about one point
+(MMBench −1.00, TextVQA −0.66) and that replay costs nothing beyond that except on short-answer tasks.
 
 **Reliability worsens in a specific way, the SFT stage is the cause, and the SFT data mix is also the fix.**
 Section 5.3 shows the CPT-only adapters are the best calibrated of all models; the short-answer SFT stage is what
@@ -501,7 +515,7 @@ caveat that the smallest budget tested over-corrects the very bias it was meant 
   the 27-question swing in "yes" recall between 300 and 900 examples (Section 5.6) is exactly the size of
   effect a single run cannot distinguish from noise. A second seed at 300 is prepared and is the next GPU run.
 - The PubMedQA "maybe" class has only 55 unique training items, repeated about five times to reach 300 in C1's balanced sample. The calibration gain may therefore depend partly on memorising a small set; the held-out half shows the effect transfers, but a larger three-class source would test it properly. On the training half C1 scores 94.4 % accuracy and answers 54 of 55 "maybe" questions correctly, which confirms the memorisation is present and is exactly why the split protocol exists.
-- C1's general-ability cost is measured on a 300-question probe, so −2.23 points is about seven questions. The direction is consistent and the control is clean, but the magnitude is not tightly bounded.
+- C1's general-ability cost on TextVQA is −2.23 points on 300 questions (about seven). A second probe (MMBench, 500 multiple-choice) shows no replay cost, so the TextVQA figure should be read as a short-answer-format effect, not as general forgetting. Neither probe covers open-ended description, where format-independent drift could still hide.
 - Evaluation uses greedy decoding and string matching; open-ended recall rewards verbose answers. Exact match and F1 are reported alongside to bound this.
 - The vision tower is frozen throughout. Unfreezing it (or LoRA on the ViT) is a natural ablation for B2 but roughly doubles memory.
 - Image-text CPT is prototyped on IU X-Ray (3.3k frontal images). CheXpert Plus is registered but not yet downloaded; the 5k → 20k scale-up and alignment-score filtering (B3) depend on it and on the teammate's scoring interface (week 6).

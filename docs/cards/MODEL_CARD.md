@@ -71,7 +71,8 @@ a model.
 | Table | Data | What it measures |
 |---|---|---|
 | Medical VQA | SLAKE test, 1,061 questions (416 closed / 645 open) | primary task |
-| General retention | TextVQA validation, fixed 300-question sample (seed 42) | forgetting probe |
+| General retention | TextVQA validation, fixed 300-question sample (seed 42) | forgetting probe, short-answer |
+| General retention (2nd) | MMBench en-dev, fixed 500-question sample (seed 42), letter-choice | forgetting probe, format-insensitive |
 | Reliability | PubMedQA `pqa_labeled`, **held-out 500 of 1,000** | calibration over {yes, no, maybe} |
 
 ### Results
@@ -94,6 +95,10 @@ TextVQA are full test sets. Rows marked † ran on the T4 in 4-bit fp16; the res
 recall. Neither CPT variant adds anything to the primary metric. Mixing three-class text examples
 into the SFT set (C1, C2-300) is the only intervention that improves calibration, and the gain
 saturates by 300 examples.
+
+**Second retention probe (MMBench, 500 questions; the four server-side models only).** Base 88.40 · A-server 87.40 ·
+C2-300 87.40 · C1 88.00. Relative to zero replay the curve is 0.00 / +0.60 — no replay cost. The TextVQA decline is a
+short-answer-format effect; see §5.
 
 ---
 
@@ -145,10 +150,11 @@ experiment A — an independent run with different hardware, precision and quant
 every metric to within half a point — but the replay-budget comparison (300 vs 900) shows a
 non-monotonic 27-question swing in "yes" recall that a second seed has not yet ruled out.
 
-**The retention probe is blunt.** TextVQA's 300 short-answer OCR questions are close to the SFT
-output format, so the probe under-reports drift in longer-form ability. A 2.23-point drop is about
-seven questions. The direction is consistent and the attribution is clean; the magnitude is not
-tightly bounded.
+**The retention cost is a format effect, and neither probe covers open-ended output.** TextVQA (300 short-answer
+OCR questions) records a replay cost of −1.23 / −2.23; MMBench (500 multiple-choice questions) records 0.00 / +0.60,
+within noise. The one-word replay targets perturb the short-answer output distribution and leave letter-choice
+ability untouched. So the TextVQA number overstates general forgetting rather than understating it — but both
+probes are short-output, and drift in open-ended description remains unmeasured.
 
 **English only, three modalities.** SLAKE covers X-Ray, CT and MRI. Nothing here says anything about
 ultrasound, pathology, dermatology, or non-English clinical text.
