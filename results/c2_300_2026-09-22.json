@@ -1,0 +1,58 @@
+{
+  "slake": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_mix_pubmedqa_300_r16",
+    "split": "test",
+    "n": 1061,
+    "load_4bit": false,
+    "max_pixels": 401408,
+    "seconds": 3422.0,
+    "metrics": {
+      "open_em": 75.97,
+      "open_recall": 82.4,
+      "open_f1": 81.62,
+      "closed_acc": 85.82
+    },
+    "n_closed": 416,
+    "n_open": 645,
+    "by_modality": {
+      "CT": {
+        "open_recall": 83.43,
+        "closed_acc": 85.51
+      },
+      "X-Ray": {
+        "open_recall": 81.73,
+        "closed_acc": 85.09
+      },
+      "MRI": {
+        "open_recall": 81.68,
+        "closed_acc": 87.5
+      }
+    }
+  },
+  "textvqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_mix_pubmedqa_300_r16",
+    "n": 300,
+    "seed": 42,
+    "textvqa_acc": 82.33
+  },
+  "pubmedqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_mix_pubmedqa_300_r16",
+    "n": 1000,
+    "accuracy": 77.1,
+    "macro_f1": 70.15,
+    "pred_dist": {
+      "yes": 464,
+      "no": 357,
+      "maybe": 179
+    },
+    "gold_dist": {
+      "yes": 552,
+      "no": 338,
+      "maybe": 110
+    },
+    "unparsed": 1
+  }
+}
