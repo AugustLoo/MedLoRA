@@ -383,6 +383,11 @@ deprioritised in favour of C2, which varies the replay ratio and traces the cali
 
 ## 8. Reproducibility
 
+Model card: `docs/cards/MODEL_CARD.md` (adapters, hyper-parameters, results, intended use,
+measured failure modes). Data card: `docs/cards/DATA_CARD.md` (every dataset, the PubMedQA
+split protocol, the IU X-Ray composition bias, the scoring correction, compliance rules).
+
+
 ```bash
 git clone https://github.com/AugustLoo/MedLoRA && cd MedLoRA
 pip install -r requirements.txt
