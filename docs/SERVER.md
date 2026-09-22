@@ -328,6 +328,9 @@ python eval/eval_mmbench.py --tag sft_mix_pubmedqa_r16 --adapter outputs/sft_mix
 **若两条曲线方向一致、MMBench 的幅度更大**, 说明 TextVQA 确实低估了代价, 报告里的幅度要按 MMBench 改;
 **若 MMBench 几乎不动**, 说明遗忘确实局限在短答格式附近, 那是个更好的消息。
 
+**实测 (2026-09-23): 第二种。** 基座 88.40 / A-server 87.40 / 300 条 87.40 / 900 条 88.00,
+回放代价 0.00 / +0.60 (一分 = 5 题, 噪声), 解析失败 0。TextVQA 的 −1.23 / −2.23 是短答格式扰动, 不是视觉遗忘。
+
 数据集名 `lmms-lab/MMBench` / config `en` / split `dev` 写在脚本顶部的常量里, 若拉不到, 报错贴回来。
 
 ### 取回

@@ -127,8 +127,9 @@ uninformative rather than simply expensive.
 accuracy `min(#matching annotators / 3, 1)`.
 
 **Known weakness, stated plainly.** Short-answer OCR questions are close to the SFT output format,
-so this probe under-reports drift in longer-form ability. 300 questions also means one accuracy
-point is three questions. It was sensitive enough to detect the replay cost (−2.23 for C1, clearly
+so it was expected to under-report drift in longer-form ability; the MMBench probe (4b) showed the
+reverse for replay — TextVQA over-reports, because the one-word replay targets perturb exactly this
+short-answer format. 300 questions also means one accuracy point is three questions. It was sensitive enough to detect the replay cost (−2.23 for C1, clearly
 attributed by a control run) but is not sensitive enough to bound that cost tightly. Replacing it
 with an MMBench subset or an open-ended description task was the main outstanding measurement gap; the MMBench
 probe below now closes half of it.
