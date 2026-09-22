@@ -236,6 +236,72 @@ PubMedQA 一律只算考卷半边; SLAKE 和 TextVQA 全量, 与 **A-server** �
 A-server 才是零回放那个点)。曲线的横轴是回放条数 0 / 300 / 900 / 1800,
 其中 0 就是 A-server。
 
+## 实验 C2-300-s43 · 第二个种子
+
+**为什么跑这一轮, 而不是重复 C1**: C1 的效应 (+9.63 macro-F1) 太大, 不可能是噪声, 不需要验证。
+真正脆弱的是两条依赖 300 与 900 比较的结论:
+
+1. **「校准收益在 300 条就饱和」** —— 架在 60.48 对 61.09 上, 只差 0.60 分
+2. **「300 条矫枉过正、900 条更均衡」** —— 架在 yes 召回率 69.9 对 79.7 上, 差 27 题
+
+重复 300 那一点, 就能知道这个比较里有多少是运行间抖动。**若 s43 落在 60.5 附近且逐类画像相似,
+两条结论都站得住; 若它落在 61 附近且画像像 C1 那样均衡, 第 2 条就得撤回。**
+
+**这是处理层面的重复, 不是纯训练种子的重复。** 采样种子与训练种子一起换成 43, 因为要检验的是
+「加 300 条平衡回放」这个处理稳不稳, 不是「这特定 300 条」稳不稳。maybe 在训练半边只有 55 条
+唯一样本, 换采样种子得到的重复组合不同, 这本身就是方差的主要来源之一。写结论时要讲明这一点:
+它同时覆盖了采样方差和训练方差, 因此若出现差异, 不能单独归因到其中一个。
+
+配置 `configs/bf16/sft_mix_pubmedqa_300_s43.yaml` 与 C2-300 只差三行:
+`dataset`、`output_dir`、`seed`。已用脚本核对过差异恰好三处。
+
+### 跑法
+
+```bash
+tmux ls                            # 确认会话在; 没有就 tmux new -s c2seed
+tmux attach -t c2seed
+```
+
+进去之后（**attach 单独执行**）:
+
+```bash
+source /opt/conda/etc/profile.d/conda.sh && conda activate chunqian && cd /workspace/chunqian/MedLoRA
+export CUDA_VISIBLE_DEVICES=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_DATASETS_OFFLINE=1
+nvidia-smi                         # 确认 GPU 0 有余量
+
+python data/convert_pubmedqa_sft.py --per-class 100 --tag 300s43 --seed 43
+llamafactory-cli train configs/bf16/sft_mix_pubmedqa_300_s43.yaml && \
+rm -rf outputs/sft_mix_pubmedqa_300_s43_r16/checkpoint-* && \
+bash train/eval_all.sh sft_mix_300_s43 outputs/sft_mix_pubmedqa_300_s43_r16
+```
+
+总步数应为 **981**（与 C2-300 相同, 样本数没变）。约 11 小时训练 + 1 小时评估, 放过夜。
+
+**环境变量那一行要一整行粘贴**, 不要断成多行 —— 断行处粘连过一次, 报
+`export: not a valid identifier`。
+
+### 看进度（不要用 tmux 截屏, 用文件）
+
+```bash
+tail -2 /workspace/chunqian/MedLoRA/outputs/sft_mix_pubmedqa_300_s43_r16/trainer_log.jsonl
+```
+
+里面有 `current_steps` / `total_steps` / `loss` / `elapsed_time` / `remaining_time`。
+tmux 服务器死过两次, 文件不会。
+
+### 只启动一次
+
+2026-09-22 踩过: 一条 `&&` 链的父 shell 还活着在等训练结束, 同时又加了一个等待循环,
+训练一退出**两边同时触发评估**, 两个进程往同一个 preds 文件里写, 数据作废, 白跑一小时。
+**开跑前先 `ps -eo pid,cmd | grep eval_all | grep -v grep` 确认没有别的在等。**
+
+### 取回与计分
+
+```bash
+scp -P 20322 user0@221.239.50.147:/workspace/chunqian/MedLoRA/outputs/eval/'*sft_mix_300_s43*' outputs/eval/
+python scripts/eval_pubmedqa_split.py --half test
+```
+
 ## 运维笔记 (2026-09-19/20 排查了一整天, 下次直接看这里)
 
 ### 账号和环境
