@@ -157,6 +157,19 @@ footer a{color:var(--ink-soft)}
     <p>「所以对齐要改的是 SFT 的数据配比，而不是再加一个阶段。」<br>「TextVQA 的短答题和我们的 SFT 输出格式太像，测不出退化。」</p>
     <div class="who">— 第 1 周汇报，第 07 节与第 03 节</div>
   </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>上周的证据 · 考卷半边</th><th class="num">SLAKE 封闭</th><th class="num">开放 EM</th><th class="num">TextVQA</th><th class="num">macro-F1</th><th class="num">no→yes</th><th>预测 yes/no/maybe</th></tr></thead>
+      <tbody>
+        <tr><td>基座</td><td class="num">67.31</td><td class="num">40.62</td><td class="num">83.89</td><td class="num">48.87</td><td class="num">43</td><td class="num">323 / 96 / 81</td></tr>
+        <tr><td>只做 CPT，文本（B1）</td><td class="num">69.71</td><td class="num bad">34.11</td><td class="num bad">81.67</td><td class="num">52.09</td><td class="num ok">28</td><td class="num">290 / 123 / 87</td></tr>
+        <tr><td>只做 CPT，图文（B2）</td><td class="num">68.27</td><td class="num bad">36.43</td><td class="num">83.56</td><td class="num">53.01</td><td class="num ok">32</td><td class="num ok">292 / 149 / 59</td></tr>
+        <tr class="hl"><td>只做 SFT（A）</td><td class="num best">85.10</td><td class="num best">75.35</td><td class="num">83.89</td><td class="num">51.69</td><td class="num bad">59</td><td class="num">352 / 118 / 30</td></tr>
+        <tr><td>CPT → SFT（B1 / B2）</td><td class="num">83.89 / 84.13</td><td class="num">75.81 / 74.57</td><td class="num">83.78 / 84.00</td><td class="num">52.75 / 52.35</td><td class="num">48 / 54</td><td class="num">337/145/18 · 343/127/30</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="srcline">真实 276 / 169 / 55。三层意思：只做 CPT 和基座有小差别但方向不一（封闭题 +1 到 +2，开放题反掉 4 到 6 分，是词汇漂移，如 Chest 答成 Thorax）；只做 CPT 离 SFT 差一个量级，而且 CPT 再 SFT 与只 SFT 收敛到同一分数，CPT 的贡献被覆盖；<strong>CPT 唯一赢的是校准</strong>——no→yes 从基座 43 降到 28 和 32，只做 SFT 却涨到 59。这就是「偏置是 SFT 数据带进来的」那句判断的来源。</div>
 </section>
 
 <!-- ============================ 02 方法 ============================ -->
@@ -168,7 +181,7 @@ footer a{color:var(--ink-soft)}
     <p>按标签分层对半切，种子固定 <span class="en">42</span>，切分文件<strong>入库到 git</strong>，脚本写了保护——一旦存在就拒绝重新生成。一半进训练，一半永远只用来打分。之前四个模型的逐题预测都存着，按切分过滤重算即可，<strong>八个模型站在同一把尺子上</strong>，没有重复花一次推理。</p>
   </div>
   <div class="split">
-    <div class="card train"><div class="tag">练习册 · 进训练</div><div class="n">500</div><p>每类平衡采样成 300 条或 900 条，混进 <span class="en">SLAKE</span> 的 4,919 条里做一次微调。其余超参与实验 A 完全一致，<strong>唯一的变量就是回放条数</strong>。</p></div>
+    <div class="card train"><div class="tag">练习册 · 进训练</div><div class="n">500</div><p>每类平衡采样——每类 100 条即总共 300 条，每类 300 条即 900 条；maybe 只有 55 条唯一样本，两档分别重复约 1.8 次和 5.5 次——混进 <span class="en">SLAKE</span> 的 4,919 条里做一次微调。其余超参与实验 A 完全一致，<strong>唯一的变量就是回放条数</strong>。</p></div>
     <div class="card test"><div class="tag">考卷 · 永不进训练</div><div class="n">500</div><p>真实答案 <span class="en">276</span> yes / <span class="en">169</span> no / <span class="en">55</span> maybe。本页所有 <span class="en">PubMedQA</span> 数字都只来自这半边。</p></div>
   </div>
   <div class="srcline"><span class="en">data/pubmedqa_split.json</span>（已入库）· <span class="en">scripts/eval_pubmedqa_split.py --half test</span></div>
