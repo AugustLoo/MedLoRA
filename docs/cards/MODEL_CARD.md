@@ -45,6 +45,7 @@ metric, so figures from both are read on one axis.
 | `cpt_iu_sft_r16` (**B2**) | CPT → SFT | above, then SLAKE train | T4, 4-bit fp16 | does image-report CPT transfer |
 | `sft_mix_pubmedqa_r16` (**C1**) | SFT | SLAKE 4,919 + PubMedQA replay 900 | 5090, bf16 | can the SFT data mix fix the "yes" bias |
 | `sft_mix_300` (**C2-300**) | SFT | SLAKE 4,919 + PubMedQA replay 300 | 5090, bf16 | how much replay is enough |
+| `sft_mix_300_s43` (**C2-300-s43**) | SFT | same, sampling and training seed 43 | 5090, bf16 | run-to-run variance of the 300 point |
 
 ### Hyper-parameters
 
@@ -90,6 +91,7 @@ TextVQA are full test sets. Rows marked † ran on the T4 in 4-bit fp16; the res
 | B2 † | 84.13 | 74.57 / 81.61 | 84.00 | 52.35 | 5 / 55 | 54 |
 | **C1** | 84.13 | 76.12 / 82.19 | 81.33 | **61.09** | 19 / 55 | 26 |
 | **C2-300** | **85.82** | 75.97 / 82.40 | 82.33 | 60.48 | **21 / 55** | **14** |
+| C2-300-s43 | 85.82 | 77.36 / 84.00 | 82.56 | 59.80 | 18 / 55 | 12 |
 
 **Reading the table.** Instruction tuning is worth about 18 points of closed accuracy and 35 of open
 recall. Neither CPT variant adds anything to the primary metric. Mixing three-class text examples
@@ -144,11 +146,14 @@ roughly 5× (C1) and 2× (C2-300). On the training half C1 scores 94.4 % and ans
 questions correctly, so memorisation is demonstrably present; the held-out half shows the effect
 transfers, but a larger three-class source would test it properly.
 
-**Single seed.** Every experiment ran once with seed 42. Differences under ±1 point are treated as
+**Mostly single seed.** Every experiment ran once with seed 42, except the 300-example replay point, which was repeated with seed 43. Differences under ±1 point are treated as
 noise rather than tested statistically. The A-server control partly substitutes for a second seed on
 experiment A — an independent run with different hardware, precision and quantisation reproduced
 every metric to within half a point — but the replay-budget comparison (300 vs 900) shows a
-non-monotonic 27-question swing in "yes" recall that a second seed has not yet ruled out.
+swing in "yes" recall between 300 and 900 that needed a second seed. That seed (C2-300-s43) reproduces the
+300-example point to within 0.7 macro-F1 and 2.2 points of "yes" recall, so the 8.7-point recall gap to 900 and the
+reversed direction of the two dangerous-error counts are properties of the budget, not of a run. The 900-example
+point and the zero point remain single runs.
 
 **The retention cost is a format effect, and neither probe covers open-ended output.** TextVQA (300 short-answer
 OCR questions) records a replay cost of −1.23 / −2.23; MMBench (500 multiple-choice questions) records 0.00 / +0.60,

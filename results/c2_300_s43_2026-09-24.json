@@ -1,0 +1,149 @@
+{
+  "slake": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_mix_pubmedqa_300_s43_r16",
+    "split": "test",
+    "n": 1061,
+    "load_4bit": false,
+    "max_pixels": 401408,
+    "seconds": 212.5,
+    "metrics": {
+      "open_em": 77.36,
+      "open_recall": 84.0,
+      "open_f1": 83.09,
+      "closed_acc": 85.82
+    },
+    "n_closed": 416,
+    "n_open": 645,
+    "by_modality": {
+      "CT": {
+        "open_recall": 84.33,
+        "closed_acc": 83.64
+      },
+      "X-Ray": {
+        "open_recall": 83.22,
+        "closed_acc": 86.84
+      },
+      "MRI": {
+        "open_recall": 84.76,
+        "closed_acc": 89.77
+      }
+    }
+  },
+  "textvqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_mix_pubmedqa_300_s43_r16",
+    "n": 300,
+    "seed": 42,
+    "textvqa_acc": 82.56
+  },
+  "pubmedqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_mix_pubmedqa_300_s43_r16",
+    "n": 1000,
+    "accuracy": 77.0,
+    "macro_f1": 69.3,
+    "pred_dist": {
+      "yes": 471,
+      "no": 356,
+      "maybe": 173
+    },
+    "gold_dist": {
+      "yes": 552,
+      "no": 338,
+      "maybe": 110
+    },
+    "unparsed": 0
+  },
+  "mmbench": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_mix_pubmedqa_300_s43_r16",
+    "n": 500,
+    "seed": 42,
+    "dataset": "lmms-lab/MMBench/en/dev",
+    "mmbench_acc": 87.0,
+    "unparsed": 0,
+    "by_category": {
+      "action_recognition": {
+        "n": 23,
+        "acc": 100.0
+      },
+      "attribute_comparison": {
+        "n": 17,
+        "acc": 70.59
+      },
+      "attribute_recognition": {
+        "n": 38,
+        "acc": 92.11
+      },
+      "celebrity_recognition": {
+        "n": 40,
+        "acc": 100.0
+      },
+      "function_reasoning": {
+        "n": 44,
+        "acc": 93.18
+      },
+      "future_prediction": {
+        "n": 13,
+        "acc": 84.62
+      },
+      "identity_reasoning": {
+        "n": 17,
+        "acc": 100.0
+      },
+      "image_emotion": {
+        "n": 19,
+        "acc": 89.47
+      },
+      "image_quality": {
+        "n": 25,
+        "acc": 36.0
+      },
+      "image_scene": {
+        "n": 56,
+        "acc": 100.0
+      },
+      "image_style": {
+        "n": 29,
+        "acc": 93.1
+      },
+      "image_topic": {
+        "n": 14,
+        "acc": 92.86
+      },
+      "nature_relation": {
+        "n": 23,
+        "acc": 78.26
+      },
+      "object_localization": {
+        "n": 35,
+        "acc": 74.29
+      },
+      "ocr": {
+        "n": 15,
+        "acc": 93.33
+      },
+      "physical_property_reasoning": {
+        "n": 19,
+        "acc": 89.47
+      },
+      "physical_relation": {
+        "n": 9,
+        "acc": 55.56
+      },
+      "social_relation": {
+        "n": 13,
+        "acc": 100.0
+      },
+      "spatial_relationship": {
+        "n": 22,
+        "acc": 72.73
+      },
+      "structuralized_imagetext_understanding": {
+        "n": 29,
+        "acc": 86.21
+      }
+    }
+  }
+}

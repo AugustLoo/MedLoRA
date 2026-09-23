@@ -1,14 +1,14 @@
 # Parameter-Efficient Continued Pre-training and Instruction Tuning of a Medical Vision-Language Model
 
-**Course project, Topic 6 (Task 1.3)** · Draft v0.7, 2026-09-23 · Author: Chunqian Loo
+**Course project, Topic 6 (Task 1.3)** · Draft v0.8, 2026-09-24 · Author: Chunqian Loo
 
-> **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1, C2-300 and the A-server control are complete. Section 2 (Related Work) is written, with the bibliography in `docs/refs.bib` — every entry there still needs checking against the actual paper. Everything marked `[TODO]` still needs work. Repository: https://github.com/AugustLoo/MedLoRA
+> **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1, C2-300 (two seeds) and the A-server control are complete. Section 2 (Related Work) is written, with the bibliography in `docs/refs.bib` — every entry there still needs checking against the actual paper. Everything marked `[TODO]` still needs work. Repository: https://github.com/AugustLoo/MedLoRA
 
 ---
 
 ## Abstract
 
-Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 85.1 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 84.1) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. Evaluating the CPT-stage adapters without SFT localises a persistent "yes" bias to the short-answer SFT data rather than to CPT or to the base model. Acting on that diagnosis, mixing 900 three-class text examples into the SFT set (experiment C1) raises PubMedQA macro-F1 from 51.5 to 61.1 and triples the number of correctly answered "maybe" questions, at a cost of 2.2 points of general VQA accuracy and roughly one net SLAKE question; a single-variable control run on the same GPU isolates that trade-off to the replay data itself. Varying the replay budget shows the calibration gain saturates by 300 examples (94 % of the 900-example gain at half the retention cost and no main-task cost), while the per-class balance of the fix continues to improve up to 900. A second, broader retention probe (MMBench, 500 fixed multiple-choice questions) shows no replay cost at all, which localises the measured loss to short-answer output format rather than to visual ability. The alignment problem in this pipeline is therefore a data-mixture problem, addressable without a separate preference-optimisation stage. All adapters, data-generation scripts, evaluation code and configurations are released for one-command reproduction.
+Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 85.1 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 84.1) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. Evaluating the CPT-stage adapters without SFT localises a persistent "yes" bias to the short-answer SFT data rather than to CPT or to the base model. Acting on that diagnosis, mixing 900 three-class text examples into the SFT set (experiment C1) raises PubMedQA macro-F1 from 51.5 to 61.1 and triples the number of correctly answered "maybe" questions, at a cost of 2.2 points of general VQA accuracy and roughly one net SLAKE question; a single-variable control run on the same GPU isolates that trade-off to the replay data itself. Varying the replay budget shows the calibration gain saturates by 300 examples (94 % of the 900-example gain at half the retention cost and no main-task cost), while the per-class balance of the fix continues to improve up to 900; a second seed at 300 reproduces both observations to within run-to-run noise. A second, broader retention probe (MMBench, 500 fixed multiple-choice questions) shows no replay cost at all, which localises the measured loss to short-answer output format rather than to visual ability. The alignment problem in this pipeline is therefore a data-mixture problem, addressable without a separate preference-optimisation stage. All adapters, data-generation scripts, evaluation code and configurations are released for one-command reproduction.
 
 ---
 
@@ -236,9 +236,12 @@ from the two platforms can be read on the same axis.
 | C1: SLAKE + PubMedQA replay SFT, 3 epochs | 5,819 × 3 | 1 h 25 min | 3.42 samples/s |
 | A-server: SLAKE SFT, 3 epochs | 4,919 × 3 | 6 h 19 min | 0.65 samples/s |
 | C2-300: SLAKE + 300 replay SFT, 3 epochs | 5,219 × 3 | 10 h 58 min | 0.40 samples/s |
+| C2-300-s43: same, seed 43 | 5,219 × 3 | **45 min** | 5.7 samples/s |
 
 The A-server and C2-300 runs are eight times slower per optimiser step than C1 on the same GPU (38–40 s versus
-4.7 s) with the GPU idle 95 % of the time; C1 is the outlier, not the rule, and the cause was not identified and is recorded as an open operational issue in `docs/SERVER.md`
+4.7 s) with the GPU idle 95 % of the time; the second-seed run C2-300-s43 then took 45 minutes (2.8 s per step). Across the four server runs, the slow ones
+coincide with a job belonging to another account saturating both GPUs and the fast ones with that job idle, so the
+slowdown is attributed to GPU time-sharing (a correlation across four runs, not a proof) and is recorded as an open operational issue in `docs/SERVER.md`
 rather than as a property of the method. It does not affect the trained weights: A-server reproduces A's validation
 loss to four decimal places.
 
@@ -255,7 +258,7 @@ loss to four decimal places.
 | A-server | – | SLAKE SFT, bf16 on the 5090 | single-variable control for C1; does A survive the platform change | done |
 | C1 | – | SLAKE SFT + 900 PubMedQA three-class examples | can the SFT data mix fix the "yes" bias, and what does it cost | done |
 | C2 | – | as C1 with 300 / 900 replay examples (0 = A-server) | how much replay is enough; shape of the trade-off | 0, 300, 900 done; 1,800 deprioritised (§5.6) |
-| C2-s43 | – | C2-300 repeated with sampling and training seed 43 | run-to-run variance of the 300-vs-900 comparison | prepared, waiting for GPU |
+| C2-s43 | – | C2-300 repeated with sampling and training seed 43 | run-to-run variance of the 300-vs-900 comparison | done (§5.6) |
 | D | ablations: rank 8/16/32, CPT size, lr, epochs | | which factor matters | planned |
 | E (optional) | C + DPO | | reliability | deprioritised: C1 shows the data mix alone recovers calibration |
 
@@ -452,8 +455,26 @@ single out.
 add cost; and with 55 unique "maybe" items it would repeat each nearly 11 times, so a regression there could not
 be separated from repetition-driven over-fitting. The more informative missing measurements are a point between
 0 and 300, where all the gain occurs, and a second seed at 300 — the 27-question swing in "yes" recall between
-300 and 900 is exactly the size of effect a single run cannot distinguish from noise. The second seed is
-prepared (`configs/bf16/sft_mix_pubmedqa_300_s43.yaml`) and waiting for GPU time.
+300 and 900 is exactly the size of effect a single run cannot distinguish from noise. The second seed follows.
+
+*A second seed at 300 reproduces the point.* C2-300 was repeated with both the sampling seed and the training seed
+changed to 43 — a treatment-level replication that covers sampling and training variance together, so a difference
+could not be attributed to one alone. It landed on top of the first run:
+
+| 300 replay | macro-F1 | "maybe" correct | "no"→"yes" | "yes"→"no" | yes recall | SLAKE closed | TextVQA | MMBench |
+|---|---|---|---|---|---|---|---|---|
+| seed 42 | 60.48 | 21 / 55 | 14 | 32 | 69.9 | 85.82 | 82.33 | 87.40 |
+| seed 43 | 59.80 | 18 / 55 | 12 | 30 | 72.1 | 85.82 | 82.56 | 87.00 |
+| 900 (C1) | 61.09 | 19 / 55 | 26 | 19 | 79.7 | 84.13 | 81.33 | 88.00 |
+
+Run-to-run spread at this scale is therefore about 0.7 macro-F1, about 2 points of single-class recall, and about
+2 questions on each dangerous-error count. Against that yardstick the two claims above resolve differently. The
+saturation claim holds in a tightened form: the 300-example mean (60.14) sits 0.95 below the 900-example run, which
+is the same order as the seed spread, so most of the gain is in the first 300 examples and the further 600 buy an
+amount indistinguishable from noise. The over-correction claim is strengthened: "yes" recall is 69.9 and 72.1 at
+300 against 79.7 at 900 — an 8.7-point gap, four times the seed spread — and both dangerous-error counts move in
+the same direction in both seeds ("yes"→"no" 32 / 30 versus 19; "no"→"yes" 14 / 12 versus 26). The swing toward
+"no" at a small budget is a property of the budget, not of a run.
 
 ---
 
@@ -500,7 +521,8 @@ recovered by correcting that choice, at a cost measured in Section 5.5. A prefer
 deprioritised in favour of C2, which traces the calibration-versus-retention trade-off. Section 5.6 shows that
 trade-off has a sharp knee: nearly all of the calibration gain arrives within the first 300 replay examples,
 while cost keeps rising with budget — so the practical recommendation is a small replay budget, with the
-caveat that the smallest budget tested over-corrects the very bias it was meant to fix.
+caveat that the smallest budget tested over-corrects the very bias it was meant to fix — a pattern a second
+seed reproduces (Section 5.6).
 
 ![Figure 5. PubMedQA predicted label distribution.](figures/fig5_pubmedqa_distribution.png)
 
@@ -510,9 +532,10 @@ caveat that the smallest budget tested over-corrects the very bias it was meant 
 
 ## 7. Limitations and Planned Work
 
-- Single seed per experiment; differences under ±1 point are treated as noise rather than tested statistically. `[TODO: at least 2 seeds for the headline A-vs-B comparison if compute allows]` The A-server control partly substitutes for a second seed on experiment A: an independent run with different hardware, precision and quantisation reproduced every metric to within half a point. It does not cover the replay-budget comparison:
-  the 27-question swing in "yes" recall between 300 and 900 examples (Section 5.6) is exactly the size of
-  effect a single run cannot distinguish from noise. A second seed at 300 is prepared and is the next GPU run.
+- Single seed per experiment; differences under ±1 point are treated as noise rather than tested statistically. `[TODO: at least 2 seeds for the headline A-vs-B comparison if compute allows]` The A-server control partly substitutes for a second seed on experiment A: an independent run with different hardware, precision and quantisation reproduced every metric to within half a point. The replay-budget comparison now has two seeds at 300
+  (Section 5.6): run-to-run spread is about 0.7 macro-F1 and about 2 points of single-class recall, and the
+  300-versus-900 differences in per-class balance exceed it four-fold. The 900-example point and the zero point
+  remain single runs.
 - The PubMedQA "maybe" class has only 55 unique training items, repeated about five times to reach 300 in C1's balanced sample. The calibration gain may therefore depend partly on memorising a small set; the held-out half shows the effect transfers, but a larger three-class source would test it properly. On the training half C1 scores 94.4 % accuracy and answers 54 of 55 "maybe" questions correctly, which confirms the memorisation is present and is exactly why the split protocol exists.
 - C1's general-ability cost on TextVQA is −2.23 points on 300 questions (about seven). A second probe (MMBench, 500 multiple-choice) shows no replay cost, so the TextVQA figure should be read as a short-answer-format effect, not as general forgetting. Neither probe covers open-ended description, where format-independent drift could still hide.
 - Evaluation uses greedy decoding and string matching; open-ended recall rewards verbose answers. Exact match and F1 are reported alongside to bound this.

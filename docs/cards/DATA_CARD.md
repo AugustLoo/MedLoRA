@@ -106,6 +106,7 @@ label as the target. Class-balanced by sampling with replacement:
 | Sample | `--per-class` | Total | maybe repetition | Used by |
 |---|---|---|---|---|
 | `pubmedqa_sft_train_300` | 100 | 300 | ≈1.8× | C2-300 |
+| `pubmedqa_sft_train_300s43` | 100 (seed 43) | 300 | ≈1.8× | C2-300-s43, second seed |
 | `pubmedqa_sft_train` | 300 | 900 | ≈5.5× | C1 |
 | (not built) | 600 | 1,800 | ≈10.9× | C2-1800, deprioritised |
 
