@@ -9,8 +9,8 @@
 :root{
   --paper:#F7F2E7; --paper-deep:#EFE7D3; --card:#FDFAF2;
   --navy:#14263B; --ink-soft:#3D4E63; --taupe:#8C8577; --rule:#D8CFBA;
-  --c-base:#0E67B5; --c-a:#C25E28; --c-b1:#1F8A70; --c-b2:#B8860B; --c-c1:#8E44AD;
-  --c-red:#C0392B; --c-gold:#9A9283;
+  --c-base:#0E67B5; --c-a:#C25E28; --c-b1:#1F8A70; --c-b2:#B8860B; --c-c1:#8E44AD; --c-c2:#C2185B;
+  --c-red:#C0392B; --c-gold:#9A9283; --c-good:#1F8A70;
   --font-head:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
   --font-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
   --font-num:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;
@@ -20,8 +20,7 @@
 html{scroll-behavior:smooth}
 body{background:var(--paper);color:var(--navy);font-family:var(--font-body);font-size:17px;line-height:1.9;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:var(--c-base)} a:hover{color:var(--navy)}
-.num,.mono,.en{font-family:var(--font-num)}
-.en{font-size:.92em}
+.en,.num{font-family:var(--font-num);font-size:.92em}
 h1,h2,h3{font-family:var(--font-head);font-weight:700}
 h2{font-size:38px;line-height:1.35;letter-spacing:.01em;margin-bottom:18px;text-wrap:balance}
 h2::after{content:"";display:block;width:64px;height:4px;background:var(--navy);margin-top:14px}
@@ -33,37 +32,37 @@ h3{font-size:21px;line-height:1.4}
 .viz{max-width:1080px;margin:48px auto 0}
 .prose p{margin-bottom:1.1em;color:var(--ink-soft)}
 .prose p.lede{font-size:19px;color:var(--navy)}
-.prose strong{color:var(--navy)}
+.prose strong,.step-card strong{color:var(--navy)}
 .card{background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
 .srcline{max-width:1080px;margin:18px auto 0;font-size:13px;line-height:1.7;color:var(--taupe)}
 
 /* cover */
 #cover{min-height:100vh;position:relative;overflow:hidden;background:linear-gradient(180deg,#F9F5EC 0%,var(--paper) 55%,#E9E0C9 100%);display:flex;align-items:center;justify-content:center}
-#cover .inner{max-width:900px;padding:0 24px 16vh;position:relative;z-index:3;width:100%}
-#cover h1{font-size:clamp(38px,6.1vw,74px);line-height:1.22;letter-spacing:.04em}
-#cover h1 .hi{color:var(--c-c1)}
-#cover .sub{margin-top:22px;font-size:18px;color:var(--ink-soft);max-width:660px}
+#cover .inner{max-width:920px;padding:0 24px 16vh;position:relative;z-index:3;width:100%}
+#cover h1{font-size:clamp(36px,5.8vw,70px);line-height:1.24;letter-spacing:.04em}
+#cover h1 .hi{color:var(--c-c1)} #cover h1 .hi2{color:var(--c-c2)}
+#cover .sub{margin-top:22px;font-size:18px;color:var(--ink-soft);max-width:680px}
 #cover .asof-line{margin-top:14px;font-family:var(--font-num);font-size:12.5px;color:var(--taupe);letter-spacing:.06em}
 #cover .stats{display:flex;gap:42px;margin-top:44px;flex-wrap:wrap}
 #cover .stat .v{font-family:var(--font-num);font-size:40px;font-weight:700;line-height:1.1}
 #cover .stat .v small{font-size:15px;font-weight:400;color:var(--taupe);margin-left:6px}
 #cover .stat .bar{height:5px;margin-top:8px;width:120px}
-#cover .stat .l{font-size:13px;color:var(--ink-soft);margin-top:8px;max-width:210px;line-height:1.5}
+#cover .stat .l{font-size:13px;color:var(--ink-soft);margin-top:8px;max-width:220px;line-height:1.5}
 #cover .scrollhint{position:absolute;bottom:34px;left:0;right:0;text-align:center;font-family:var(--font-num);font-size:11px;letter-spacing:.2em;color:var(--taupe);z-index:3}
 #grid{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.55}
 
-/* quote block */
-.quote{max-width:760px;margin:40px auto 0;padding:26px 30px;border-left:6px solid var(--c-b1);background:var(--card);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
+/* quote */
+.quote{max-width:760px;margin:40px auto 0;padding:26px 30px;border-left:6px solid var(--c-good);background:var(--card);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
 .quote p{font-size:18px;line-height:1.85;color:var(--navy);margin:0}
 .quote .who{font-family:var(--font-num);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin-top:14px}
 
-/* split diagram */
+/* split cards */
 .split{max-width:900px;margin:44px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:22px}
 .split .card{padding:20px 22px}
-.split .card .tag{font-family:var(--font-num);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);display:inline-block;padding:2px 10px;margin-bottom:12px}
+.split .tag{font-family:var(--font-num);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);display:inline-block;padding:2px 10px;margin-bottom:12px}
 .split .train .tag{background:var(--c-c1)} .split .test .tag{background:var(--navy)}
-.split .card .n{font-family:var(--font-num);font-size:30px;font-weight:700;line-height:1.1;margin-bottom:6px}
-.split .card p{font-size:14px;line-height:1.8;color:var(--ink-soft);margin:0}
+.split .n{font-family:var(--font-num);font-size:30px;font-weight:700;line-height:1.1;margin-bottom:6px}
+.split p{font-size:14px;line-height:1.8;color:var(--ink-soft);margin:0}
 
 /* table */
 .tbl{overflow-x:auto;max-width:1080px;margin:36px auto 0}
@@ -71,26 +70,37 @@ table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--card
 th,td{padding:10px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule);white-space:nowrap}
 thead th{font-family:var(--font-num);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);background:var(--paper-deep);border-bottom:2px solid var(--navy)}
 td.num,th.num{text-align:right;font-family:var(--font-num);font-variant-numeric:tabular-nums}
-td.best{font-weight:700;color:var(--c-c1)}
-td.bad{color:var(--c-red);font-weight:700}
+td.best{font-weight:700;color:var(--c-c1)} td.best2{font-weight:700;color:var(--c-c2)}
+td.bad{color:var(--c-red);font-weight:700} td.ok{color:var(--c-good);font-weight:700}
 tbody tr:last-child td{border-bottom:0}
 tbody tr.hl{background:#F3EAF6}
 
-.chartcard{padding:22px 24px 18px}
-.chartcard .ttl{font-family:var(--font-num);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin-bottom:12px}
-.chartcard svg{width:100%;height:auto;display:block;overflow:visible}
-.legend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--font-num);font-size:12px;color:var(--ink-soft);margin-top:12px}
-.legend span::before{content:"";display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(20,38,59,.25)}
-.legend .lg::before{background:var(--c-gold)} .legend .lb::before{background:var(--c-base)}
-.legend .la::before{background:var(--c-a)} .legend .lc::before{background:var(--c-c1)}
+/* scrolly */
+.scrolly{max-width:1160px;margin:40px auto 0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr);gap:40px;align-items:start}
+.sticky-fig{position:sticky;top:6vh;height:88vh;display:flex;align-items:center}
+.sticky-fig .card{width:100%;padding:22px 24px 18px}
+.sticky-fig .ttl{font-family:var(--font-num);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin-bottom:10px}
+.sticky-fig svg{width:100%;height:auto;display:block;overflow:visible}
+.steps{padding:10vh 0 20vh}
+.step{min-height:64vh;display:flex;align-items:center}
+.step-card{background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16);padding:20px 22px;opacity:.38;transition:opacity .3s,transform .3s;transform:translateX(0)}
+.step.is-active .step-card{opacity:1;transform:translateX(-6px)}
+.step-card .n{font-family:var(--font-num);font-size:11.5px;letter-spacing:.14em;color:var(--taupe);margin-bottom:8px}
+.step-card h3{font-size:20px;margin-bottom:8px}
+.step-card p{font-size:15px;line-height:1.85;color:var(--ink-soft)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--font-num);font-size:12px;color:var(--ink-soft);margin-top:10px}
+.legend span[class^="l"]::before{content:"";display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(20,38,59,.25)}
+.legend .lg::before{background:var(--c-gold)} .legend .lb::before{background:var(--c-base)} .legend .la::before{background:var(--c-a)}
+.legend .lc1::before{background:var(--c-c1)} .legend .lc2::before{background:var(--c-c2)}
+.legend .ltv::before{background:var(--c-a)} .legend .lmm::before{background:var(--c-b1)}
 
-/* conclusions */
-.concl{max-width:1080px;margin:40px auto 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
-.concl .card{padding:22px 22px 18px}
-.concl .card .big{font-family:var(--font-num);font-size:32px;font-weight:700;line-height:1.1}
-.concl .card .big small{font-size:14px;font-weight:400;color:var(--taupe);margin-left:6px}
-.concl .card h3{font-size:18px;margin:10px 0 6px}
-.concl .card p{font-size:14px;line-height:1.8;color:var(--ink-soft)}
+/* tiles */
+.tiles{max-width:1080px;margin:40px auto 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.tiles .card{padding:22px 22px 18px}
+.tiles .big{font-family:var(--font-num);font-size:32px;font-weight:700;line-height:1.1}
+.tiles .big small{font-size:14px;font-weight:400;color:var(--taupe);margin-left:6px}
+.tiles h3{font-size:18px;margin:10px 0 6px}
+.tiles p{font-size:14px;line-height:1.8;color:var(--ink-soft)}
 .next{max-width:760px;margin:36px auto 0;padding:24px 28px}
 .next h3{margin-bottom:12px}
 .next ol{padding-left:22px}
@@ -100,12 +110,16 @@ footer{padding:40px 24px 60px;text-align:center;font-family:var(--font-num);font
 footer a{color:var(--ink-soft)}
 
 @media (max-width:900px){
-  .split,.concl{grid-template-columns:1fr}
+  .scrolly{grid-template-columns:1fr;gap:0}
+  .sticky-fig{position:sticky;top:0;height:auto;padding:12px 0;background:var(--paper);z-index:2}
+  .section.deep .sticky-fig{background:var(--paper-deep)}
+  .step{min-height:40vh}
+  .split,.tiles{grid-template-columns:1fr}
   h2{font-size:30px}
   .section{padding:72px 20px}
   #cover .stats{gap:26px}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.step-card{transition:none}}
 </style>
 </head>
 <body>
@@ -117,107 +131,104 @@ footer a{color:var(--ink-soft)}
     <rect width="1400" height="900" fill="url(#gp)"/>
   </svg>
   <div class="inner">
-    <div class="kicker">Topic 6 · Task 1.3 · 第 2 周进展汇报 · 2026-09-21</div>
-    <h1>上周的判断，<br>这周<span class="hi">验证</span>了</h1>
-    <p class="sub">上周结尾说「偏置是 SFT 的数据带进来的，所以对齐要改数据配比，而不是再加一个阶段」。这周照着这句话做了实验，它成立了——而且代价也量出来了。</p>
-    <div class="asof-line">Qwen2.5-VL-3B-Instruct · LoRA r16 · 学院 RTX 5090 · bf16 不量化 · results as of 2026-09-21</div>
+    <div class="kicker">Topic 6 · Task 1.3 · 第 2 周进展汇报 · 更新至 2026-09-23</div>
+    <h1>上周的判断<span class="hi">验证了</span>，<br>上周的担心<span class="hi2">被推翻了</span></h1>
+    <p class="sub">上周说「偏置是微调数据带进来的，改数据配比就能修」——这周修好了，而且量出 300 条就够。上周还担心「TextVQA 会低估遗忘」——这周第二个探针说，它高估了。两句话都是数据说的。</p>
+    <div class="asof-line">Qwen2.5-VL-3B-Instruct · LoRA r16 · 学院 RTX 5090 · bf16 不量化 · 四张评估表 · results as of 2026-09-23</div>
     <div class="stats">
-      <div class="stat"><div class="v" style="color:var(--c-c1)">61.1<small>← 51.5</small></div><div class="bar" style="background:var(--c-c1)"></div><div class="l">PubMedQA macro-F1，整个课题最大的单项提升</div></div>
-      <div class="stat"><div class="v" style="color:var(--c-c1)">19<small>← 6 / 共 55</small></div><div class="bar" style="background:var(--c-c1)"></div><div class="l">该答「不确定」且答对的题数，三倍</div></div>
-      <div class="stat"><div class="v" style="color:var(--c-red)">−2.2<small>通用 VQA</small></div><div class="bar" style="background:var(--c-red)"></div><div class="l">代价，而且已经确认是谁造成的</div></div>
+      <div class="stat"><div class="v" style="color:var(--c-c1)">61.1<small>← 51.5</small></div><div class="bar" style="background:var(--c-c1)"></div><div class="l">PubMedQA macro-F1，补 900 条回放后，考卷半边</div></div>
+      <div class="stat"><div class="v" style="color:var(--c-c2)">300<small>条就够</small></div><div class="bar" style="background:var(--c-c2)"></div><div class="l">拿到 94% 的校准收益，主任务零代价</div></div>
+      <div class="stat"><div class="v" style="color:var(--c-good)">0.0<small>MMBench</small></div><div class="bar" style="background:var(--c-good)"></div><div class="l">第二个遗忘探针上，回放没有代价</div></div>
     </div>
   </div>
   <div class="scrollhint">SCROLL ▼</div>
 </section>
 
-<!-- ============================ 1. 上周的判断 ============================ -->
+<!-- ============================ 01 起点 ============================ -->
 <section class="section deep" id="claim">
   <div class="prose">
     <div class="kicker">01 · 起点</div>
-    <h2>上周留下的一句话</h2>
-    <p class="lede">上周补了一组「只做 CPT、不做 SFT」的评估，发现一件反直觉的事：<strong>没微调过的 CPT adapter，在可靠性这张表上比微调过的都准</strong>。</p>
-    <p>当时的结论写成了一句预测：模型不敢说「不确定」这个毛病，不是基座带来的，也不是增量预训练带来的，而是 <span class="en">SLAKE</span> 那种「一个词回答」的微调数据带进来的。如果这个判断对，那么<strong>把三分类的样本补回微调数据里，这个毛病就该消失</strong>——不需要再加一个 DPO 阶段。</p>
-    <p>这周就是去检验这句话。它值得检验的原因是：如果对，第三阶段「对齐」的做法要整个改写；如果错，说明上周的诊断是凑出来的，后面的分析都要重来。</p>
+    <h2>上周留下的两句话</h2>
+    <p class="lede">上周那份汇报的结尾有一个判断和一个担心。这周的所有实验都是围绕这两句话展开的。</p>
+    <p><strong>判断：</strong>模型不敢说「不确定」这个毛病，不是基座的，也不是增量预训练的，而是 <span class="en">SLAKE</span> 那种「一个词回答」的微调数据带进来的。证据是只做 CPT 不做 SFT 的模型反而校准最好。如果对，把三分类样本补回微调数据里，毛病就该消失——不需要再加一个 DPO 阶段。</p>
+    <p><strong>担心：</strong>通用能力探针 <span class="en">TextVQA</span> 只有 300 题、还是短答式 OCR，和微调输出格式太像，可能测不出遗忘，需要换一个更灵敏的。</p>
   </div>
   <div class="quote">
-    <p>「所以对齐要改的是 SFT 的数据配比，而不是再加一个阶段。」</p>
-    <div class="who">— 第 1 周汇报，第 07 节</div>
+    <p>「所以对齐要改的是 SFT 的数据配比，而不是再加一个阶段。」<br>「TextVQA 的短答题和我们的 SFT 输出格式太像，测不出退化。」</p>
+    <div class="who">— 第 1 周汇报，第 07 节与第 03 节</div>
   </div>
 </section>
 
-<!-- ============================ 2. 怎么验 ============================ -->
+<!-- ============================ 02 方法 ============================ -->
 <section class="section" id="method">
   <div class="prose">
     <div class="kicker">02 · 方法</div>
     <h2>要拿考卷当练习册，先把考卷切一半</h2>
-    <p class="lede">问题来了：要补的三分类样本只有 <span class="en">PubMedQA</span> 有，而 <span class="en">PubMedQA</span> 正是我们的可靠性评估表。拿考卷去练习，考出来的分数不算数。</p>
-    <p>做法是按标签分层把一千题对半切开，种子固定为 <span class="en">42</span>，切分结果作为文件<strong>入库到 git</strong>，脚本写了保护：一旦存在就拒绝重新生成。一半进训练，一半永远不进训练、只用来打分。</p>
-    <p>还有一个配套问题：之前四个模型都是在全部一千题上评的，和新模型没法直接比。解决办法是不重跑任何模型——每道题的预测当初都存下来了，写个脚本按切分过滤一遍重算即可。<strong>七个模型因此站在同一把尺子上</strong>，一次推理都没有重复花。</p>
+    <p class="lede">三分类样本只有 <span class="en">PubMedQA</span> 有，而它正是可靠性评估表。拿考卷练习，分数不算数。</p>
+    <p>按标签分层对半切，种子固定 <span class="en">42</span>，切分文件<strong>入库到 git</strong>，脚本写了保护——一旦存在就拒绝重新生成。一半进训练，一半永远只用来打分。之前四个模型的逐题预测都存着，按切分过滤重算即可，<strong>八个模型站在同一把尺子上</strong>，没有重复花一次推理。</p>
   </div>
   <div class="split">
-    <div class="card train">
-      <div class="tag">练习册 · 进训练</div>
-      <div class="n">500</div>
-      <p>按每类 300 条平衡采样成 900 条，混进 <span class="en">SLAKE</span> 的 4,919 条里做一次微调。其余超参数与实验 A 完全一致，<strong>唯一的变量就是这 900 条</strong>。</p>
-    </div>
-    <div class="card test">
-      <div class="tag">考卷 · 永不进训练</div>
-      <div class="n">500</div>
-      <p>真实答案 <span class="en">276</span> yes / <span class="en">169</span> no / <span class="en">55</span> maybe。本页所有 <span class="en">PubMedQA</span> 数字都只来自这半边。</p>
-    </div>
+    <div class="card train"><div class="tag">练习册 · 进训练</div><div class="n">500</div><p>每类平衡采样成 300 条或 900 条，混进 <span class="en">SLAKE</span> 的 4,919 条里做一次微调。其余超参与实验 A 完全一致，<strong>唯一的变量就是回放条数</strong>。</p></div>
+    <div class="card test"><div class="tag">考卷 · 永不进训练</div><div class="n">500</div><p>真实答案 <span class="en">276</span> yes / <span class="en">169</span> no / <span class="en">55</span> maybe。本页所有 <span class="en">PubMedQA</span> 数字都只来自这半边。</p></div>
   </div>
-  <div class="srcline"><span class="en">data/pubmedqa_split.json</span>（已入库）· 重算脚本 <span class="en">scripts/eval_pubmedqa_split.py --half test</span></div>
+  <div class="srcline"><span class="en">data/pubmedqa_split.json</span>（已入库）· <span class="en">scripts/eval_pubmedqa_split.py --half test</span></div>
 </section>
 
-<!-- ============================ 3. 结果 ============================ -->
+<!-- ============================ 03 主结果 · scrolly ============================ -->
 <section class="section deep" id="result">
   <div class="prose">
     <div class="kicker">03 · 主结果</div>
-    <h2>分布对上了</h2>
-    <p class="lede">灰色是真实答案的分布。前面所有模型都严重偏向 yes、几乎不答 maybe；<strong>补了 900 条之后，分布贴了回去</strong>。</p>
+    <h2>分布是怎么一步步贴回去的</h2>
+    <p class="lede">灰色斜纹是真实答案的分布。往下滚，看每加一批回放数据，预测分布怎么变。</p>
   </div>
-  <div class="viz">
-    <div class="card chartcard">
-      <div class="ttl">PubMedQA 预测的 yes / no / maybe 数量 vs 真实 · 考卷半边 500 题</div>
-      <svg id="dist" viewBox="0 0 900 330" role="img" aria-label="各模型预测的 yes/no/maybe 数量与真实分布对比"></svg>
-      <div class="legend"><span class="lg">真实答案</span><span class="lb">基座</span><span class="la">A 只做 SFT</span><span class="lc">C1 补了 900 条</span></div>
+  <div class="scrolly" id="scrolly-dist">
+    <div class="sticky-fig"><div class="card">
+      <div class="ttl" id="dist-ttl">PubMedQA 预测的 yes / no / maybe · 考卷半边 500 题</div>
+      <svg id="dist" viewBox="0 0 720 360" role="img" aria-label="各回放条数下预测的 yes/no/maybe 数量与真实分布对比"></svg>
+      <div class="legend" id="dist-legend"></div>
+    </div></div>
+    <div class="steps">
+      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>基座：偏 yes，还乱猜 maybe</h3><p>没微调过的模型答 <span class="en">320 / 97 / 83</span>。yes 多了 44 个，no 少了 72 个。它答了 83 次 maybe，但只对 <span class="en">7</span> 次——不是谨慎，是猜。</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>只做微调：偏置反而更重</h3><p>实验 A 在服务器上重跑（回放 0 条）：<span class="en">356 / 112 / 32</span>。maybe 塌掉一半，该答 no 却答 yes 从 42 例涨到 <span class="en">63</span> 例，<strong>比没微调时还多</strong>。上周的判断在这一步被独立复现：短答式微调系统性地推向 yes。</p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>补 300 条：贴回去了，但过了头</h3><p><span class="en">228 / 178 / 94</span>。macro-F1 从 51.5 跳到 <span class="en">60.5</span>，no→yes 错误从 63 压到 <span class="en">14</span>——比基座还低。代价是 yes 只答了 228 个而真实有 276，yes 召回率从 91.7 掉到 69.9。<strong>它把偏置推过了中线。</strong></p></div></div>
+      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>补 900 条：更均衡，收益只多 0.6</h3><p><span class="en">269 / 151 / 80</span>，八个模型里最贴近真实的分布。macro-F1 <span class="en">61.1</span>，三类召回率 79.7 / 70.4 / 34.5 比 300 条时平得多。但从 300 到 900，收益只多 <span class="en">+0.6</span>，边际收益掉了三十倍。</p></div></div>
     </div>
   </div>
-  <div class="srcline">A 与 C1 均为服务器上 bf16 不量化的运行，同机同精度可直接相减。</div>
+  <div class="srcline">回放 0 / 300 / 900 三轮全在服务器上 bf16 不量化跑的，超参一致，可直接相减。</div>
 </section>
 
-<!-- ============================ 4. 不是多猜 ============================ -->
+<!-- ============================ 04 反驳一个质疑 ============================ -->
 <section class="section" id="notguess">
   <div class="prose">
     <div class="kicker">04 · 反驳一个质疑</div>
-    <h2>不是让它多猜「不确定」，是真的判断准了</h2>
-    <p class="lede">最容易被问的一句是：你只是把它调得爱说「不确定」而已吧？数字不支持这个说法。</p>
-    <p>基座本来就答了 <span class="en">83</span> 次 maybe，只对 <span class="en">7</span> 次；<span class="en">C1</span> 答了 <span class="en">80</span> 次，对 <span class="en">19</span> 次。<strong>次数几乎一样，对的次数将近三倍。</strong>而且三个类别的精确率和召回率是一起变好的，不是拆东墙补西墙。</p>
-    <p>最说明问题的是最后一行：该答 no 却答成 yes，在临床场景里是最危险的那种错。只做微调之后这个数字<strong>比没微调时还多</strong>（63 对 42）；补了 900 条之后降到 26，<strong>比没微调过的基座还低</strong>。</p>
+    <h2>不是让它多猜「不确定」</h2>
+    <p class="lede">最容易被问的一句：你只是把它调得爱说「不确定」而已吧？</p>
+    <p>基座本来就答了 83 次 maybe，只对 7 次；补 300 条后答 94 次，对 <span class="en">21</span> 次；补 900 条后答 80 次，对 <span class="en">19</span> 次。<strong>次数相当，对的次数三倍。</strong>三个类别的精确率和召回率是一起变好的。</p>
+    <p>两类危险错误加起来，300 条是 <span class="en">46</span>、900 条是 <span class="en">45</span>，打平——只是分布不同：300 条把 no→yes 压得极低但 yes→no 涨上来，900 条两头均衡。<strong>哪个更好取决于场景</strong>，报告里没有硬选一个「最优值」。</p>
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>考卷半边 500 题</th><th class="num">基座</th><th class="num">A 只做 SFT</th><th class="num">C1 补 900 条</th></tr></thead>
+      <thead><tr><th>考卷半边 500 题</th><th class="num">基座</th><th class="num">回放 0</th><th class="num">回放 300</th><th class="num">回放 900</th></tr></thead>
       <tbody>
-        <tr><td>yes 精确率 / 召回率</td><td class="num">74.7 / 86.6</td><td class="num">71.9 / 91.7</td><td class="num">81.8 / 79.7</td></tr>
-        <tr><td>no 精确率 / 召回率</td><td class="num">76.3 / 43.8</td><td class="num">76.3 / 53.3</td><td class="num">78.8 / 70.4</td></tr>
-        <tr><td>maybe 精确率 / 召回率</td><td class="num">8.4 / 12.7</td><td class="num">16.7 / 9.1</td><td class="num">23.8 / 34.5</td></tr>
-        <tr class="hl"><td><strong>macro-F1</strong></td><td class="num">48.7</td><td class="num">51.5</td><td class="num best">61.1</td></tr>
-        <tr class="hl"><td><strong>该答 no 却答成 yes</strong></td><td class="num">42</td><td class="num bad">63</td><td class="num best">26</td></tr>
+        <tr><td>yes 精确率 / 召回率</td><td class="num">74.7 / 86.6</td><td class="num">71.1 / 91.7</td><td class="num">84.6 / <span style="color:var(--c-red)">69.9</span></td><td class="num">81.8 / 79.7</td></tr>
+        <tr><td>no 精确率 / 召回率</td><td class="num">76.3 / 43.8</td><td class="num">75.9 / 50.3</td><td class="num">74.7 / 78.7</td><td class="num">78.8 / 70.4</td></tr>
+        <tr><td>maybe 精确率 / 召回率</td><td class="num">8.4 / 12.7</td><td class="num">18.8 / 10.9</td><td class="num">22.3 / 38.2</td><td class="num">23.8 / 34.5</td></tr>
+        <tr class="hl"><td><strong>macro-F1</strong></td><td class="num">48.7</td><td class="num">51.5</td><td class="num best2">60.5</td><td class="num best">61.1</td></tr>
+        <tr><td>该答 no 却答 yes</td><td class="num">42</td><td class="num bad">63</td><td class="num ok">14</td><td class="num">26</td></tr>
+        <tr><td>该答 yes 却答 no</td><td class="num">14</td><td class="num">18</td><td class="num bad">32</td><td class="num">19</td></tr>
+        <tr class="hl"><td><strong>两类危险错误合计</strong></td><td class="num">56</td><td class="num">81</td><td class="num">46</td><td class="num">45</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="srcline">精确率 = 答这个标签的题里答对的比例；召回率 = 该答这个标签的题里答对的比例。</div>
 </section>
 
-<!-- ============================ 5. 对照组 ============================ -->
+<!-- ============================ 05 严谨性 ============================ -->
 <section class="section deep" id="control">
   <div class="prose">
     <div class="kicker">05 · 严谨性</div>
     <h2>为了只留一个变量，把实验 A 重跑了一遍</h2>
-    <p class="lede">有个漏洞必须先堵上：实验 A 当初在 Kaggle 的 T4 上用 4bit 量化训的，C1 在服务器的 5090 上用 bf16 不量化训的。两者差了<strong>数据配比、量化方式、硬件</strong>三样，不能直接相减。</p>
-    <p>所以把实验 A 用 C1 的条件在同一张卡上完整重跑了一遍（记作 <span class="en">A-server</span>）。结果是五项指标<strong>全部差在半分以内</strong>，连最终验证损失都是 <span class="en">0.145</span> 对 <span class="en">0.1446</span>。换了硬件、换了量化方式，训练轨迹重现了。</p>
-    <p>这一轮有两个收获。一是<strong>之前把 Kaggle 数字和服务器数字混在一起看的那些结论不用推翻</strong>；二是它顺带独立复现了上周的诊断——A-server 把 no 答成 yes 有 63 例，比基座的 42 例还多，说明<strong>短答式微调推高 yes 偏置这件事与硬件无关</strong>，是数据本身的性质。</p>
+    <p class="lede">实验 A 当初在 Kaggle 的 T4 上 4bit 量化训的，回放实验在服务器 5090 上 bf16 不量化训的，差了三样，不能直接相减。</p>
+    <p>所以把 A 用同样条件在同一张卡上完整重跑（<span class="en">A-server</span>）。五项指标<strong>全部差在半分以内</strong>，连最终验证损失都是 <span class="en">0.145</span> 对 <span class="en">0.1446</span>。换硬件、换量化方式，训练轨迹重现了。它同时充当了回放曲线的「0 条」那个点，也部分顶替了第二个随机种子——一次硬件、精度、量化都不同的独立复现。</p>
   </div>
   <div class="tbl">
     <table>
@@ -231,74 +242,108 @@ footer a{color:var(--ink-soft)}
       </tbody>
     </table>
   </div>
-  <div class="srcline">这一轮也部分顶替了「跑第二个随机种子」——它是一次硬件、精度、量化都不同的独立复现。</div>
 </section>
 
-<!-- ============================ 6. 代价 ============================ -->
+<!-- ============================ 06 代价 · scrolly ============================ -->
 <section class="section" id="cost">
   <div class="prose">
     <div class="kicker">06 · 代价</div>
-    <h2>通用能力掉了 2.2 分，而且能说清是谁掉的</h2>
-    <p class="lede">有了 <span class="en">A-server</span> 这个对照，通用能力的退化可以拆成两段，加起来正好是之前测到的总数。</p>
-    <p><strong>只做医学微调，通用能力几乎不掉</strong>（−0.66，噪声级别）。<strong>一旦混入纯文本样本，掉了 2.23 分。</strong>所以这个代价的来源是明确的：是那 900 条纯文本，不是微调本身。</p>
-    <p>逐题看，300 题里变差 14 题、变好 6 题，净 8 题；答案平均长度 1.39 词变 1.43 词，<strong>不是答啰嗦了</strong>。变差的里面一半是写法差异（<span class="en">one penny</span> 写成 <span class="en">1 penny</span>），一半是真读错（<span class="en">Vietnam</span> 答成 <span class="en">us army</span>）。</p>
-    <p>要诚实说明的一点：这个探针只有 300 题，2.2 分就是约 7 题。<strong>方向可信，幅度不够精确</strong>，需要换一个更灵敏的通用评测才能把量说准。</p>
+    <h2>掉的到底是什么</h2>
+    <p class="lede">收益量清楚了，代价呢？往下滚，两条遗忘曲线会先后出现——第二条推翻了上周的担心。</p>
   </div>
-  <div class="viz">
-    <div class="card chartcard">
-      <div class="ttl">TextVQA 准确率的两段分解 · 300 题</div>
-      <svg id="fall" viewBox="0 0 900 300" role="img" aria-label="TextVQA 从基座到 A-server 再到 C1 的两段下降"></svg>
+  <div class="scrolly" id="scrolly-ret">
+    <div class="sticky-fig"><div class="card">
+      <div class="ttl" id="ret-ttl">通用能力 vs 回放条数 · 准确率 %</div>
+      <svg id="ret" viewBox="0 0 720 360" role="img" aria-label="TextVQA 与 MMBench 准确率随回放条数的变化"></svg>
+      <div class="legend" id="ret-legend"></div>
+    </div></div>
+    <div class="steps">
+      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>TextVQA 在掉</h3><p>回放 0 / 300 / 900 条，TextVQA <span class="en">83.56 → 82.33 → 81.33</span>。代价随条数单调上升，−1.23 再 −2.23。看起来回放在吃通用能力。</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>先把微调本身摘出去</h3><p>基座是 <span class="en">84.22</span>，只做 SLAKE 微调到 83.56，掉 <span class="en">0.66</span>——噪声级别。所以后面掉的那些是回放造成的，不是微调本身。归因干净。</p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>第二个探针：纹丝不动</h3><p>MMBench 五百题四选一，覆盖 20 个能力维度。回放 0 / 300 / 900：<span class="en">87.40 / 87.40 / 88.00</span>。相对回放 0 是 <span class="en">0.0 / +0.6</span>，一分等于五题，噪声。逐类别最大的变动换算过来各是 1 题。</p></div></div>
+      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>所以掉的是格式，不是能力</h3><p>回放塞进去的是 yes / no / maybe 单词答案，短答式 OCR 题对这种输出分布的偏移敏感，四选一的题不受影响。之前逐题看 TextVQA 变差的一半是 <span class="en">one penny → 1 penny</span> 这种写法差异，对上了。<strong>上周担心 TextVQA 低估遗忘——方向反了，它高估。</strong></p></div></div>
     </div>
   </div>
-  <div class="srcline">另一侧的主任务 SLAKE 基本持平：封闭题掉 1.2 分（416 题里约 5 题），开放题 EM 反涨 0.6 分（645 题里约 4 题），全测试集 1,061 题净变化约一题。</div>
+  <div class="srcline">主任务 SLAKE：回放 300 条封闭题反涨 0.48、开放题 EM 涨 0.47，零代价；900 条封闭题掉 1.21、开放题涨 0.62，净约一题。</div>
 </section>
 
-<!-- ============================ 7. 改变了什么 ============================ -->
-<section class="section deep" id="impact">
+<!-- ============================ 07 取舍 ============================ -->
+<section class="section deep" id="tradeoff">
   <div class="prose">
-    <div class="kicker">07 · 结论</div>
-    <h2>第三阶段的做法要改写</h2>
-    <p class="lede">课题给的流水线里，「对齐」默认是第三个训练阶段，通常是 <span class="en">DPO</span>。这周的结果说明，在这个流水线里它可能不必要。</p>
-    <p>原因是这个可靠性问题<strong>不是从预训练继承来的，是第二阶段自己制造的</strong>——上周的 CPT-only 评估证明了前半句，这周的 C1 证明了后半句：把第二阶段的数据配比改回来，问题就大部分消失。再加一个阶段，等于用一个新阶段去修上一个阶段自己弄坏的东西。</p>
-    <p>所以第三阶段重新定义为<strong>「微调数据配比的设计」</strong>，剩下的问题变成一个定量问题：要补多少条才够，补得越多通用能力掉得越多，这条曲线长什么样。</p>
+    <div class="kicker">07 · 取舍</div>
+    <h2>多少回放才够</h2>
+    <p class="lede">这是这周最实用的发现：修复校准需要的数据比预想的少得多。</p>
+    <p>前 300 条换来 <span class="en">+9.03</span> macro-F1，每百条 3.0 分；再加 600 条只多 <span class="en">+0.60</span>，每百条 0.1 分，<strong>边际收益掉三十倍</strong>。而代价是单调涨的，只在短答格式上出现。</p>
   </div>
-  <div class="concl">
-    <div class="card"><div class="big" style="color:var(--c-b1)">✓</div><h3>诊断被验证</h3><p>上周从 CPT-only 评估推出的机制，在被验证之前就预测了这周的结果。这是目前最有力的证据，说明我们理解的是机制而不是在凑数字。</p></div>
-    <div class="card"><div class="big" style="color:var(--c-c1)">+9.6</div><h3>修法有效</h3><p>macro-F1 从 51.5 到 61.1，是整个课题最大的单项提升，而且主任务基本没有代价。</p></div>
-    <div class="card"><div class="big" style="color:var(--taupe)">DPO</div><h3>降级为备选</h3><p>改数据比加阶段便宜得多。只有当 C2 的曲线显示数据配比这条路走不到可接受的校准水平时，才会回头做 DPO。</p></div>
+  <div class="tiles">
+    <div class="card"><div class="big" style="color:var(--c-c2)">+9.03<small>300 条</small></div><h3>收益几乎一步到位</h3><p>再到 900 条只多 +0.60。曲线在很早的地方就饱和了，不必跑 1800 条——那一档 maybe 要重复 11 次，真回落也分不清是饱和还是背题。</p></div>
+    <div class="card"><div class="big" style="color:var(--c-good)">±0<small>SLAKE · 300 条</small></div><h3>主任务零代价</h3><p>封闭题 +0.48、开放题 +0.47。900 条时封闭题 −1.21 被开放题 +0.62 抵消。小预算连「抵消」都不需要。</p></div>
+    <div class="card"><div class="big" style="color:var(--taupe)">300 或 900</div><h3>没有唯一最优</h3><p>要通用能力和主任务不掉，选 300；要三类行为均衡，选 900。报告把取舍讲清楚，不替使用者做这个决定。</p></div>
   </div>
 </section>
 
-<!-- ============================ 8. 时间去哪了 ============================ -->
+<!-- ============================ 08 结论 ============================ -->
+<section class="section" id="impact">
+  <div class="prose">
+    <div class="kicker">08 · 结论</div>
+    <h2>第三阶段改写了</h2>
+    <p class="lede">课题流水线里「对齐」默认是第三个训练阶段，通常是 DPO。这两周的结果说明，在这个流水线里它可以不要。</p>
+    <p>可靠性问题<strong>不是从预训练继承的，是第二阶段自己制造的</strong>——上周的 CPT-only 评估证明前半句，这周的回放实验证明后半句。再加一个阶段等于用新阶段去修上个阶段弄坏的东西。第三阶段因此重新定义为<strong>「微调数据配比的设计」</strong>，DPO 降为备选。</p>
+    <p>还有一件事值得说：上周从 CPT-only 评估推出的机制，<strong>在被验证之前就预测了这周的结果</strong>。这比结果本身更能说明我们理解的是机制，不是在凑数字。而 TextVQA 那个担心被推翻，说明这套评估在自我纠错，不是只挑好看的讲。</p>
+  </div>
+</section>
+
+<!-- ============================ 09 交付物 ============================ -->
+<section class="section deep" id="deliver">
+  <div class="prose">
+    <div class="kicker">09 · 交付物</div>
+    <h2>四项要交的东西，现在的状态</h2>
+    <p class="lede">研究主线是超前的，这周把落后的文书补齐了。</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>课题要求</th><th>状态</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>① 数据生成脚本</td><td class="ok">完成</td><td>7 个脚本：SLAKE、PubMedQA（CPT 与 SFT 两种）、IU X-Ray、切分协议、回放采样</td></tr>
+        <tr><td>② CPT / SFT 流水线 + adapter</td><td class="ok">完成</td><td>15 个配置、四张表的评估脚本、9 个 adapter 的逐题预测全部入库</td></tr>
+        <tr><td>③ 评估集 + 模型卡</td><td class="ok">本周补完</td><td>模型卡（六条实测的失败模式、明确禁用声明）、数据卡（切分协议、IU X-Ray 36% 正常报告偏差、评分修正记录）</td></tr>
+        <tr><td>④ 报告 + 可复现配置</td><td class="ok">v0.7</td><td>Related Work 七段、29 条参考文献<strong>已逐条对 arXiv 核过</strong>（改 3 处、补 7 处），第二探针写入 5.6 节</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="srcline"><span class="en">docs/cards/MODEL_CARD.md</span> · <span class="en">docs/cards/DATA_CARD.md</span> · <span class="en">docs/refs.bib</span> · <span class="en">docs/report.md</span></div>
+</section>
+
+<!-- ============================ 10 坦白 ============================ -->
 <section class="section" id="ops">
   <div class="prose">
-    <div class="kicker">08 · 坦白</div>
-    <h2>这周有一整天花在服务器上</h2>
-    <p class="lede">这周只跑了两轮实验，不是因为实验本身慢，而是第一次在学院服务器上跑，踩了一串坑。记在这里，因为其中一部分会影响后面的排期。</p>
-    <p><strong>最耗时间的是一个假象。</strong>预处理的进度条长时间停在 0%，看着像卡死，其实框架是每一千条才刷新一次进度，它一直在干活。为此误杀了两个健康的运行。后来找到不依赖进度条的判断办法（看进程的累计读取字节数），并把批次改小让进度条真正能动。</p>
-    <p><strong>最意外的是线程。</strong>实测同一张图，用 1 个线程处理耗时 0.021 秒，用 128 个线程要 7.862 秒，<strong>差 374 倍</strong>。默认值是 64。原因是线程唤醒和同步的开销比任务本身大得多。这一条已经写进配置，后面所有实验都受益。</p>
-    <p><strong>还有一个没解决的。</strong>同一台机器、同一个模型、同样的批大小，C1 是 4.7 秒一步，A-server 是 38 秒一步，差八倍。排除了双卡、内存、磁盘、网络、线程数、显存抖动、显卡性能（实测 68.5 TFLOPS，正常）七项，抓到的调用栈显示卡在反向传播，但 GPU 利用率只有 5%。原因没找到，<strong>目前按「一轮过夜」排期</strong>。</p>
-    <p>这些都写进了仓库的服务器手册，下次不用重新踩。</p>
+    <div class="kicker">10 · 坦白</div>
+    <h2>时间去哪了</h2>
+    <p class="lede">两周跑了四轮服务器实验，不是实验慢，是第一次在学院服务器上跑踩了一串坑。记在这里，因为有一条会影响后面的排期。</p>
+    <p><strong>预处理的假死。</strong>进度条长时间停在 0%，其实框架每一千条才刷新一次，它一直在干活。为此误杀过两个健康的运行。后来找到不靠进度条的判断法（看进程累计读取字节数），把批次改小让进度条真正动起来。</p>
+    <p><strong>线程超额。</strong>同一张图用 1 个线程处理 0.021 秒，128 个线程 7.862 秒，差 374 倍，默认值 64。已写进配置。</p>
+    <p><strong>评估双启动。</strong>一条 <span class="en">&amp;&amp;</span> 链的父进程还在等训练结束，我又加了一个等待循环，训练一退出两边同时触发评估，两个进程往同一个文件里写，一小时白跑。现在的纪律是开跑前先查有没有别的在等。</p>
+    <p><strong>没解决的：</strong>同一台机器同一个模型，C1 是 4.7 秒一步，之后三轮都是 38–40 秒一步，差八倍。排除了双卡、内存、磁盘、网络、线程、显存抖动、显卡性能（实测 68.5 TFLOPS，正常）七项，调用栈显示卡在反向传播但 GPU 利用率只有 5%。原因没找到，<strong>目前按一轮过夜排期</strong>。</p>
   </div>
-  <div class="srcline"><span class="en">docs/SERVER.md</span> · 运维笔记一节</div>
+  <div class="srcline"><span class="en">docs/SERVER.md</span> · 运维笔记一节，全部沉淀成文档</div>
 </section>
 
-<!-- ============================ 9. 下周 ============================ -->
+<!-- ============================ 11 下一步 ============================ -->
 <section class="section deep" id="next">
   <div class="prose">
-    <div class="kicker">09 · 下一步</div>
-    <h2>把一个点做成一条曲线</h2>
+    <div class="kicker">11 · 下一步</div>
+    <h2>把结论加固，而不是再加点</h2>
   </div>
   <div class="card next">
     <h3>按优先级</h3>
     <ol>
-      <li><strong>实验 C2：回放比例的消融。</strong>现在只知道「900 条 = 校准 +9.6 / 通用 −2.2」这一个点。跑 300、900、1800 三个点，画出取舍曲线，回答「最少要补多少条」。报告里一条曲线的分量远大于一个孤点。</li>
-      <li><strong>换一个更灵敏的通用能力探针。</strong>TextVQA 只有 300 题，而且是短答式 OCR 题，和微调的输出格式太像，会低估退化。计划换 MMBench 子集或开放式描述任务。</li>
-      <li><strong>补 Related Work 的引用，写模型卡和数据卡。</strong>交付物清单里的硬性要求，现在是占位符。</li>
-      <li><strong>等队友的 CheXpert Plus 子集</strong>（预计第 5 周），之后做实验 B3：按图文对齐分数筛选训练数据，看数据质量筛选值不值。</li>
+      <li><strong>第二个随机种子。</strong>300 条和 900 条之间 yes 召回率差了 27 题，这是单次运行分不清是效应还是抖动的量级。重复 300 条那一点（采样种子和训练种子一起换），配置已备好、只差三行，<strong>等 GPU 空出 23 GB 就开</strong>——现在两张卡被别人的任务跑满。若它落在 60.5 附近，两条结论都站得住；若落在 61 附近且画像均衡，「300 条矫枉过正」那条要撤回。</li>
+      <li><strong>补一个 100 条的点。</strong>全部收益发生在 0 到 300 之间，那一段才是曲线真正有信息的地方，比 1800 有价值得多。</li>
+      <li><strong>开放式生成的探针。</strong>TextVQA 和 MMBench 都是短输出，开放式描述里的漂移两者都测不到，这是现在唯一没覆盖的情况。</li>
+      <li><strong>等队友的 CheXpert Plus 子集</strong>（第 5 周）→ 实验 B3。</li>
     </ol>
   </div>
-  <div class="srcline">服务器排期按一轮过夜计算，C2 的三个点预计需要三到四天。</div>
+  <div class="srcline">服务器一轮约 11 小时，过夜；每轮开跑前确认没有别的进程在等。</div>
 </section>
 
 <footer>
@@ -310,90 +355,120 @@ footer a{color:var(--ink-soft)}
 "use strict";
 var NS="http://www.w3.org/2000/svg";
 function el(t,a,x){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;return e;}
-var C={navy:"#14263B",soft:"#3D4E63",taupe:"#8C8577",rule:"#D8CFBA",card:"#FDFAF2",
-       base:"#0E67B5",a:"#C25E28",c1:"#8E44AD",gold:"#9A9283",red:"#C0392B",green:"#1F8A70"};
+function clear(svg){while(svg.firstChild)svg.removeChild(svg.firstChild);}
+var C={navy:"#14263B",soft:"#3D4E63",taupe:"#8C8577",rule:"#D8CFBA",card:"#FDFAF2",idle:"#E4DBC4",
+       base:"#0E67B5",a:"#C25E28",c1:"#8E44AD",c2:"#C2185B",gold:"#9A9283",red:"#C0392B",good:"#1F8A70"};
+var MONO="IBM Plex Mono,monospace";
 
-/* ---------- 分布图 ---------- */
-(function(){
-  var svg=document.getElementById("dist");
-  var W=900,H=330,L=54,R=14,T=22,B=64,pw=W-L-R,ph=H-T-B;
-  var GOLD=[276,169,55];
-  var S=[{n:"真实答案",c:C.gold,v:GOLD,gold:true},
-         {n:"基座",c:C.base,v:[320,97,83]},
-         {n:"A 只做 SFT",c:C.a,v:[356,112,32]},
-         {n:"C1 补 900 条",c:C.c1,v:[269,151,80]}];
-  var max=380, y=function(v){return T+ph-(v/max)*ph;};
-  var d=el("defs",{});
-  var pg=el("pattern",{id:"hg",width:6,height:6,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
-  pg.appendChild(el("rect",{width:6,height:6,fill:C.card}));
-  pg.appendChild(el("rect",{width:2.6,height:6,fill:C.gold}));
-  d.appendChild(pg); svg.appendChild(d);
+/* ---------- scrolly 1: 分布图 ---------- */
+var GOLD=[276,169,55];
+var DIST=[{k:"base",n:"基座",c:C.base,v:[320,97,83]},
+          {k:"a",n:"回放 0 (A-server)",c:C.a,v:[356,112,32]},
+          {k:"c2",n:"回放 300",c:C.c2,v:[228,178,94]},
+          {k:"c1",n:"回放 900",c:C.c1,v:[269,151,80]}];
+var DIST_STEPS=[
+  {shown:["base"],focus:"base",ttl:"基座 vs 真实分布 · 考卷半边 500 题"},
+  {shown:["base","a"],focus:"a",ttl:"只做微调 (回放 0) · 偏置反而更重"},
+  {shown:["base","a","c2"],focus:"c2",ttl:"补 300 条 · 贴回去了, 但过了头"},
+  {shown:["base","a","c2","c1"],focus:"c1",ttl:"补 900 条 · 最贴近真实的分布"}];
+var distState=DIST_STEPS[0];
+function drawDist(){
+  var svg=document.getElementById("dist"); clear(svg);
+  var W=720,H=360,L=54,R=14,T=24,B=64,pw=W-L-R,ph=H-T-B;
+  var y=function(v){return T+ph-(v/380)*ph;};
+  var d=el("defs",{}); var pg=el("pattern",{id:"hg2",width:6,height:6,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
+  pg.appendChild(el("rect",{width:6,height:6,fill:C.card})); pg.appendChild(el("rect",{width:2.6,height:6,fill:C.gold})); d.appendChild(pg); svg.appendChild(d);
   [0,100,200,300].forEach(function(t){
     svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:C.rule}));
-    svg.appendChild(el("text",{x:L-10,y:y(t)+4,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":11,fill:C.taupe},t));
+    svg.appendChild(el("text",{x:L-10,y:y(t)+4,"text-anchor":"end","font-family":MONO,"font-size":11,fill:C.taupe},t));
   });
-  var labs=["yes","no","maybe"], gw=pw/3, bw=Math.min(40,gw*0.19);
+  var labs=["yes","no","maybe"], gw=pw/3, n=DIST.length+1, bw=Math.min(30,gw*0.86/n);
   labs.forEach(function(lb,i){
     var cx=L+gw*i+gw/2;
-    S.forEach(function(s,j){
-      var x=cx+(j-1.5)*bw*1.12, v=s.v[i];
-      svg.appendChild(el("rect",{x:x-bw/2,y:y(v),width:bw,height:y(0)-y(v),
-        fill:s.gold?"url(#hg)":s.c,stroke:s.c,"stroke-width":1.4,rx:3}));
-      svg.appendChild(el("text",{x:x,y:y(v)-7,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace",
-        "font-size":11.5,"font-weight":(s.gold||s.n.charAt(0)==="C")?700:400,
-        fill:s.gold?C.taupe:(s.n.charAt(0)==="C"?C.c1:C.soft)},v));
+    var series=[{gold:true,v:GOLD[i]}].concat(DIST.map(function(m){return {m:m,v:m.v[i]};}));
+    series.forEach(function(s,j){
+      var x=cx+(j-(n-1)/2)*bw*1.08, v=s.v;
+      var shown=s.gold||distState.shown.indexOf(s.m.k)>=0;
+      var focus=!s.gold&&s.m.k===distState.focus;
+      var fill=s.gold?"url(#hg2)":(shown?s.m.c:C.idle), stroke=s.gold?C.gold:(shown?s.m.c:C.idle);
+      svg.appendChild(el("rect",{x:x-bw/2+1,y:y(shown||s.gold?v:0),width:bw-2,height:y(0)-y(shown||s.gold?v:0),fill:fill,stroke:stroke,"stroke-width":focus?2.2:1.2,rx:3,opacity:shown||s.gold?1:.55}));
+      if(s.gold||focus) svg.appendChild(el("text",{x:x,y:y(v)-7,"text-anchor":"middle","font-family":MONO,"font-size":11.5,"font-weight":700,fill:s.gold?C.taupe:s.m.c},v));
     });
-    svg.appendChild(el("text",{x:cx,y:H-B+26,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace",
-      "font-size":16,"font-weight":700,fill:C.navy},lb));
-    svg.appendChild(el("text",{x:cx,y:H-B+45,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace",
-      "font-size":11.5,fill:C.taupe},"真实 "+GOLD[i]));
+    svg.appendChild(el("text",{x:cx,y:H-B+26,"text-anchor":"middle","font-family":MONO,"font-size":16,"font-weight":700,fill:C.navy},lb));
+    svg.appendChild(el("text",{x:cx,y:H-B+45,"text-anchor":"middle","font-family":MONO,"font-size":11.5,fill:C.taupe},"真实 "+GOLD[i]));
   });
   svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(0),y2:y(0),stroke:C.navy,"stroke-width":1.6}));
-})();
+  document.getElementById("dist-ttl").textContent=distState.ttl;
+  var lg=document.getElementById("dist-legend");
+  lg.innerHTML='<span class="lg">真实答案</span>'+DIST.map(function(m){
+    var on=distState.shown.indexOf(m.k)>=0;
+    return '<span style="opacity:'+(on?1:.35)+'"><i style="display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(20,38,59,.25);background:'+m.c+'"></i>'+m.n+'</span>';}).join("");
+}
 
-/* ---------- TextVQA 两段分解 ---------- */
-(function(){
-  var svg=document.getElementById("fall");
-  var W=900,H=300,L=60,R=150,T=30,B=64,pw=W-L-R,ph=H-T-B;
-  var lo=80.0,hi=85.0, y=function(v){return T+ph-((v-lo)/(hi-lo))*ph;};
-  [80,81,82,83,84,85].forEach(function(t){
+/* ---------- scrolly 2: 两条遗忘曲线 ---------- */
+var X=[0,300,900];
+var RET={tv:{n:"TextVQA (300 题, 短答)",c:C.a,v:[83.56,82.33,81.33],base:84.22},
+         mm:{n:"MMBench (500 题, 四选一)",c:C.good,v:[87.40,87.40,88.00],base:88.40}};
+var RET_STEPS=[
+  {series:["tv"],base:false,ttl:"TextVQA · 回放越多掉越多"},
+  {series:["tv"],base:true,ttl:"先把微调本身摘出去: 基座 → 回放 0 只掉 0.66"},
+  {series:["tv","mm"],base:true,ttl:"第二探针 MMBench · 纹丝不动"},
+  {series:["tv","mm"],base:true,ttl:"掉的是短答格式, 不是能力"}];
+var retState=RET_STEPS[0];
+function drawRet(){
+  var svg=document.getElementById("ret"); clear(svg);
+  var W=720,H=360,L=56,R=150,T=24,B=64,pw=W-L-R,ph=H-T-B;
+  var lo=80,hi=90, PAD=36, y=function(v){return T+ph-((v-lo)/(hi-lo))*ph;}, x=function(k){return L+PAD+(k/900)*(pw-2*PAD);};
+  [80,82,84,86,88,90].forEach(function(t){
     svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:C.rule}));
-    svg.appendChild(el("text",{x:L-10,y:y(t)+4,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":11,fill:C.taupe},t.toFixed(0)));
+    svg.appendChild(el("text",{x:L-10,y:y(t)+4,"text-anchor":"end","font-family":MONO,"font-size":11,fill:C.taupe},t));
   });
-  var pts=[{n:"服务器基座",v:84.22,c:C.base,note:"起点"},
-           {n:"A-server",v:83.56,c:C.a,note:"只做 SLAKE 微调"},
-           {n:"C1",v:81.33,c:C.c1,note:"再混入 900 条纯文本"}];
-  var gw=pw/3, bw=76;
-  pts.forEach(function(p,i){
-    var cx=L+gw*i+gw/2;
-    svg.appendChild(el("rect",{x:cx-bw/2,y:y(p.v),width:bw,height:y(lo)-y(p.v),fill:p.c,stroke:p.c,"stroke-width":1.4,rx:3}));
-    svg.appendChild(el("text",{x:cx,y:y(p.v)-10,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace",
-      "font-size":17,"font-weight":700,fill:p.c},p.v.toFixed(2)));
-    svg.appendChild(el("text",{x:cx,y:H-B+26,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace",
-      "font-size":13,"font-weight":700,fill:C.navy},p.n));
-    svg.appendChild(el("text",{x:cx,y:H-B+44,"text-anchor":"middle","font-size":12,fill:C.taupe},p.note));
-    if(i>0){
-      var px=L+gw*(i-1)+gw/2, pv=pts[i-1].v, dv=p.v-pv;
-      var my=(y(pv)+y(p.v))/2-16, isBig=Math.abs(dv)>1;
-      svg.appendChild(el("line",{x1:px+bw/2,x2:cx-bw/2,y1:y(pv),y2:y(pv),stroke:C.taupe,"stroke-width":1.4,"stroke-dasharray":"4 3"}));
-      svg.appendChild(el("line",{x1:cx-bw/2-10,x2:cx-bw/2-10,y1:y(pv),y2:y(p.v),
-        stroke:isBig?C.red:C.taupe,"stroke-width":2.5}));
-      svg.appendChild(el("path",{d:"M"+(cx-bw/2-15)+" "+(y(p.v)-7)+"L"+(cx-bw/2-10)+" "+y(p.v)+"L"+(cx-bw/2-5)+" "+(y(p.v)-7)+"Z",
-        fill:isBig?C.red:C.taupe}));
-      svg.appendChild(el("text",{x:cx-bw/2-20,y:my,"text-anchor":"end","font-family":"IBM Plex Mono,monospace",
-        "font-size":15,"font-weight":700,fill:isBig?C.red:C.taupe},dv.toFixed(2)));
-      svg.appendChild(el("text",{x:cx-bw/2-20,y:my+17,"text-anchor":"end","font-size":11.5,
-        fill:C.taupe},isBig?"那 900 条":"噪声级"));
+  X.forEach(function(k){
+    svg.appendChild(el("line",{x1:x(k),x2:x(k),y1:y(lo),y2:y(lo)+6,stroke:C.navy}));
+    svg.appendChild(el("text",{x:x(k),y:H-B+26,"text-anchor":"middle","font-family":MONO,"font-size":13,"font-weight":700,fill:C.navy},k===0?"0 (A-server)":k+""));
+  });
+  svg.appendChild(el("text",{x:L+pw/2,y:H-B+46,"text-anchor":"middle","font-family":MONO,"font-size":11.5,fill:C.taupe},"回放条数"));
+  svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(lo),y2:y(lo),stroke:C.navy,"stroke-width":1.6}));
+  svg.appendChild(el("text",{x:L,y:T-8,"font-family":MONO,"font-size":11,fill:C.taupe},"纵轴从 80 起"));
+  ["tv","mm"].forEach(function(key){
+    var s=RET[key], on=retState.series.indexOf(key)>=0; if(!on)return;
+    var path="M"+X.map(function(k,i){return x(k).toFixed(1)+" "+y(s.v[i]).toFixed(1);}).join(" L");
+    svg.appendChild(el("path",{d:path,fill:"none",stroke:s.c,"stroke-width":2.5,"stroke-linejoin":"round"}));
+    X.forEach(function(k,i){
+      svg.appendChild(el("circle",{cx:x(k),cy:y(s.v[i]),r:5.5,fill:s.c,stroke:C.card,"stroke-width":2}));
+      var dy=18;
+      svg.appendChild(el("text",{x:x(k),y:y(s.v[i])+dy,"text-anchor":"middle","font-family":MONO,"font-size":11.5,"font-weight":700,fill:s.c},s.v[i].toFixed(2)));
+    });
+    var last=s.v[2]-s.v[0];
+    svg.appendChild(el("text",{x:W-R+14,y:y(s.v[2])+4,"font-family":MONO,"font-size":12,"font-weight":700,fill:s.c},(last>=0?"+":"")+last.toFixed(2)));
+    svg.appendChild(el("text",{x:W-R+14,y:y(s.v[2])+19,"font-size":10.5,fill:C.taupe},"相对回放 0"));
+    if(retState.base){
+      svg.appendChild(el("circle",{cx:x(0),cy:y(s.base),r:5,fill:C.card,stroke:s.c,"stroke-width":2,"stroke-dasharray":"2 2"}));
+      svg.appendChild(el("line",{x1:x(0),x2:x(0),y1:y(s.base),y2:y(s.v[0]),stroke:s.c,"stroke-width":1.4,"stroke-dasharray":"3 3"}));
+      svg.appendChild(el("text",{x:x(0)+9,y:y(s.base)+4,"font-family":MONO,"font-size":10.5,fill:C.taupe},"基座 "+s.base.toFixed(2)+"  (微调本身 "+(s.v[0]-s.base).toFixed(2)+")"));
     }
   });
-  svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(lo),y2:y(lo),stroke:C.navy,"stroke-width":1.6}));
-  svg.appendChild(el("text",{x:L,y:T-10,"font-family":"IBM Plex Mono,monospace","font-size":11,fill:C.taupe},"纵轴从 80 起"));
-  var bx=W-R+14;
-  svg.appendChild(el("text",{x:bx,y:T+40,"font-family":"IBM Plex Mono,monospace","font-size":12,fill:C.soft},"合计"));
-  svg.appendChild(el("text",{x:bx,y:T+66,"font-family":"IBM Plex Mono,monospace","font-size":24,"font-weight":700,fill:C.red},"−2.89"));
-  svg.appendChild(el("text",{x:bx,y:T+88,"font-size":11.5,fill:C.taupe},"其中 77%"));
-  svg.appendChild(el("text",{x:bx,y:T+106,"font-size":11.5,fill:C.taupe},"来自那 900 条"));
-})();
+  document.getElementById("ret-ttl").textContent=retState.ttl;
+  var lg=document.getElementById("ret-legend");
+  lg.innerHTML=["tv","mm"].map(function(key){var on=retState.series.indexOf(key)>=0;
+    return '<span style="opacity:'+(on?1:.35)+'"><i style="display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(20,38,59,.25);background:'+RET[key].c+'"></i>'+RET[key].n+'</span>';}).join("")
+    +(retState.base?'<span style="color:#8C8577">空心点 = 基座 (未微调)</span>':'');
+}
+
+/* ---------- 步进驱动 (与 week1 同一机制) ---------- */
+function scrolly(id,onStep){
+  var root=document.getElementById(id); if(!root)return;
+  var steps=Array.prototype.slice.call(root.querySelectorAll(".step"));
+  var setActive=function(i){steps.forEach(function(s,j){s.classList.toggle("is-active",j===i);});onStep(i);};
+  setActive(0);
+  if(!("IntersectionObserver" in window))return;
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting)setActive(parseInt(e.target.getAttribute("data-step"),10));});
+  },{rootMargin:"-45% 0px -45% 0px",threshold:0});
+  steps.forEach(function(s){io.observe(s);});
+}
+scrolly("scrolly-dist",function(i){distState=DIST_STEPS[i]||DIST_STEPS[0];drawDist();});
+scrolly("scrolly-ret",function(i){retState=RET_STEPS[i]||RET_STEPS[0];drawRet();});
 })();
 </script>
 </body>
