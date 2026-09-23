@@ -344,6 +344,9 @@ scp -P 20322 user0@221.239.50.147:/workspace/chunqian/MedLoRA/outputs/eval/'mmbe
 
 ## 批次 · C2-100 + C1-s43 (把回放曲线做完整, 约 3 小时)
 
+> **已跑完 (2026-09-24)**: 两轮训练 + 八张表一条链走完, 16 个文件已取回本机, 数字在 `results/README.md` 同名一节。
+> 训练时长没记下来, 要补的话: `grep -h train_runtime outputs/sft_mix_pubmedqa_100_r16/train_results.json outputs/sft_mix_pubmedqa_900_s43_r16/train_results.json`
+
 **目的**: 曲线现在是 0 / 300 / 900 三个点, 其中 300 有两个种子, 0 和 900 是单次。这一批补两样:
 - **C2-100** (每类 33 条 = 99 条, 标签叫 100): 0 → 300 是全部收益发生的区间, 此前一个点都没有。
   它同时检验一个内部局限: maybe 每条只重复 0.6 次, 若 99 条就拿到大半收益, 说明校准修复不靠重复撑。

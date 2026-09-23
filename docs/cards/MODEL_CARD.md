@@ -1,6 +1,6 @@
 # Model Card — MedLoRA adapters for Qwen2.5-VL-3B-Instruct
 
-**Version** 1.0 · 2026-09-22 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.1 · 2026-09-24 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 This card covers the family of LoRA adapters released in this project. All of them patch the same
@@ -46,6 +46,8 @@ metric, so figures from both are read on one axis.
 | `sft_mix_pubmedqa_r16` (**C1**) | SFT | SLAKE 4,919 + PubMedQA replay 900 | 5090, bf16 | can the SFT data mix fix the "yes" bias |
 | `sft_mix_300` (**C2-300**) | SFT | SLAKE 4,919 + PubMedQA replay 300 | 5090, bf16 | how much replay is enough |
 | `sft_mix_300_s43` (**C2-300-s43**) | SFT | same, sampling and training seed 43 | 5090, bf16 | run-to-run variance of the 300 point |
+| `sft_mix_100` (**C2-100**) | SFT | SLAKE 4,919 + PubMedQA replay 99 (33 per class) | 5090, bf16 | the point between 0 and 300 where the gain occurs; each "maybe" item seen at most once |
+| `sft_mix_900_s43` (**C1-s43**) | SFT | as C1, sampling and training seed 43 | 5090, bf16 | run-to-run variance of the 900 point |
 
 ### Hyper-parameters
 
@@ -65,7 +67,7 @@ from one another by `scripts/make_bf16_configs.py`.
 
 ## 3. Evaluation
 
-Three fixed tables, greedy decoding (`do_sample=False`), at most 32 new tokens, images capped at
+Four fixed tables, greedy decoding (`do_sample=False`), at most 32 new tokens, images capped at
 512×512. Per-question predictions are stored so every number can be recomputed without re-running
 a model.
 
@@ -89,17 +91,19 @@ TextVQA are full test sets. Rows marked † ran on the T4 in 4-bit fp16; the res
 | A-server | 85.34 | 75.50 / 82.07 | 83.56 | 51.45 | 6 / 55 | 63 |
 | B1 † | 83.89 | 75.81 / 82.72 | 83.78 | 52.75 | 3 / 55 | 48 |
 | B2 † | 84.13 | 74.57 / 81.61 | 84.00 | 52.35 | 5 / 55 | 54 |
-| **C1** | 84.13 | 76.12 / 82.19 | 81.33 | **61.09** | 19 / 55 | 26 |
-| **C2-300** | **85.82** | 75.97 / 82.40 | 82.33 | 60.48 | **21 / 55** | **14** |
+| C2-100 | 85.34 | 76.43 / 82.51 | 82.78 | 57.44 | **23 / 55** | **12** |
+| **C2-300** | **85.82** | 75.97 / 82.40 | 82.33 | 60.48 | 21 / 55 | 14 |
 | C2-300-s43 | 85.82 | 77.36 / 84.00 | 82.56 | 59.80 | 18 / 55 | 12 |
+| **C1** (900) | 84.13 | 76.12 / 82.19 | 81.33 | **61.09** | 19 / 55 | 26 |
+| C1-s43 (900) | 84.62 | 77.21 / 83.59 | 82.33 | 60.72 | 12 / 55 | 25 |
 
 **Reading the table.** Instruction tuning is worth about 18 points of closed accuracy and 35 of open
 recall. Neither CPT variant adds anything to the primary metric. Mixing three-class text examples
-into the SFT set (C1, C2-300) is the only intervention that improves calibration, and the gain
-saturates by 300 examples.
+into the SFT set (C2-100, C2-300, C1) is the only intervention that improves calibration; 99 examples buy about
+two-thirds of the gain and 300 about nine-tenths, and the per-class balance keeps improving up to 900.
 
-**Second retention probe (MMBench, 500 questions; the four server-side models only).** Base 88.40 · A-server 87.40 ·
-C2-300 87.40 · C1 88.00. Relative to zero replay the curve is 0.00 / +0.60 — no replay cost. The TextVQA decline is a
+**Second retention probe (MMBench, 500 questions; the six server-side models only).** Base 88.40 · A-server 87.40 ·
+C2-100 87.20 · C2-300 87.40 / 87.00 · C1 88.00 / 87.60. Every replay point is within ±0.6 (three questions) of zero replay — no replay cost. The TextVQA decline is a
 short-answer-format effect; see §5.
 
 ---
@@ -136,24 +140,29 @@ untuned base* (63 for A-server vs 42 for the base). This was reproduced independ
 hardware platforms, so it is a property of short-answer SLAKE data, not of a particular run.
 
 **The calibration fix has a measured cost, and it over-corrects at small budgets.** Replay lowers
-general VQA accuracy monotonically (−1.23 at 300 examples, −2.23 at 900) — a control run attributes
-this to the replay data, not to instruction tuning (SFT alone costs −0.66, noise level). At 300
-examples the model over-corrects toward "no"/"maybe": "no"→"yes" errors fall 63→14 but "yes"→"no"
-errors rise 18→32, so total dangerous flips are unchanged relative to 900 examples (46 vs 45).
+TextVQA accuracy with budget (seed means −0.78 at 99 examples, −1.11 at 300, −1.73 at 900; adjacent points
+are within seed spread, the end points are not) — a control run attributes this to the replay data, not to
+instruction tuning (SFT alone costs −0.66, noise level). Small budgets over-correct toward "no"/"maybe":
+"yes" recall is 60.9 at 99, 71.0 at 300 and 82.1 at 900 (seed means) against 91.7 with no replay, and
+"yes"→"no" errors are 36 / 31 / 20 against 18. The total of the two dangerous error types is the same at every
+replay budget (42–48 against 81); only the split moves. At 900 both seeds also pay about one point of SLAKE
+closed accuracy (84.13 / 84.62 against ≥ 85.34 elsewhere).
 
 **The "maybe" class rests on 55 unique training items.** The balanced replay sample repeats them
 roughly 5× (C1) and 2× (C2-300). On the training half C1 scores 94.4 % and answers 54 of 55 "maybe"
 questions correctly, so memorisation is demonstrably present; the held-out half shows the effect
-transfers, but a larger three-class source would test it properly.
+transfers, but a larger three-class source would test it properly. The 99-example point bounds the concern: each
+"maybe" item is seen at most once there, yet "maybe" recall is the highest of any run (41.8 %), so restoring the
+class does not rest on repetition; the larger budgets add discrimination (accuracy 64.6 → 69.6 → 73.0), not the class.
 
-**Mostly single seed.** Every experiment ran once with seed 42, except the 300-example replay point, which was repeated with seed 43. Differences under ±1 point are treated as
-noise rather than tested statistically. The A-server control partly substitutes for a second seed on
-experiment A — an independent run with different hardware, precision and quantisation reproduced
-every metric to within half a point — but the replay-budget comparison (300 vs 900) shows a
-swing in "yes" recall between 300 and 900 that needed a second seed. That seed (C2-300-s43) reproduces the
-300-example point to within 0.7 macro-F1 and 2.2 points of "yes" recall, so the 8.7-point recall gap to 900 and the
-reversed direction of the two dangerous-error counts are properties of the budget, not of a run. The 900-example
-point and the zero point remain single runs.
+**Two seeds at the replay end points, one everywhere else.** Experiments 0, A, B1, B2 and the 99-example point ran
+once with seed 42; the 300- and 900-example points were repeated with sampling and training seed 43. Differences
+under ±1 point are treated as noise rather than tested statistically. The A-server control partly substitutes for
+a second seed on experiment A — an independent run with different hardware, precision and quantisation reproduced
+every metric to within half a point. Between the two seeds the replay points differ by under 0.7 macro-F1, up to
+4.7 points of single-class recall, up to 7 "maybe" questions and up to 1 point of TextVQA, and the 300-versus-900
+gap in "yes" recall (at least 7.6 points) exceeds that spread; with the 99 point the swing toward "no" is monotone
+in budget across four runs, so it is a property of the budget, not of a run.
 
 **The retention cost is a format effect, and neither probe covers open-ended output.** TextVQA (300 short-answer
 OCR questions) records a replay cost of −1.23 / −2.23; MMBench (500 multiple-choice questions) records 0.00 / +0.60,

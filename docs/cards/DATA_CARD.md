@@ -1,6 +1,6 @@
 # Data Card — MedLoRA
 
-**Version** 1.0 · 2026-09-22 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.1 · 2026-09-24 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 Every dataset used for training or evaluation in this project, how it was obtained, what was done to
@@ -105,9 +105,11 @@ label as the target. Class-balanced by sampling with replacement:
 
 | Sample | `--per-class` | Total | maybe repetition | Used by |
 |---|---|---|---|---|
+| `pubmedqa_sft_train_100` | 33 | 99 | ≈0.6× (each item at most once) | C2-100 |
 | `pubmedqa_sft_train_300` | 100 | 300 | ≈1.8× | C2-300 |
 | `pubmedqa_sft_train_300s43` | 100 (seed 43) | 300 | ≈1.8× | C2-300-s43, second seed |
 | `pubmedqa_sft_train` | 300 | 900 | ≈5.5× | C1 |
+| `pubmedqa_sft_train_900s43` | 300 (seed 43) | 900 | ≈5.5× | C1-s43, second seed |
 | (not built) | 600 | 1,800 | ≈10.9× | C2-1800, deprioritised |
 
 **This repetition is the main internal limitation of the replay experiments.** With only 55 unique
@@ -115,7 +117,10 @@ label as the target. Class-balanced by sampling with replacement:
 accuracy and answers 54 of 55 "maybe" questions correctly, which confirms memorisation is present.
 The held-out half shows the calibration effect transfers, but any conclusion about *how far* the
 replay budget can be pushed is bounded by this, and is why the 1,800-example point was judged
-uninformative rather than simply expensive.
+uninformative rather than simply expensive. The 99-example sample bounds the concern from below: it uses 33 of
+the 55 "maybe" items once each, and the resulting model has the highest "maybe" recall of any run (41.8 %), so
+restoring the class does not depend on repetition; what the larger budgets add is discrimination between the
+classes (accuracy 64.6 → 69.6 → 73.0 at 99 / 300 / 900).
 
 ---
 
@@ -143,9 +148,9 @@ sample drawn with seed 42** by `eval/eval_mmbench.py`; every model sees the same
 **Role** A format-insensitive general-ability probe: four-way (sometimes two- or three-way) multiple choice over
 20 ability dimensions. Scored on the first A–D letter in the output; no circular evaluation (option rotation
 would quadruple inference and is unnecessary for a differential probe where every model sees identical inputs).
-Per-category accuracy is stored in the summary JSON. Zero unparsed answers across the four models evaluated.
+Per-category accuracy is stored in the summary JSON. Zero unparsed answers across the six models evaluated.
 
-**What it showed** Replay cost 0.00 / +0.60 at 300 / 900 examples, against −1.23 / −2.23 on TextVQA. The
+**What it showed** Replay cost −0.20 / −0.20 / +0.40 at 99 / 300 / 900 examples (seed means; all within ±0.6, three questions), against −0.78 / −1.11 / −1.73 on TextVQA. The
 TextVQA cost is therefore a short-answer-format perturbation, not general forgetting. Neither probe measures
 open-ended generation, which remains the unmeasured case.
 

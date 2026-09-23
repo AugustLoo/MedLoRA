@@ -131,13 +131,13 @@ footer a{color:var(--ink-soft)}
     <rect width="1400" height="900" fill="url(#gp)"/>
   </svg>
   <div class="inner">
-    <div class="kicker">Topic 6 · Task 1.3 · 第 2 周进展汇报 · 更新至 2026-09-23</div>
+    <div class="kicker">Topic 6 · Task 1.3 · 第 2 周进展汇报 · 更新至 2026-09-24</div>
     <h1>上周的判断<span class="hi">验证了</span>，<br>上周的担心<span class="hi2">被推翻了</span></h1>
     <p class="sub">上周说「偏置是微调数据带进来的，改数据配比就能修」——这周修好了，而且量出 300 条就够。上周还担心「TextVQA 会低估遗忘」——这周第二个探针说，它高估了。两句话都是数据说的。</p>
-    <div class="asof-line">Qwen2.5-VL-3B-Instruct · LoRA r16 · 学院 RTX 5090 · bf16 不量化 · 四张评估表 · results as of 2026-09-23</div>
+    <div class="asof-line">Qwen2.5-VL-3B-Instruct · LoRA r16 · 学院 RTX 5090 · bf16 不量化 · 四张评估表 · results as of 2026-09-24</div>
     <div class="stats">
       <div class="stat"><div class="v" style="color:var(--c-c1)">61.1<small>← 51.5</small></div><div class="bar" style="background:var(--c-c1)"></div><div class="l">PubMedQA macro-F1，补 900 条回放后，考卷半边</div></div>
-      <div class="stat"><div class="v" style="color:var(--c-c2)">300<small>条就够</small></div><div class="bar" style="background:var(--c-c2)"></div><div class="l">拿到 94% 的校准收益，主任务零代价</div></div>
+      <div class="stat"><div class="v" style="color:var(--c-c2)">300<small>条就够</small></div><div class="bar" style="background:var(--c-c2)"></div><div class="l">拿到 92% 的校准收益（两种子均值），主任务零代价；99 条已拿到 63%</div></div>
       <div class="stat"><div class="v" style="color:var(--c-good)">0.0<small>MMBench</small></div><div class="bar" style="background:var(--c-good)"></div><div class="l">第二个遗忘探针上，回放没有代价</div></div>
     </div>
   </div>
@@ -201,10 +201,11 @@ footer a{color:var(--ink-soft)}
       <div class="legend" id="dist-legend"></div>
     </div></div>
     <div class="steps">
-      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>基座：偏 yes，还乱猜 maybe</h3><p>没微调过的模型答 <span class="en">320 / 97 / 83</span>。yes 多了 44 个，no 少了 72 个。它答了 83 次 maybe，但只对 <span class="en">7</span> 次——不是谨慎，是猜。</p></div></div>
-      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>只做微调：偏置反而更重</h3><p>实验 A 在服务器上重跑（回放 0 条）：<span class="en">356 / 112 / 32</span>。maybe 塌掉一半，该答 no 却答 yes 从 42 例涨到 <span class="en">63</span> 例，<strong>比没微调时还多</strong>。上周的判断在这一步被独立复现：短答式微调系统性地推向 yes。</p></div></div>
-      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>补 300 条：贴回去了，但过了头</h3><p><span class="en">228 / 178 / 94</span>。macro-F1 从 51.5 跳到 <span class="en">60.5</span>，no→yes 错误从 63 压到 <span class="en">14</span>——比基座还低。代价是 yes 只答了 228 个而真实有 276，yes 召回率从 91.7 掉到 69.9。<strong>它把偏置推过了中线。</strong></p></div></div>
-      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>补 900 条：更均衡，收益只多 0.6</h3><p><span class="en">269 / 151 / 80</span>，八个模型里最贴近真实的分布。macro-F1 <span class="en">61.1</span>，三类召回率 79.7 / 70.4 / 34.5 比 300 条时平得多。但从 300 到 900，收益只多 <span class="en">+0.6</span>，边际收益掉了三十倍。</p></div></div>
+      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 05</div><h3>基座：偏 yes，还乱猜 maybe</h3><p>没微调过的模型答 <span class="en">320 / 97 / 83</span>。yes 多了 44 个，no 少了 72 个。它答了 83 次 maybe，但只对 <span class="en">7</span> 次——不是谨慎，是猜。</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 05</div><h3>只做微调：偏置反而更重</h3><p>实验 A 在服务器上重跑（回放 0 条）：<span class="en">356 / 112 / 32</span>。maybe 塌掉一半，该答 no 却答 yes 从 42 例涨到 <span class="en">63</span> 例，<strong>比没微调时还多</strong>。上周的判断在这一步被独立复现：短答式微调系统性地推向 yes。</p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 05</div><h3>补 99 条：一下子推过了头</h3><p><span class="en">197 / 183 / 120</span>。只加 99 条（每类 33 条，maybe 每条最多见一次），macro-F1 就从 51.5 到 <span class="en">57.4</span>，maybe 答对 <span class="en">23</span> 题，六轮里最多。但 yes 只答了 197 个而真实有 276，yes 召回率掉到 <span class="en">60.9</span>，总准确率 64.6 比不回放还低。<strong>它学会了「有 no 和 maybe 这两个选项」，还没学会什么时候用。</strong></p></div></div>
+      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 05</div><h3>补 300 条：往回拉了一些，还是过头</h3><p><span class="en">228 / 178 / 94</span>。macro-F1 从 51.5 跳到 <span class="en">60.5</span>，no→yes 错误从 63 压到 <span class="en">14</span>——比基座还低。代价是 yes 只答了 228 个而真实有 276，yes 召回率从 91.7 掉到 69.9。<strong>两个种子（42 / 43）都停在这里：yes 召回 69.9 / 72.1。</strong></p></div></div>
+      <div class="step" data-step="4"><div class="step-card"><div class="n">05 / 05</div><h3>补 900 条：最贴近真实，收益只多 0.8</h3><p><span class="en">269 / 151 / 80</span>（种子 43：287 / 162 / 51），最贴近真实的分布。macro-F1 <span class="en">61.1 / 60.7</span>，yes 召回 79.7 / 84.4。yes 召回率随回放条数 60.9 → 71.0 → 82.1 单调往回走，四轮方向没有一次反过来。但从 300 到 900，收益只多 <span class="en">+0.77</span>（两端均值），和运行间抖动同量级。</p></div></div>
     </div>
   </div>
   <div class="srcline">回放 0 / 300 / 900 三轮全在服务器上 bf16 不量化跑的，超参一致，可直接相减。</div>
@@ -216,7 +217,7 @@ footer a{color:var(--ink-soft)}
     <div class="kicker">04 · 反驳一个质疑</div>
     <h2>不是让它多猜「不确定」</h2>
     <p class="lede">最容易被问的一句：你只是把它调得爱说「不确定」而已吧？</p>
-    <p>基座本来就答了 83 次 maybe，只对 7 次；补 300 条后答 94 次，对 <span class="en">21</span> 次；补 900 条后答 80 次，对 <span class="en">19</span> 次。<strong>次数相当，对的次数三倍。</strong>三个类别的精确率和召回率是一起变好的。</p>
+    <p>基座本来就答了 83 次 maybe，只对 7 次；补 300 条后答 94 次，对 <span class="en">21</span> 次；补 900 条后答 80 次，对 <span class="en">19</span> 次。<strong>次数相当，对的次数三倍。</strong>三个类别的精确率和召回率是一起变好的。补 99 条那一轮是反例的边界：它答了 120 次 maybe、对 23 次——类别是修回来了，什么时候该用还没学会，总准确率反而比不回放低；准确率随回放条数 64.6 → 69.6 → 73.0 单调涨，<strong>小预算改的是先验，大预算才学到分辨</strong>（这是解释，不是证明）。</p>
     <p>两类危险错误加起来，300 条是 <span class="en">46</span>、900 条是 <span class="en">45</span>，打平——只是分布不同：300 条把 no→yes 压得极低但 yes→no 涨上来，900 条两头均衡。<strong>哪个更好取决于场景</strong>，报告里没有硬选一个「最优值」。第二个种子（43）把 300 条这一点重跑了一遍：no→yes 12、yes→no 30、yes 召回 72.1，和种子 42 的 14 / 32 / 69.9 几乎重合——<strong>矫枉过正是这个预算的性质，不是一次运行的偶然</strong>。</p>
   </div>
   <div class="tbl">
@@ -271,9 +272,9 @@ footer a{color:var(--ink-soft)}
       <div class="legend" id="ret-legend"></div>
     </div></div>
     <div class="steps">
-      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>TextVQA 在掉</h3><p>回放 0 / 300 / 900 条，TextVQA <span class="en">83.56 → 82.33 → 81.33</span>。代价随条数单调上升，−1.23 再 −2.23。看起来回放在吃通用能力。</p></div></div>
+      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>TextVQA 在掉</h3><p>回放 0 / 99 / 300 / 900 条，TextVQA <span class="en">83.56 → 82.78 → 82.45 → 81.83</span>（300 与 900 取两种子均值，小空心点是各自的种子）。每个回放点都比 0 点低，900 端低 1.73，约五题。看起来回放在吃通用能力。</p></div></div>
       <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>先把微调本身摘出去</h3><p>基座是 <span class="en">84.22</span>，只做 SLAKE 微调到 83.56，掉 <span class="en">0.66</span>——噪声级别。所以后面掉的那些是回放造成的，不是微调本身。归因干净。</p></div></div>
-      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>第二个探针：纹丝不动</h3><p>MMBench 五百题四选一，覆盖 20 个能力维度。回放 0 / 300 / 900：<span class="en">87.40 / 87.40 / 88.00</span>。相对回放 0 是 <span class="en">0.0 / +0.6</span>，一分等于五题，噪声。逐类别最大的变动换算过来各是 1 题。</p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>第二个探针：纹丝不动</h3><p>MMBench 五百题四选一，覆盖 20 个能力维度。回放 0 / 99 / 300 / 900：<span class="en">87.40 / 87.20 / 87.20 / 87.80</span>（均值）。相对回放 0 全在 <span class="en">±0.6</span> 以内，一分等于五题，噪声。四个点、六轮，逐类别最大的变动换算过来各是 1 题。</p></div></div>
       <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>所以掉的是格式，不是能力</h3><p>回放塞进去的是 yes / no / maybe 单词答案，短答式 OCR 题对这种输出分布的偏移敏感，四选一的题不受影响。之前逐题看 TextVQA 变差的一半是 <span class="en">one penny → 1 penny</span> 这种写法差异，对上了。<strong>上周担心 TextVQA 低估遗忘——方向反了，它高估。</strong></p></div></div>
     </div>
   </div>
@@ -286,12 +287,12 @@ footer a{color:var(--ink-soft)}
     <div class="kicker">07 · 取舍</div>
     <h2>多少回放才够</h2>
     <p class="lede">这是这周最实用的发现：修复校准需要的数据比预想的少得多。</p>
-    <p>前 300 条换来 <span class="en">+9.03</span> macro-F1，每百条 3.0 分；再加 600 条只多 <span class="en">+0.60</span>，每百条 0.1 分，<strong>边际收益掉三十倍</strong>。而代价是单调涨的，只在短答格式上出现。</p>
+    <p>前 99 条换来 <span class="en">+5.99</span> macro-F1，六成收益；到 300 条 <span class="en">+8.69</span>（两种子均值），九成；再加 600 条只多 <span class="en">+0.77</span>，和运行间抖动同量级。每百条的边际收益 6.0 → 1.3 → 0.13，<strong>掉了五十倍</strong>。代价只在短答格式上出现，端点清楚、中间在噪声里。</p>
   </div>
   <div class="tiles">
-    <div class="card"><div class="big" style="color:var(--c-c2)">+9.03<small>300 条</small></div><h3>收益几乎一步到位</h3><p>再到 900 条只多 +0.60。曲线在很早的地方就饱和了，不必跑 1800 条——那一档 maybe 要重复 11 次，真回落也分不清是饱和还是背题。</p></div>
-    <div class="card"><div class="big" style="color:var(--c-good)">±0<small>SLAKE · 300 条</small></div><h3>主任务零代价</h3><p>封闭题 +0.48、开放题 +0.47。900 条时封闭题 −1.21 被开放题 +0.62 抵消。小预算连「抵消」都不需要。</p></div>
-    <div class="card"><div class="big" style="color:var(--taupe)">300 或 900</div><h3>没有唯一最优</h3><p>要通用能力和主任务不掉，选 300；要三类行为均衡，选 900。报告把取舍讲清楚，不替使用者做这个决定。</p></div>
+    <div class="card"><div class="big" style="color:var(--c-c2)">+8.69<small>300 条 · 两种子均值</small></div><h3>收益几乎一步到位</h3><p>99 条就拿到 +5.99，再到 900 条只多 +0.77。99 条那一轮 maybe 每条最多见一次、召回率却最高，<strong>修复不靠背题</strong>；1800 条不必跑，那一档 maybe 要重复 11 次。</p></div>
+    <div class="card"><div class="big" style="color:var(--c-good)">±0<small>SLAKE · 300 条</small></div><h3>主任务零代价</h3><p>封闭题 +0.48、开放题 +0.47，两个种子都是。900 条两个种子封闭题都低约 1 分（84.13 / 84.62 对其余 ≥ 85.34），是那一档稳定的代价，约 4–7 题；开放题所有回放点都不低于 0 点。</p></div>
+    <div class="card"><div class="big" style="color:var(--taupe)">300 或 900</div><h3>没有唯一最优</h3><p>要通用能力和主任务不掉，选 300（九成收益，TextVQA 约 3 题）；要三类最均衡、总准确率最高，选 900（封闭题约 1 分、TextVQA 约 5 题）。报告把取舍讲清楚，不替使用者做这个决定。</p></div>
   </div>
 </section>
 
@@ -320,7 +321,7 @@ footer a{color:var(--ink-soft)}
         <tr><td>① 数据生成脚本</td><td class="ok">完成</td><td>7 个脚本：SLAKE、PubMedQA（CPT 与 SFT 两种）、IU X-Ray、切分协议、回放采样</td></tr>
         <tr><td>② CPT / SFT 流水线 + adapter</td><td class="ok">完成</td><td>15 个配置、四张表的评估脚本、9 个 adapter 的逐题预测全部入库</td></tr>
         <tr><td>③ 评估集 + 模型卡</td><td class="ok">本周补完</td><td>模型卡（六条实测的失败模式、明确禁用声明）、数据卡（切分协议、IU X-Ray 36% 正常报告偏差、评分修正记录）</td></tr>
-        <tr><td>④ 报告 + 可复现配置</td><td class="ok">v0.7</td><td>Related Work 七段、29 条参考文献<strong>已逐条对 arXiv 核过</strong>（改 3 处、补 7 处），第二探针写入 5.6 节</td></tr>
+        <tr><td>④ 报告 + 可复现配置</td><td class="ok">v0.9</td><td>Related Work 七段、29 条参考文献<strong>已逐条对 arXiv 核过</strong>（改 3 处、补 7 处），5.6 节回放曲线定稿（四点、两端各两种子）</td></tr>
       </tbody>
     </table>
   </div>
@@ -345,18 +346,19 @@ footer a{color:var(--ink-soft)}
 <section class="section deep" id="next">
   <div class="prose">
     <div class="kicker">11 · 下一步</div>
-    <h2>把结论加固，而不是再加点</h2>
+    <h2>曲线做完了，下一步换维度</h2>
   </div>
   <div class="card next">
     <h3>按优先级</h3>
     <ol>
-      <li><strong>第二个随机种子。</strong>300 条和 900 条之间 yes 召回率差了 27 题，这是单次运行分不清是效应还是抖动的量级。重复 300 条那一点（采样种子和训练种子一起换），<strong>已跑完（种子 43）</strong>：macro-F1 59.80 对 60.48，yes 召回 72.1 对 69.9，两类危险错误各差 2 例——运行间抖动约 0.7 分。300 到 900 的 +0.95 与抖动同量级，「饱和」成立；而 yes 召回 71.0（两种子均值）对 79.7 的 8.7 分差距是抖动的四倍，「300 条矫枉过正」<strong>被加固</strong>。剩下没有第二种子的是 0 点和 900 点。</li>
-      <li><strong>补一个 100 条的点。</strong>全部收益发生在 0 到 300 之间，那一段才是曲线真正有信息的地方，比 1800 有价值得多。</li>
+      <li><strong>第二个随机种子。</strong>300 条和 900 条之间 yes 召回率差了 27 题，这是单次运行分不清是效应还是抖动的量级。重复 300 条那一点（采样种子和训练种子一起换），<strong>已跑完（种子 43）</strong>：macro-F1 59.80 对 60.48，yes 召回 72.1 对 69.9，两类危险错误各差 2 例——运行间抖动约 0.7 分。300 到 900 的 +0.95 与抖动同量级，「饱和」成立；而 yes 召回 71.0（两种子均值）对 79.7 的 8.7 分差距是抖动的四倍，「300 条矫枉过正」<strong>被加固</strong>。900 条那一点也补了种子 43：no→yes 25、yes→no 21、yes 召回 84.4，对种子 42 的 26 / 19 / 79.7——两端各两个种子，方向没有一次反过来；900 点两种子 maybe 答对差 7 题、yes 召回差 4.7，抖动尺子按这个放宽后结论仍然成立。</li>
+      <li><strong>0 到 300 之间的那个点，已补（99 条）。</strong>拿到六成收益、maybe 召回最高，但 yes 召回 60.9 推得最远——矫枉过正随预算单调，曲线的形状定了。</li>
+      <li><strong>D 组消融现在跑得起。</strong>别人的任务待机时一轮约 1 小时，rank 8 / 32、epoch 2 / 4、学习率各一轮，一晚能做完一组。</li>
       <li><strong>开放式生成的探针。</strong>TextVQA 和 MMBench 都是短输出，开放式描述里的漂移两者都测不到，这是现在唯一没覆盖的情况。</li>
       <li><strong>等队友的 CheXpert Plus 子集</strong>（第 5 周）→ 实验 B3。</li>
     </ol>
   </div>
-  <div class="srcline">服务器一轮约 11 小时，过夜；每轮开跑前确认没有别的进程在等。</div>
+  <div class="srcline">别人的任务待机时一轮约 1 小时，满载时过夜；每轮开跑前看 nvidia-smi 里别人的利用率，再确认没有别的进程在等。</div>
 </section>
 
 <footer>
@@ -370,20 +372,22 @@ var NS="http://www.w3.org/2000/svg";
 function el(t,a,x){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;return e;}
 function clear(svg){while(svg.firstChild)svg.removeChild(svg.firstChild);}
 var C={navy:"#14263B",soft:"#3D4E63",taupe:"#8C8577",rule:"#D8CFBA",card:"#FDFAF2",idle:"#E4DBC4",
-       base:"#0E67B5",a:"#C25E28",c1:"#8E44AD",c2:"#C2185B",gold:"#9A9283",red:"#C0392B",good:"#1F8A70"};
+       base:"#0E67B5",a:"#C25E28",b2:"#B8860B",c1:"#8E44AD",c2:"#C2185B",gold:"#9A9283",red:"#C0392B",good:"#1F8A70"};
 var MONO="IBM Plex Mono,monospace";
 
 /* ---------- scrolly 1: 分布图 ---------- */
 var GOLD=[276,169,55];
 var DIST=[{k:"base",n:"基座",c:C.base,v:[320,97,83]},
           {k:"a",n:"回放 0 (A-server)",c:C.a,v:[356,112,32]},
+          {k:"c100",n:"回放 99",c:C.b2,v:[197,183,120]},
           {k:"c2",n:"回放 300",c:C.c2,v:[228,178,94]},
           {k:"c1",n:"回放 900",c:C.c1,v:[269,151,80]}];
 var DIST_STEPS=[
   {shown:["base"],focus:"base",ttl:"基座 vs 真实分布 · 考卷半边 500 题"},
   {shown:["base","a"],focus:"a",ttl:"只做微调 (回放 0) · 偏置反而更重"},
-  {shown:["base","a","c2"],focus:"c2",ttl:"补 300 条 · 贴回去了, 但过了头"},
-  {shown:["base","a","c2","c1"],focus:"c1",ttl:"补 900 条 · 最贴近真实的分布"}];
+  {shown:["base","a","c100"],focus:"c100",ttl:"补 99 条 · 一下子推过了头"},
+  {shown:["base","a","c100","c2"],focus:"c2",ttl:"补 300 条 · 往回拉了一些, 还是过头"},
+  {shown:["base","a","c100","c2","c1"],focus:"c1",ttl:"补 900 条 · 最贴近真实的分布"}];
 var distState=DIST_STEPS[0];
 function drawDist(){
   var svg=document.getElementById("dist"); clear(svg);
@@ -419,9 +423,9 @@ function drawDist(){
 }
 
 /* ---------- scrolly 2: 两条遗忘曲线 ---------- */
-var X=[0,300,900];
-var RET={tv:{n:"TextVQA (300 题, 短答)",c:C.a,v:[83.56,82.33,81.33],base:84.22},
-         mm:{n:"MMBench (500 题, 四选一)",c:C.good,v:[87.40,87.40,88.00],base:88.40}};
+var X=[0,99,300,900];
+var RET={tv:{n:"TextVQA (300 题, 短答)",c:C.a,v:[83.56,82.78,82.45,81.83],seeds:[null,null,[82.33,82.56],[81.33,82.33]],base:84.22},
+         mm:{n:"MMBench (500 题, 四选一)",c:C.good,v:[87.40,87.20,87.20,87.80],seeds:[null,null,[87.40,87.00],[88.00,87.60]],base:88.40}};
 var RET_STEPS=[
   {series:["tv"],base:false,ttl:"TextVQA · 回放越多掉越多"},
   {series:["tv"],base:true,ttl:"先把微调本身摘出去: 基座 → 回放 0 只掉 0.66"},
@@ -438,9 +442,9 @@ function drawRet(){
   });
   X.forEach(function(k){
     svg.appendChild(el("line",{x1:x(k),x2:x(k),y1:y(lo),y2:y(lo)+6,stroke:C.navy}));
-    svg.appendChild(el("text",{x:x(k),y:H-B+26,"text-anchor":"middle","font-family":MONO,"font-size":13,"font-weight":700,fill:C.navy},k===0?"0 (A-server)":k+""));
+    svg.appendChild(el("text",{x:x(k),y:H-B+26,"text-anchor":"middle","font-family":MONO,"font-size":13,"font-weight":700,fill:C.navy},k+""));
   });
-  svg.appendChild(el("text",{x:L+pw/2,y:H-B+46,"text-anchor":"middle","font-family":MONO,"font-size":11.5,fill:C.taupe},"回放条数"));
+  svg.appendChild(el("text",{x:L+pw/2,y:H-B+46,"text-anchor":"middle","font-family":MONO,"font-size":11.5,fill:C.taupe},"回放条数 (0 = A-server; 300 / 900 为两种子均值)"));
   svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(lo),y2:y(lo),stroke:C.navy,"stroke-width":1.6}));
   svg.appendChild(el("text",{x:L,y:T-8,"font-family":MONO,"font-size":11,fill:C.taupe},"纵轴从 80 起"));
   ["tv","mm"].forEach(function(key){
@@ -448,13 +452,15 @@ function drawRet(){
     var path="M"+X.map(function(k,i){return x(k).toFixed(1)+" "+y(s.v[i]).toFixed(1);}).join(" L");
     svg.appendChild(el("path",{d:path,fill:"none",stroke:s.c,"stroke-width":2.5,"stroke-linejoin":"round"}));
     X.forEach(function(k,i){
+      var low=s.v[i];
+      if(s.seeds[i]) s.seeds[i].forEach(function(sv,q){low=Math.min(low,sv);svg.appendChild(el("circle",{cx:x(k)+(q?8:-8),cy:y(sv),r:3.2,fill:C.card,stroke:s.c,"stroke-width":1.6}));});
       svg.appendChild(el("circle",{cx:x(k),cy:y(s.v[i]),r:5.5,fill:s.c,stroke:C.card,"stroke-width":2}));
       var dy=18;
-      svg.appendChild(el("text",{x:x(k),y:y(s.v[i])+dy,"text-anchor":"middle","font-family":MONO,"font-size":11.5,"font-weight":700,fill:s.c},s.v[i].toFixed(2)));
+      svg.appendChild(el("text",{x:x(k),y:y(low)+dy,"text-anchor":"middle","font-family":MONO,"font-size":11.5,"font-weight":700,fill:s.c},s.v[i].toFixed(2)));
     });
-    var last=s.v[2]-s.v[0];
-    svg.appendChild(el("text",{x:W-R+14,y:y(s.v[2])+4,"font-family":MONO,"font-size":12,"font-weight":700,fill:s.c},(last>=0?"+":"")+last.toFixed(2)));
-    svg.appendChild(el("text",{x:W-R+14,y:y(s.v[2])+19,"font-size":10.5,fill:C.taupe},"相对回放 0"));
+    var last=s.v[X.length-1]-s.v[0];
+    svg.appendChild(el("text",{x:W-R+14,y:y(s.v[X.length-1])+4,"font-family":MONO,"font-size":12,"font-weight":700,fill:s.c},(last>=0?"+":"")+last.toFixed(2)));
+    svg.appendChild(el("text",{x:W-R+14,y:y(s.v[X.length-1])+19,"font-size":10.5,fill:C.taupe},"相对回放 0"));
     if(retState.base){
       svg.appendChild(el("circle",{cx:x(0),cy:y(s.base),r:5,fill:C.card,stroke:s.c,"stroke-width":2,"stroke-dasharray":"2 2"}));
       svg.appendChild(el("line",{x1:x(0),x2:x(0),y1:y(s.base),y2:y(s.v[0]),stroke:s.c,"stroke-width":1.4,"stroke-dasharray":"3 3"}));
@@ -465,7 +471,7 @@ function drawRet(){
   var lg=document.getElementById("ret-legend");
   lg.innerHTML=["tv","mm"].map(function(key){var on=retState.series.indexOf(key)>=0;
     return '<span style="opacity:'+(on?1:.35)+'"><i style="display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(20,38,59,.25);background:'+RET[key].c+'"></i>'+RET[key].n+'</span>';}).join("")
-    +(retState.base?'<span style="color:#8C8577">空心点 = 基座 (未微调)</span>':'');
+    +(retState.base?'<span style="color:#8C8577">空心点 = 基座 (未微调)</span>':'')+'<span style="color:#8C8577">小空心点 = 各种子</span>';
 }
 
 /* ---------- 步进驱动 (与 week1 同一机制) ---------- */
