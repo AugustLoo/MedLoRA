@@ -17,7 +17,9 @@ LABELS = ["yes", "no", "maybe"]
 TAGS = [("基座", "baseline"), ("基座(服务器)", "baseline_server"),
         ("B1 只CPT", "cpt_only_b1"), ("B2 只CPT", "cpt_only_b2"),
         ("A 只SFT", "sft_r16"), ("B1 CPT+SFT", "cpt_sft_r16"), ("B2 CPT+SFT", "cpt_iu_sft_r16"),
-        ("C1 SFT+回放", "sft_mix_pubmedqa_r16")]
+        ("C1 SFT+回放", "sft_mix_pubmedqa_r16"),
+        ("C2 回放100", "sft_mix_100"), ("C2 回放300", "sft_mix_300"), ("C2 回放300 s43", "sft_mix_300_s43"),
+        ("C1 回放900 s43", "sft_mix_900_s43")]
 
 
 def macro_f1(pairs):

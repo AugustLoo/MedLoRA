@@ -342,6 +342,65 @@ python eval/eval_mmbench.py --tag sft_mix_pubmedqa_r16 --adapter outputs/sft_mix
 scp -P 20322 user0@221.239.50.147:/workspace/chunqian/MedLoRA/outputs/eval/'mmbench_*' outputs/eval/
 ```
 
+## 批次 · C2-100 + C1-s43 (把回放曲线做完整, 约 3 小时)
+
+**目的**: 曲线现在是 0 / 300 / 900 三个点, 其中 300 有两个种子, 0 和 900 是单次。这一批补两样:
+- **C2-100** (每类 33 条 = 99 条, 标签叫 100): 0 → 300 是全部收益发生的区间, 此前一个点都没有。
+  它同时检验一个内部局限: maybe 每条只重复 0.6 次, 若 99 条就拿到大半收益, 说明校准修复不靠重复撑。
+- **C1-s43** (900 条, 种子 43): 让曲线的 900 端也有重复, 「300 矫枉过正、900 均衡」两头都可比。
+
+| 轮 | 数据 | 应有总步数 | 评估 tag |
+|---|---|---|---|
+| C2-100 | `--per-class 33 --tag 100` | **942** | `sft_mix_100` |
+| C1-s43 | `--per-class 300 --tag 900s43 --seed 43` | **1092** | `sft_mix_900_s43` |
+
+两个配置都只差 dataset / output_dir (C1-s43 相对 C1 再多一个 seed), 已用脚本核对。
+
+### 开跑前: 看别人的任务在不在满载
+
+```bash
+nvidia-smi --query-gpu=index,memory.used,utilization.gpu --format=csv
+ps -eo pid,cmd | grep -E "eval_all|llamafactory" | grep -v grep || echo "干净"
+```
+
+`srb` 满载 (utilization 100%、功率 575 W) 就等; 待机 (0%, 5.7 GB) 就跑。两轮各约 45 分钟训练 + 40 分钟评估。
+
+### 跑法 (一个 tmux, 两轮串起来, 中间任何一步失败就停)
+
+```bash
+tmux new -s batch2        # 已存在则 tmux attach -t batch2
+```
+
+进去之后 (环境变量整行粘):
+
+```bash
+source /opt/conda/etc/profile.d/conda.sh && conda activate chunqian && cd /workspace/chunqian/MedLoRA
+export CUDA_VISIBLE_DEVICES=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_DATASETS_OFFLINE=1
+python data/convert_pubmedqa_sft.py --per-class 33 --tag 100 && python data/convert_pubmedqa_sft.py --per-class 300 --tag 900s43 --seed 43
+llamafactory-cli train configs/bf16/sft_mix_pubmedqa_100.yaml && rm -rf outputs/sft_mix_pubmedqa_100_r16/checkpoint-* && bash train/eval_all.sh sft_mix_100 outputs/sft_mix_pubmedqa_100_r16 && llamafactory-cli train configs/bf16/sft_mix_pubmedqa_900_s43.yaml && rm -rf outputs/sft_mix_pubmedqa_900_s43_r16/checkpoint-* && bash train/eval_all.sh sft_mix_900_s43 outputs/sft_mix_pubmedqa_900_s43_r16
+```
+
+第一条数据命令应打印 `输出 99 条 ... {'maybe': 33, 'no': 33, 'yes': 33}` 和 `输出 900 条 ... 300/300/300`。
+Ctrl+B 松开按 D 离开。
+
+### 看进度
+
+```bash
+tail -1 /workspace/chunqian/MedLoRA/outputs/sft_mix_pubmedqa_100_r16/trainer_log.jsonl
+tail -1 /workspace/chunqian/MedLoRA/outputs/sft_mix_pubmedqa_900_s43_r16/trainer_log.jsonl
+ls /workspace/chunqian/MedLoRA/outputs/eval/ | grep -E "sft_mix_100|900_s43"
+```
+
+最后一条打出 **16 个**文件 (两轮各四张表) 就全部结束。
+
+### 取回
+
+```bash
+scp -P 20322 user0@221.239.50.147:/workspace/chunqian/MedLoRA/outputs/eval/'*sft_mix_100*' outputs/eval/
+scp -P 20322 user0@221.239.50.147:/workspace/chunqian/MedLoRA/outputs/eval/'*900_s43*' outputs/eval/
+python scripts/eval_pubmedqa_split.py --half test
+```
+
 ## 运维笔记 (2026-09-19/20 排查了一整天, 下次直接看这里)
 
 ### 账号和环境
