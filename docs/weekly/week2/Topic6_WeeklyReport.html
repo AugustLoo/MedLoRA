@@ -178,10 +178,10 @@ footer a{color:var(--ink-soft)}
     <div class="kicker">02 · 方法</div>
     <h2>要拿考卷当练习册，先把考卷切一半</h2>
     <p class="lede">三分类样本只有 <span class="en">PubMedQA</span> 有，而它正是可靠性评估表。拿考卷练习，分数不算数。</p>
-    <p>按标签分层对半切，种子固定 <span class="en">42</span>，切分文件<strong>入库到 git</strong>，脚本写了保护——一旦存在就拒绝重新生成。一半进训练，一半永远只用来打分。之前四个模型的逐题预测都存着，按切分过滤重算即可，<strong>八个模型站在同一把尺子上</strong>，没有重复花一次推理。</p>
+    <p>按标签分层对半切，种子固定 <span class="en">42</span>，切分文件<strong>入库到 git</strong>，脚本写了保护——一旦存在就拒绝重新生成。一半进训练，一半永远只用来打分。之前四个模型的逐题预测都存着，按切分过滤重算即可，<strong>所有模型站在同一把尺子上</strong>，没有重复花一次推理。</p>
   </div>
   <div class="split">
-    <div class="card train"><div class="tag">练习册 · 进训练</div><div class="n">500</div><p>每类平衡采样——每类 100 条即总共 300 条，每类 300 条即 900 条；maybe 只有 55 条唯一样本，两档分别重复约 1.8 次和 5.5 次——混进 <span class="en">SLAKE</span> 的 4,919 条里做一次微调。其余超参与实验 A 完全一致，<strong>唯一的变量就是回放条数</strong>。</p></div>
+    <div class="card train"><div class="tag">练习册 · 进训练</div><div class="n">500</div><p>每类平衡采样——每类 33 / 100 / 300 条即总共 99 / 300 / 900 条；maybe 只有 55 条唯一样本，三档分别重复约 0.6 / 1.8 / 5.5 次——混进 <span class="en">SLAKE</span> 的 4,919 条里做一次微调。其余超参与实验 A 完全一致，<strong>唯一的变量就是回放条数</strong>。</p></div>
     <div class="card test"><div class="tag">考卷 · 永不进训练</div><div class="n">500</div><p>真实答案 <span class="en">276</span> yes / <span class="en">169</span> no / <span class="en">55</span> maybe。本页所有 <span class="en">PubMedQA</span> 数字都只来自这半边。</p></div>
   </div>
   <div class="srcline"><span class="en">data/pubmedqa_split.json</span>（已入库）· <span class="en">scripts/eval_pubmedqa_split.py --half test</span></div>
@@ -208,7 +208,7 @@ footer a{color:var(--ink-soft)}
       <div class="step" data-step="4"><div class="step-card"><div class="n">05 / 05</div><h3>补 900 条：最贴近真实，收益只多 0.8</h3><p><span class="en">269 / 151 / 80</span>（种子 43：287 / 162 / 51），最贴近真实的分布。macro-F1 <span class="en">61.1 / 60.7</span>，yes 召回 79.7 / 84.4。yes 召回率随回放条数 60.9 → 71.0 → 82.1 单调往回走，四轮方向没有一次反过来。但从 300 到 900，收益只多 <span class="en">+0.77</span>（两端均值），和运行间抖动同量级。</p></div></div>
     </div>
   </div>
-  <div class="srcline">回放 0 / 300 / 900 三轮全在服务器上 bf16 不量化跑的，超参一致，可直接相减。</div>
+  <div class="srcline">回放 0 / 99 / 300 / 900 六轮全在服务器上 bf16 不量化跑的，超参一致，只差回放条数（和种子），可直接相减。</div>
 </section>
 
 <!-- ============================ 04 反驳一个质疑 ============================ -->
@@ -218,19 +218,19 @@ footer a{color:var(--ink-soft)}
     <h2>不是让它多猜「不确定」</h2>
     <p class="lede">最容易被问的一句：你只是把它调得爱说「不确定」而已吧？</p>
     <p>基座本来就答了 83 次 maybe，只对 7 次；补 300 条后答 94 次，对 <span class="en">21</span> 次；补 900 条后答 80 次，对 <span class="en">19</span> 次。<strong>次数相当，对的次数三倍。</strong>三个类别的精确率和召回率是一起变好的。补 99 条那一轮是反例的边界：它答了 120 次 maybe、对 23 次——类别是修回来了，什么时候该用还没学会，总准确率反而比不回放低；准确率随回放条数 64.6 → 69.6 → 73.0 单调涨，<strong>小预算改的是先验，大预算才学到分辨</strong>（这是解释，不是证明）。</p>
-    <p>两类危险错误加起来，300 条是 <span class="en">46</span>、900 条是 <span class="en">45</span>，打平——只是分布不同：300 条把 no→yes 压得极低但 yes→no 涨上来，900 条两头均衡。<strong>哪个更好取决于场景</strong>，报告里没有硬选一个「最优值」。第二个种子（43）把 300 条这一点重跑了一遍：no→yes 12、yes→no 30、yes 召回 72.1，和种子 42 的 14 / 32 / 69.9 几乎重合——<strong>矫枉过正是这个预算的性质，不是一次运行的偶然</strong>。</p>
+    <p>两类危险错误加起来，99 条 <span class="en">48</span>、300 条 <span class="en">46</span>、900 条 <span class="en">45</span>，全部持平——只是拆分不同：300 条把 no→yes 压得极低但 yes→no 涨上来，900 条两头均衡。<strong>哪个更好取决于场景</strong>，报告里没有硬选一个「最优值」。第二个种子（43）把 300 条这一点重跑了一遍：no→yes 12、yes→no 30、yes 召回 72.1，和种子 42 的 14 / 32 / 69.9 几乎重合——<strong>矫枉过正是这个预算的性质，不是一次运行的偶然</strong>。</p>
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>考卷半边 500 题</th><th class="num">基座</th><th class="num">回放 0</th><th class="num">回放 300</th><th class="num">回放 900</th></tr></thead>
+      <thead><tr><th>考卷半边 500 题</th><th class="num">基座</th><th class="num">回放 0</th><th class="num">回放 99</th><th class="num">回放 300</th><th class="num">回放 900</th></tr></thead>
       <tbody>
-        <tr><td>yes 精确率 / 召回率</td><td class="num">74.7 / 86.6</td><td class="num">71.1 / 91.7</td><td class="num">84.6 / <span style="color:var(--c-red)">69.9</span></td><td class="num">81.8 / 79.7</td></tr>
-        <tr><td>no 精确率 / 召回率</td><td class="num">76.3 / 43.8</td><td class="num">75.9 / 50.3</td><td class="num">74.7 / 78.7</td><td class="num">78.8 / 70.4</td></tr>
-        <tr><td>maybe 精确率 / 召回率</td><td class="num">8.4 / 12.7</td><td class="num">18.8 / 10.9</td><td class="num">22.3 / 38.2</td><td class="num">23.8 / 34.5</td></tr>
-        <tr class="hl"><td><strong>macro-F1</strong></td><td class="num">48.7</td><td class="num">51.5</td><td class="num best2">60.5</td><td class="num best">61.1</td></tr>
-        <tr><td>该答 no 却答 yes</td><td class="num">42</td><td class="num bad">63</td><td class="num ok">14</td><td class="num">26</td></tr>
-        <tr><td>该答 yes 却答 no</td><td class="num">14</td><td class="num">18</td><td class="num bad">32</td><td class="num">19</td></tr>
-        <tr class="hl"><td><strong>两类危险错误合计</strong></td><td class="num">56</td><td class="num">81</td><td class="num">46</td><td class="num">45</td></tr>
+        <tr><td>yes 精确率 / 召回率</td><td class="num">74.7 / 86.6</td><td class="num">71.1 / 91.7</td><td class="num">85.3 / <span style="color:var(--c-red)">60.9</span></td><td class="num">84.6 / <span style="color:var(--c-red)">69.9</span></td><td class="num">81.8 / 79.7</td></tr>
+        <tr><td>no 精确率 / 召回率</td><td class="num">76.3 / 43.8</td><td class="num">75.9 / 50.3</td><td class="num">72.1 / 78.1</td><td class="num">74.7 / 78.7</td><td class="num">78.8 / 70.4</td></tr>
+        <tr><td>maybe 精确率 / 召回率</td><td class="num">8.4 / 12.7</td><td class="num">18.8 / 10.9</td><td class="num">19.2 / 41.8</td><td class="num">22.3 / 38.2</td><td class="num">23.8 / 34.5</td></tr>
+        <tr class="hl"><td><strong>macro-F1</strong></td><td class="num">48.7</td><td class="num">51.5</td><td class="num">57.4</td><td class="num best2">60.5</td><td class="num best">61.1</td></tr>
+        <tr><td>该答 no 却答 yes</td><td class="num">42</td><td class="num bad">63</td><td class="num ok">12</td><td class="num ok">14</td><td class="num">26</td></tr>
+        <tr><td>该答 yes 却答 no</td><td class="num">14</td><td class="num">18</td><td class="num bad">36</td><td class="num bad">32</td><td class="num">19</td></tr>
+        <tr class="hl"><td><strong>两类危险错误合计</strong></td><td class="num">56</td><td class="num">81</td><td class="num">48</td><td class="num">46</td><td class="num">45</td></tr>
       </tbody>
     </table>
   </div>
@@ -278,7 +278,7 @@ footer a{color:var(--ink-soft)}
       <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>所以掉的是格式，不是能力</h3><p>回放塞进去的是 yes / no / maybe 单词答案，短答式 OCR 题对这种输出分布的偏移敏感，四选一的题不受影响。之前逐题看 TextVQA 变差的一半是 <span class="en">one penny → 1 penny</span> 这种写法差异，对上了。<strong>上周担心 TextVQA 低估遗忘——方向反了，它高估。</strong></p></div></div>
     </div>
   </div>
-  <div class="srcline">主任务 SLAKE：回放 300 条封闭题反涨 0.48、开放题 EM 涨 0.47，零代价；900 条封闭题掉 1.21、开放题涨 0.62，净约一题。</div>
+  <div class="srcline">主任务 SLAKE：回放 99 / 300 条封闭题不掉（+0 / +0.48，两个种子都是）、开放题 EM 反涨；900 条两个种子封闭题都掉约 1 分（84.13 / 84.62），开放题涨 0.6 到 1.7，是那一档稳定的小代价。</div>
 </section>
 
 <!-- ============================ 07 取舍 ============================ -->
@@ -319,7 +319,7 @@ footer a{color:var(--ink-soft)}
       <thead><tr><th>课题要求</th><th>状态</th><th>内容</th></tr></thead>
       <tbody>
         <tr><td>① 数据生成脚本</td><td class="ok">完成</td><td>7 个脚本：SLAKE、PubMedQA（CPT 与 SFT 两种）、IU X-Ray、切分协议、回放采样</td></tr>
-        <tr><td>② CPT / SFT 流水线 + adapter</td><td class="ok">完成</td><td>15 个配置、四张表的评估脚本、9 个 adapter 的逐题预测全部入库</td></tr>
+        <tr><td>② CPT / SFT 流水线 + adapter</td><td class="ok">完成</td><td>16 个配置、四张表的评估脚本、11 个 adapter 的逐题预测全部存档（results/ 里有每轮的快照）</td></tr>
         <tr><td>③ 评估集 + 模型卡</td><td class="ok">本周补完</td><td>模型卡（六条实测的失败模式、明确禁用声明）、数据卡（切分协议、IU X-Ray 36% 正常报告偏差、评分修正记录）</td></tr>
         <tr><td>④ 报告 + 可复现配置</td><td class="ok">v0.9</td><td>Related Work 七段、29 条参考文献<strong>已逐条对 arXiv 核过</strong>（改 3 处、补 7 处），5.6 节回放曲线定稿（四点、两端各两种子）</td></tr>
       </tbody>
@@ -333,7 +333,7 @@ footer a{color:var(--ink-soft)}
   <div class="prose">
     <div class="kicker">10 · 坦白</div>
     <h2>时间去哪了</h2>
-    <p class="lede">两周跑了四轮服务器实验，不是实验慢，是第一次在学院服务器上跑踩了一串坑。记在这里，因为有一条会影响后面的排期。</p>
+    <p class="lede">两周跑了六轮服务器实验，前四轮不是实验慢，是第一次在学院服务器上跑踩了一串坑。记在这里，因为有一条会影响后面的排期。</p>
     <p><strong>预处理的假死。</strong>进度条长时间停在 0%，其实框架每一千条才刷新一次，它一直在干活。为此误杀过两个健康的运行。后来找到不靠进度条的判断法（看进程累计读取字节数），把批次改小让进度条真正动起来。</p>
     <p><strong>线程超额。</strong>同一张图用 1 个线程处理 0.021 秒，128 个线程 7.862 秒，差 374 倍，默认值 64。已写进配置。</p>
     <p><strong>评估双启动。</strong>一条 <span class="en">&amp;&amp;</span> 链的父进程还在等训练结束，我又加了一个等待循环，训练一退出两边同时触发评估，两个进程往同一个文件里写，一小时白跑。现在的纪律是开跑前先查有没有别的在等。</p>
@@ -351,11 +351,10 @@ footer a{color:var(--ink-soft)}
   <div class="card next">
     <h3>按优先级</h3>
     <ol>
-      <li><strong>第二个随机种子。</strong>300 条和 900 条之间 yes 召回率差了 27 题，这是单次运行分不清是效应还是抖动的量级。重复 300 条那一点（采样种子和训练种子一起换），<strong>已跑完（种子 43）</strong>：macro-F1 59.80 对 60.48，yes 召回 72.1 对 69.9，两类危险错误各差 2 例——运行间抖动约 0.7 分。300 到 900 的 +0.95 与抖动同量级，「饱和」成立；而 yes 召回 71.0（两种子均值）对 79.7 的 8.7 分差距是抖动的四倍，「300 条矫枉过正」<strong>被加固</strong>。900 条那一点也补了种子 43：no→yes 25、yes→no 21、yes 召回 84.4，对种子 42 的 26 / 19 / 79.7——两端各两个种子，方向没有一次反过来；900 点两种子 maybe 答对差 7 题、yes 召回差 4.7，抖动尺子按这个放宽后结论仍然成立。</li>
-      <li><strong>0 到 300 之间的那个点，已补（99 条）。</strong>拿到六成收益、maybe 召回最高，但 yes 召回 60.9 推得最远——矫枉过正随预算单调，曲线的形状定了。</li>
-      <li><strong>D 组消融现在跑得起。</strong>别人的任务待机时一轮约 1 小时，rank 8 / 32、epoch 2 / 4、学习率各一轮，一晚能做完一组。</li>
+      <li><strong>本周收口的两件事。</strong>第二个随机种子补在曲线两端（300 与 900 各两轮）：macro-F1 两端各差 0.7 / 0.4，「300 条饱和」与「小预算矫枉过正」都在放宽后的抖动尺子下成立。0 到 300 之间补了 99 条那个点：六成收益、maybe 召回最高、yes 召回推得最远，曲线的形状定了。</li>
+      <li><strong>D 组消融，现在跑得起。</strong>别人的任务待机时一轮约 1 小时：rank 8 / 32、epoch 2 / 4、学习率各一轮，一晚做完一组，回答「哪个因素重要」。</li>
       <li><strong>开放式生成的探针。</strong>TextVQA 和 MMBench 都是短输出，开放式描述里的漂移两者都测不到，这是现在唯一没覆盖的情况。</li>
-      <li><strong>等队友的 CheXpert Plus 子集</strong>（第 5 周）→ 实验 B3。</li>
+      <li><strong>等队友的 CheXpert Plus 子集</strong>（第 5 周）→ 实验 B3，图文 CPT 按对齐分数过滤。</li>
     </ol>
   </div>
   <div class="srcline">别人的任务待机时一轮约 1 小时，满载时过夜；每轮开跑前看 nvidia-smi 里别人的利用率，再确认没有别的进程在等。</div>
