@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic 6 Week 2 Report</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --paper:#F7F2E7; --paper-deep:#EFE7D3; --card:#FDFAF2;
+  --navy:#14263B; --ink-soft:#3D4E63; --taupe:#8C8577; --rule:#D8CFBA;
+  --c-base:#0E67B5; --c-a:#C25E28; --c-b1:#1F8A70; --c-b2:#B8860B; --c-c1:#8E44AD; --c-c2:#C2185B;
+  --c-red:#C0392B; --c-gold:#9A9283; --c-good:#1F8A70;
+  --font-head:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --font-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --font-num:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--navy);font-family:var(--font-body);font-size:17px;line-height:1.9;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--c-base)} a:hover{color:var(--navy)}
+.en,.num{font-family:var(--font-num);font-size:.92em}
+h1,h2,h3{font-family:var(--font-head);font-weight:700}
+h2{font-size:38px;line-height:1.25;letter-spacing:0;margin-bottom:18px;text-wrap:balance}
+h2::after{content:"";display:block;width:64px;height:4px;background:var(--navy);margin-top:14px}
+h3{font-size:21px;line-height:1.4}
+.kicker{font-family:var(--font-num);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--taupe);margin-bottom:14px}
+.section{padding:110px 24px}
+.section.deep{background:var(--paper-deep)}
+.prose{max-width:720px;margin:0 auto}
+.viz{max-width:1080px;margin:48px auto 0}
+.prose p{margin-bottom:1.1em;color:var(--ink-soft)}
+.prose p.lede{font-size:19px;color:var(--navy)}
+.prose strong,.step-card strong{color:var(--navy)}
+.card{background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
+.srcline{max-width:1080px;margin:18px auto 0;font-size:13px;line-height:1.7;color:var(--taupe)}
+
+/* cover */
+#cover{min-height:100vh;position:relative;overflow:hidden;background:linear-gradient(180deg,#F9F5EC 0%,var(--paper) 55%,#E9E0C9 100%);display:flex;align-items:center;justify-content:center}
+#cover .inner{max-width:920px;padding:0 24px 16vh;position:relative;z-index:3;width:100%}
+#cover h1{font-size:clamp(32px,4.6vw,54px);line-height:1.2;letter-spacing:.005em}
+#deliver td:last-child{white-space:normal;min-width:380px}
+#cover h1 .hi{color:var(--c-c1)} #cover h1 .hi2{color:var(--c-c2)}
+#cover .sub{margin-top:22px;font-size:18px;color:var(--ink-soft);max-width:680px}
+#cover .asof-line{margin-top:14px;font-family:var(--font-num);font-size:12.5px;color:var(--taupe);letter-spacing:.06em}
+#cover .stats{display:flex;gap:42px;margin-top:44px;flex-wrap:wrap}
+#cover .stat .v{font-family:var(--font-num);font-size:40px;font-weight:700;line-height:1.1}
+#cover .stat .v small{font-size:15px;font-weight:400;color:var(--taupe);margin-left:6px}
+#cover .stat .bar{height:5px;margin-top:8px;width:120px}
+#cover .stat .l{font-size:13px;color:var(--ink-soft);margin-top:8px;max-width:220px;line-height:1.5}
+#cover .scrollhint{position:absolute;bottom:34px;left:0;right:0;text-align:center;font-family:var(--font-num);font-size:11px;letter-spacing:.2em;color:var(--taupe);z-index:3}
+#grid{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.55}
+
+/* quote */
+.quote{max-width:760px;margin:40px auto 0;padding:26px 30px;border-left:6px solid var(--c-good);background:var(--card);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
+.quote p{font-size:18px;line-height:1.85;color:var(--navy);margin:0}
+.quote .who{font-family:var(--font-num);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin-top:14px}
+
+/* split cards */
+.split{max-width:900px;margin:44px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.split .card{padding:20px 22px}
+.split .tag{font-family:var(--font-num);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);display:inline-block;padding:2px 10px;margin-bottom:12px}
+.split .train .tag{background:var(--c-c1)} .split .test .tag{background:var(--navy)}
+.split .n{font-family:var(--font-num);font-size:30px;font-weight:700;line-height:1.1;margin-bottom:6px}
+.split p{font-size:14px;line-height:1.8;color:var(--ink-soft);margin:0}
+
+/* table */
+.tbl{overflow-x:auto;max-width:1080px;margin:36px auto 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
+th,td{padding:10px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule);white-space:nowrap}
+thead th{font-family:var(--font-num);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);background:var(--paper-deep);border-bottom:2px solid var(--navy)}
+td.num,th.num{text-align:right;font-family:var(--font-num);font-variant-numeric:tabular-nums}
+td.best{font-weight:700;color:var(--c-c1)} td.best2{font-weight:700;color:var(--c-c2)}
+td.bad{color:var(--c-red);font-weight:700} td.ok{color:var(--c-good);font-weight:700}
+tbody tr:last-child td{border-bottom:0}
+tbody tr.hl{background:#F3EAF6}
+
+/* scrolly */
+.scrolly{max-width:1160px;margin:40px auto 0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr);gap:40px;align-items:start}
+.sticky-fig{position:sticky;top:6vh;height:88vh;display:flex;align-items:center}
+.sticky-fig .card{width:100%;padding:22px 24px 18px}
+.sticky-fig .ttl{font-family:var(--font-num);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin-bottom:10px}
+.sticky-fig svg{width:100%;height:auto;display:block;overflow:visible}
+.steps{padding:10vh 0 20vh}
+.step{min-height:64vh;display:flex;align-items:center}
+.step-card{background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16);padding:20px 22px;opacity:.38;transition:opacity .3s,transform .3s;transform:translateX(0)}
+.step.is-active .step-card{opacity:1;transform:translateX(-6px)}
+.step-card .n{font-family:var(--font-num);font-size:11.5px;letter-spacing:.14em;color:var(--taupe);margin-bottom:8px}
+.step-card h3{font-size:20px;margin-bottom:8px}
+.step-card p{font-size:15px;line-height:1.85;color:var(--ink-soft)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--font-num);font-size:12px;color:var(--ink-soft);margin-top:10px}
+.legend span[class^="l"]::before{content:"";display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(20,38,59,.25)}
+.legend .lg::before{background:var(--c-gold)} .legend .lb::before{background:var(--c-base)} .legend .la::before{background:var(--c-a)}
+.legend .lc1::before{background:var(--c-c1)} .legend .lc2::before{background:var(--c-c2)}
+.legend .ltv::before{background:var(--c-a)} .legend .lmm::before{background:var(--c-b1)}
+
+/* tiles */
+.tiles{max-width:1080px;margin:40px auto 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.tiles .card{padding:22px 22px 18px}
+.tiles .big{font-family:var(--font-num);font-size:32px;font-weight:700;line-height:1.1}
+.tiles .big small{font-size:14px;font-weight:400;color:var(--taupe);margin-left:6px}
+.tiles h3{font-size:18px;margin:10px 0 6px}
+.tiles p{font-size:14px;line-height:1.8;color:var(--ink-soft)}
+.next{max-width:760px;margin:36px auto 0;padding:24px 28px}
+.next h3{margin-bottom:12px}
+.next ol{padding-left:22px}
+.next li{margin-bottom:10px;color:var(--ink-soft)}
+.next li strong{color:var(--navy)}
+footer{padding:40px 24px 60px;text-align:center;font-family:var(--font-num);font-size:12px;color:var(--taupe);letter-spacing:.06em}
+footer a{color:var(--ink-soft)}
+
+@media (max-width:900px){
+  .scrolly{grid-template-columns:1fr;gap:0}
+  .sticky-fig{position:sticky;top:0;height:auto;padding:12px 0;background:var(--paper);z-index:2}
+  .section.deep .sticky-fig{background:var(--paper-deep)}
+  .step{min-height:40vh}
+  .split,.tiles{grid-template-columns:1fr}
+  h2{font-size:30px}
+  .section{padding:72px 20px}
+  #cover .stats{gap:26px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.step-card{transition:none}}
+</style>
+</head>
+<body>
+
+<!-- ============================ Cover ============================ -->
+<section id="cover">
+  <svg id="grid" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs><pattern id="gp" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M56 0H0V56" fill="none" stroke="#D8CFBA" stroke-width="1"/></pattern></defs>
+    <rect width="1400" height="900" fill="url(#gp)"/>
+  </svg>
+  <div class="inner">
+    <div class="kicker">Topic 6 · Task 1.3 · Week 2 progress report · updated 2026-09-24</div>
+    <h1>Last week's claim <span class="hi">held up</span>;<br>last week's worry <span class="hi2">was wrong</span></h1>
+    <p class="sub">Last week we said the bias comes from the fine-tuning data and can be fixed by changing the data mix. This week it was fixed, and we measured that 300 examples are enough. We also worried that TextVQA would underestimate forgetting. A second probe now shows it overestimates it. Both conclusions come from the data.</p>
+    <div class="asof-line">Qwen2.5-VL-3B-Instruct · LoRA r16 · college RTX 5090 · bf16, unquantised · four evaluation tables · results as of 2026-09-24</div>
+    <div class="stats">
+      <div class="stat"><div class="v" style="color:var(--c-c1)">61.1<small>← 51.5</small></div><div class="bar" style="background:var(--c-c1)"></div><div class="l">PubMedQA macro-F1 after adding 900 replay examples, held-out half</div></div>
+      <div class="stat"><div class="v" style="color:var(--c-c2)">300<small>is enough</small></div><div class="bar" style="background:var(--c-c2)"></div><div class="l">92% of the calibration gain (mean of two seeds) at zero main-task cost; 99 examples already give 63%</div></div>
+      <div class="stat"><div class="v" style="color:var(--c-good)">0.0<small>MMBench</small></div><div class="bar" style="background:var(--c-good)"></div><div class="l">On the second forgetting probe, replay costs nothing</div></div>
+    </div>
+  </div>
+  <div class="scrollhint">SCROLL ▼</div>
+</section>
+
+<!-- ============================ 01 Starting point ============================ -->
+<section class="section deep" id="claim">
+  <div class="prose">
+    <div class="kicker">01 · Starting point</div>
+    <h2>Two sentences left over from last week</h2>
+    <p class="lede">Last week's report ended with one claim and one worry. Every experiment this week was built around those two sentences.</p>
+    <p><strong>The claim:</strong> the model's reluctance to say "uncertain" does not come from the base model or from continued pre-training. It comes from the <span class="en">SLAKE</span> fine-tuning data, where every answer is a single word. The evidence was that models with CPT only, and no SFT, were the best calibrated. If this is right, adding three-class examples back into the fine-tuning data should remove the problem, with no need for an extra DPO stage.</p>
+    <p><strong>The worry:</strong> the general-ability probe, <span class="en">TextVQA</span>, has only 300 questions and uses short-answer OCR. Its format is too close to our fine-tuning output, so it might miss forgetting. We needed a more sensitive probe.</p>
+  </div>
+  <div class="quote">
+    <p>"So alignment should change the SFT data mix, not add another stage."<br>"TextVQA's short-answer questions are too close to our SFT output format to detect degradation."</p>
+    <div class="who">— Week 1 report, sections 07 and 03</div>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Last week's evidence · held-out half</th><th class="num">SLAKE closed</th><th class="num">Open EM</th><th class="num">TextVQA</th><th class="num">macro-F1</th><th class="num">no→yes</th><th>Predicted yes/no/maybe</th></tr></thead>
+      <tbody>
+        <tr><td>Base model</td><td class="num">67.31</td><td class="num">40.62</td><td class="num">83.89</td><td class="num">48.87</td><td class="num">43</td><td class="num">323 / 96 / 81</td></tr>
+        <tr><td>CPT only, text (B1)</td><td class="num">69.71</td><td class="num bad">34.11</td><td class="num bad">81.67</td><td class="num">52.09</td><td class="num ok">28</td><td class="num">290 / 123 / 87</td></tr>
+        <tr><td>CPT only, image-text (B2)</td><td class="num">68.27</td><td class="num bad">36.43</td><td class="num">83.56</td><td class="num">53.01</td><td class="num ok">32</td><td class="num ok">292 / 149 / 59</td></tr>
+        <tr class="hl"><td>SFT only (A)</td><td class="num best">85.10</td><td class="num best">75.35</td><td class="num">83.89</td><td class="num">51.69</td><td class="num bad">59</td><td class="num">352 / 118 / 30</td></tr>
+        <tr><td>CPT → SFT (B1 / B2)</td><td class="num">83.89 / 84.13</td><td class="num">75.81 / 74.57</td><td class="num">83.78 / 84.00</td><td class="num">52.75 / 52.35</td><td class="num">48 / 54</td><td class="num">337/145/18 · 343/127/30</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="srcline">Gold 276 / 169 / 55. Three readings. CPT alone differs slightly from the base model, in mixed directions: closed questions +1 to +2, open questions −4 to −6 from vocabulary drift, such as answering "Thorax" for "Chest". CPT alone is an order of magnitude behind SFT, and CPT followed by SFT converges to the same score as SFT alone, so the CPT contribution is overwritten. <strong>The one thing CPT wins is calibration</strong>: no→yes errors fall from 43 for the base model to 28 and 32, while SFT alone raises them to 59. That is where the claim "the bias comes from the SFT data" came from.</div>
+</section>
+
+<!-- ============================ 02 Method ============================ -->
+<section class="section" id="method">
+  <div class="prose">
+    <div class="kicker">02 · Method</div>
+    <h2>To practise on the exam, first cut the exam in half</h2>
+    <p class="lede">Only <span class="en">PubMedQA</span> has three-class examples, and it is also our reliability evaluation set. A score earned by practising on the exam does not count.</p>
+    <p>We split it in half, stratified by label, with a fixed seed of <span class="en">42</span>. The split file is <strong>committed to git</strong>, and the script refuses to regenerate it once it exists. One half goes into training; the other half is only ever used for scoring. Per-question predictions from earlier models were stored, so we filter them by the split and recompute. <strong>Every model is measured with the same ruler</strong>, and no inference was repeated.</p>
+  </div>
+  <div class="split">
+    <div class="card train"><div class="tag">Practice half · training</div><div class="n">500</div><p>Class-balanced sampling: 33 / 100 / 300 per class gives 99 / 300 / 900 examples in total. There are only 55 unique "maybe" items, so they repeat about 0.6 / 1.8 / 5.5 times at the three budgets. These are mixed into the 4,919 <span class="en">SLAKE</span> examples for one fine-tuning run. All other hyper-parameters match experiment A exactly. <strong>The only variable is the replay count.</strong></p></div>
+    <div class="card test"><div class="tag">Exam half · never trained on</div><div class="n">500</div><p>Gold answers <span class="en">276</span> yes / <span class="en">169</span> no / <span class="en">55</span> maybe. Every <span class="en">PubMedQA</span> number on this page comes from this half only.</p></div>
+  </div>
+  <div class="srcline"><span class="en">data/pubmedqa_split.json</span> (committed) · <span class="en">scripts/eval_pubmedqa_split.py --half test</span></div>
+</section>
+
+<!-- ============================ 03 Main result · scrolly ============================ -->
+<section class="section deep" id="result">
+  <div class="prose">
+    <div class="kicker">03 · Main result</div>
+    <h2>How the answer distribution moved back toward the truth</h2>
+    <p class="lede">The grey hatched bars are the gold distribution. Scroll down to see how the predicted distribution changes with each batch of replay data.</p>
+  </div>
+  <div class="scrolly" id="scrolly-dist">
+    <div class="sticky-fig"><div class="card">
+      <div class="ttl" id="dist-ttl">PubMedQA predicted yes / no / maybe · held-out half, 500 questions</div>
+      <svg id="dist" viewBox="0 0 720 360" role="img" aria-label="Predicted yes/no/maybe counts at each replay budget compared with the gold distribution"></svg>
+      <div class="legend" id="dist-legend"></div>
+    </div></div>
+    <div class="steps">
+      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 05</div><h3>Base model: leans yes and guesses maybe</h3><p>The untuned model answers <span class="en">320 / 97 / 83</span>. That is 44 too many yes and 72 too few no. It says maybe 83 times but is right only <span class="en">7</span> times. That is guessing, not caution.</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 05</div><h3>Fine-tuning alone: the bias gets worse</h3><p>Experiment A re-run on the server, with zero replay: <span class="en">356 / 112 / 32</span>. "Maybe" halves, and no→yes errors rise from 42 to <span class="en">63</span>, <strong>more than before any fine-tuning</strong>. Last week's claim is independently reproduced here: short-answer fine-tuning systematically pushes the model toward yes.</p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 05</div><h3>Add 99: it overshoots at once</h3><p><span class="en">197 / 183 / 120</span>. With only 99 examples (33 per class, each "maybe" item seen at most once), macro-F1 rises from 51.5 to <span class="en">57.4</span>, and it gets <span class="en">23</span> "maybe" questions right, the most of any run. But it answers yes only 197 times against 276 gold. Yes recall drops to <span class="en">60.9</span>, and plain accuracy, 64.6, is lower than with no replay. <strong>It has learned that no and maybe exist as options, but not yet when to use them.</strong></p></div></div>
+      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 05</div><h3>Add 300: pulled back, still overshooting</h3><p><span class="en">228 / 178 / 94</span>. Macro-F1 jumps from 51.5 to <span class="en">60.5</span>, and no→yes errors fall from 63 to <span class="en">14</span>, below the base model. The cost is only 228 yes answers against 276 gold, and yes recall falls from 91.7 to 69.9. <strong>Both seeds (42 and 43) land here, with yes recall of 69.9 and 72.1.</strong></p></div></div>
+      <div class="step" data-step="4"><div class="step-card"><div class="n">05 / 05</div><h3>Add 900: closest to the truth, only 0.8 more gain</h3><p><span class="en">269 / 151 / 80</span> (seed 43: 287 / 162 / 51), the distribution closest to gold. Macro-F1 is <span class="en">61.1 / 60.7</span> and yes recall 79.7 / 84.4. Yes recall moves back monotonically with the replay budget, 60.9 → 71.0 → 82.1, and never reverses across four runs. But going from 300 to 900 adds only <span class="en">+0.77</span> (mean of both ends), the same size as run-to-run noise.</p></div></div>
+    </div>
+  </div>
+  <div class="srcline">All six runs at 0 / 99 / 300 / 900 replay were trained on the server in bf16 without quantisation, with identical hyper-parameters. They differ only in replay count (and seed), so they can be compared directly.</div>
+</section>
+
+<!-- ============================ 04 Answering an objection ============================ -->
+<section class="section" id="notguess">
+  <div class="prose">
+    <div class="kicker">04 · Answering an objection</div>
+    <h2>It is not just guessing "uncertain" more often</h2>
+    <p class="lede">The question most likely to come up: haven't you just tuned it to say "uncertain" more often?</p>
+    <p>The base model already said maybe 83 times and was right 7 times. With 300 examples it says maybe 94 times and is right <span class="en">21</span> times. With 900 it says maybe 80 times and is right <span class="en">19</span> times. <strong>About the same number of attempts, three times as many correct.</strong> Precision and recall improve together across all three classes. The 99-example run marks the boundary: it says maybe 120 times and is right 23 times. The class is restored, but the model has not learned when to use it, and plain accuracy is lower than with no replay. Accuracy rises monotonically with the budget, 64.6 → 69.6 → 73.0. <strong>A small budget shifts the prior; only a larger budget teaches discrimination.</strong> This is an interpretation, not a proof.</p>
+    <p>Adding the two dangerous error types together gives <span class="en">48</span> at 99, <span class="en">46</span> at 300 and <span class="en">45</span> at 900. They are all level; only the split differs. At 300, no→yes is pushed very low but yes→no rises; at 900 both sides are balanced. <strong>Which is better depends on the use case</strong>, and the report does not pick a single "optimum". A second seed (43) repeated the 300 point: no→yes 12, yes→no 30, yes recall 72.1, almost identical to seed 42's 14 / 32 / 69.9. <strong>The over-correction is a property of the budget, not an accident of one run.</strong></p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Held-out half, 500 questions</th><th class="num">Base</th><th class="num">Replay 0</th><th class="num">Replay 99</th><th class="num">Replay 300</th><th class="num">Replay 900</th></tr></thead>
+      <tbody>
+        <tr><td>yes precision / recall</td><td class="num">74.7 / 86.6</td><td class="num">71.1 / 91.7</td><td class="num">85.3 / <span style="color:var(--c-red)">60.9</span></td><td class="num">84.6 / <span style="color:var(--c-red)">69.9</span></td><td class="num">81.8 / 79.7</td></tr>
+        <tr><td>no precision / recall</td><td class="num">76.3 / 43.8</td><td class="num">75.9 / 50.3</td><td class="num">72.1 / 78.1</td><td class="num">74.7 / 78.7</td><td class="num">78.8 / 70.4</td></tr>
+        <tr><td>maybe precision / recall</td><td class="num">8.4 / 12.7</td><td class="num">18.8 / 10.9</td><td class="num">19.2 / 41.8</td><td class="num">22.3 / 38.2</td><td class="num">23.8 / 34.5</td></tr>
+        <tr class="hl"><td><strong>macro-F1</strong></td><td class="num">48.7</td><td class="num">51.5</td><td class="num">57.4</td><td class="num best2">60.5</td><td class="num best">61.1</td></tr>
+        <tr><td>Gold no, answered yes</td><td class="num">42</td><td class="num bad">63</td><td class="num ok">12</td><td class="num ok">14</td><td class="num">26</td></tr>
+        <tr><td>Gold yes, answered no</td><td class="num">14</td><td class="num">18</td><td class="num bad">36</td><td class="num bad">32</td><td class="num">19</td></tr>
+        <tr class="hl"><td><strong>Dangerous errors, total</strong></td><td class="num">56</td><td class="num">81</td><td class="num">48</td><td class="num">46</td><td class="num">45</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================ 05 Rigour ============================ -->
+<section class="section deep" id="control">
+  <div class="prose">
+    <div class="kicker">05 · Rigour</div>
+    <h2>To keep a single variable, experiment A was re-run</h2>
+    <p class="lede">Experiment A was originally trained on a Kaggle T4 with 4-bit quantisation. The replay experiments were trained on the server's 5090 in bf16 without quantisation. Three things differ, so the two cannot be subtracted directly.</p>
+    <p>So A was fully re-run under the same conditions on the same GPU (<span class="en">A-server</span>). All five metrics <strong>agree to within half a point</strong>, and even the final validation loss is <span class="en">0.145</span> versus <span class="en">0.1446</span>. Changing hardware and quantisation reproduced the training trajectory. This run also serves as the zero-replay point on the curve, and partly substitutes for a second random seed: an independent reproduction with different hardware, precision and quantisation.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Same configuration, two machines</th><th class="num">A · Kaggle T4 · 4-bit fp16</th><th class="num">A-server · 5090 · bf16</th><th class="num">Diff</th></tr></thead>
+      <tbody>
+        <tr><td>SLAKE closed</td><td class="num">85.10</td><td class="num">85.34</td><td class="num">+0.24</td></tr>
+        <tr><td>SLAKE open recall</td><td class="num">82.17</td><td class="num">82.07</td><td class="num">−0.10</td></tr>
+        <tr><td>TextVQA</td><td class="num">83.89</td><td class="num">83.56</td><td class="num">−0.33</td></tr>
+        <tr><td>PubMedQA macro-F1</td><td class="num">51.69</td><td class="num">51.45</td><td class="num">−0.24</td></tr>
+        <tr><td>Final validation loss</td><td class="num">0.1450</td><td class="num">0.1446</td><td class="num">−0.0004</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================ 06 Cost · scrolly ============================ -->
+<section class="section" id="cost">
+  <div class="prose">
+    <div class="kicker">06 · Cost</div>
+    <h2>What exactly is being lost</h2>
+    <p class="lede">The gain is measured. What about the cost? Scroll down: two forgetting curves appear in turn, and the second one overturns last week's worry.</p>
+  </div>
+  <div class="scrolly" id="scrolly-ret">
+    <div class="sticky-fig"><div class="card">
+      <div class="ttl" id="ret-ttl">General ability vs replay count · accuracy %</div>
+      <svg id="ret" viewBox="0 0 720 360" role="img" aria-label="TextVQA and MMBench accuracy as a function of replay count"></svg>
+      <div class="legend" id="ret-legend"></div>
+    </div></div>
+    <div class="steps">
+      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>TextVQA goes down</h3><p>At 0 / 99 / 300 / 900 replay examples, TextVQA is <span class="en">83.56 → 82.78 → 82.45 → 81.83</span>. The 300 and 900 points are means of two seeds; the small hollow dots are the individual seeds. Every replay point is below zero replay, and the 900 end is 1.73 lower, about five questions. It looks as if replay is eating general ability.</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>First, take fine-tuning itself out</h3><p>The base model scores <span class="en">84.22</span>, and SLAKE fine-tuning alone brings it to 83.56, a drop of <span class="en">0.66</span>, which is noise. So the further drop is caused by replay, not by fine-tuning. The attribution is clean.</p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>Second probe: no movement at all</h3><p>MMBench: 500 four-way multiple-choice questions covering 20 ability dimensions. At 0 / 99 / 300 / 900 replay: <span class="en">87.40 / 87.20 / 87.20 / 87.80</span> (means). Everything is within <span class="en">±0.6</span> of zero replay. One point is five questions, so this is noise. Across four points and six runs, the largest per-category change is one question.</p></div></div>
+      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>So the loss is format, not ability</h3><p>Replay injects one-word yes / no / maybe answers. Short-answer OCR questions are sensitive to that shift in the output distribution; multiple-choice questions are not. Earlier, half of the TextVQA regressions turned out to be surface variants such as <span class="en">one penny → 1 penny</span>, which fits. <strong>Last week we worried TextVQA would underestimate forgetting. It is the other way round: it overestimates it.</strong></p></div></div>
+    </div>
+  </div>
+  <div class="srcline">Main task, SLAKE: at 99 and 300 replay, closed accuracy does not drop (+0 / +0.48, in both seeds) and open EM rises. At 900, closed accuracy falls about one point in both seeds (84.13 / 84.62), while open EM rises 0.6 to 1.7. That is a small, stable cost at the 900 budget.</div>
+</section>
+
+<!-- ============================ 07 Trade-off ============================ -->
+<section class="section deep" id="tradeoff">
+  <div class="prose">
+    <div class="kicker">07 · Trade-off</div>
+    <h2>How much replay is enough</h2>
+    <p class="lede">This is the most practical finding of the week: fixing calibration needs far less data than expected.</p>
+    <p>The first 99 examples buy <span class="en">+5.99</span> macro-F1, about 60% of the gain. At 300 the gain is <span class="en">+8.69</span> (mean of two seeds), about 90%. The next 600 examples add only <span class="en">+0.77</span>, the same size as run-to-run noise. The marginal return per hundred examples falls 6.0 → 1.3 → 0.13, <strong>a fifty-fold drop</strong>. The cost appears only in short-answer format; the end points are clear and the middle is within noise.</p>
+  </div>
+  <div class="tiles">
+    <div class="card"><div class="big" style="color:var(--c-c2)">+8.69<small>300 · mean of two seeds</small></div><h3>Almost all the gain at once</h3><p>99 examples already give +5.99; going to 900 adds only +0.77. In the 99 run each "maybe" item is seen at most once, yet its maybe recall is the highest, so <strong>the fix does not rely on memorisation</strong>. There is no need to run 1,800, where each "maybe" item would repeat 11 times.</p></div>
+    <div class="card"><div class="big" style="color:var(--c-good)">±0<small>SLAKE · 300</small></div><h3>No main-task cost</h3><p>Closed +0.48, open +0.47, in both seeds. At 900, closed accuracy is about one point lower in both seeds (84.13 / 84.62 against ≥ 85.34 everywhere else), a stable cost of about 4–7 questions. Open accuracy is never below zero replay at any replay point.</p></div>
+    <div class="card"><div class="big" style="color:var(--taupe)">300 or 900</div><h3>No single optimum</h3><p>To keep general ability and the main task intact, choose 300: 90% of the gain, about 3 TextVQA questions. For the most balanced classes and the highest plain accuracy, choose 900: about one closed-question point and about 5 TextVQA questions. The report states the trade-off and leaves the choice to the user.</p></div>
+  </div>
+</section>
+
+<!-- ============================ 08 Conclusion ============================ -->
+<section class="section" id="impact">
+  <div class="prose">
+    <div class="kicker">08 · Conclusion</div>
+    <h2>Stage 3 has been redefined</h2>
+    <p class="lede">In the project pipeline, "alignment" is by default a third training stage, usually DPO. The last two weeks show that in this pipeline it is not needed.</p>
+    <p>The reliability problem is <strong>not inherited from pre-training; stage 2 creates it</strong>. Last week's CPT-only evaluation showed the first half of that sentence, and this week's replay experiments show the second half. Adding another stage would mean using a new stage to repair what the previous one broke. Stage 3 is therefore redefined as <strong>the design of the fine-tuning data mix</strong>, and DPO becomes a fallback.</p>
+    <p>One more point is worth making. The mechanism inferred last week from the CPT-only evaluation <strong>predicted this week's result before it was tested</strong>. That says more than the result itself: we understand the mechanism rather than chasing numbers. And the fact that the TextVQA worry was overturned shows the evaluation corrects itself instead of reporting only the flattering results.</p>
+  </div>
+</section>
+
+<!-- ============================ 09 Deliverables ============================ -->
+<section class="section deep" id="deliver">
+  <div class="prose">
+    <div class="kicker">09 · Deliverables</div>
+    <h2>The four required deliverables and their status</h2>
+    <p class="lede">The research line was ahead of schedule; this week the documentation caught up.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Project requirement</th><th>Status</th><th>Content</th></tr></thead>
+      <tbody>
+        <tr><td>① Data-generation scripts</td><td class="ok">Done</td><td>7 scripts: SLAKE, PubMedQA (CPT and SFT variants), IU X-Ray, split protocol, replay sampling</td></tr>
+        <tr><td>② CPT / SFT pipeline + adapters</td><td class="ok">Done</td><td>16 configs, evaluation scripts for four tables, per-question predictions of 11 adapters archived (snapshots of every run in results/)</td></tr>
+        <tr><td>③ Evaluation sets + model card</td><td class="ok">Completed this week</td><td>Model card (six measured failure modes, explicit out-of-scope statement); data card (split protocol, IU X-Ray 36% normal-report bias, scoring-correction record)</td></tr>
+        <tr><td>④ Report + reproducible configs</td><td class="ok">v0.9</td><td>Related Work in seven paragraphs; all 29 references <strong>checked one by one against arXiv</strong> (3 corrected, 7 completed); Section 5.6 replay curve finalised (four points, two seeds at each end)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="srcline"><span class="en">docs/cards/MODEL_CARD.md</span> · <span class="en">docs/cards/DATA_CARD.md</span> · <span class="en">docs/refs.bib</span> · <span class="en">docs/report.md</span></div>
+</section>
+
+<!-- ============================ 10 Candidly ============================ -->
+<section class="section" id="ops">
+  <div class="prose">
+    <div class="kicker">10 · Candidly</div>
+    <h2>Where the time went</h2>
+    <p class="lede">Six server runs in two weeks. The first four were slow not because of the experiments, but because this was our first time on the college server and we hit a series of pitfalls. They are recorded here because one of them affects future scheduling.</p>
+    <p><strong>The fake preprocessing hang.</strong> The progress bar sat at 0% for a long time, but the framework only refreshes it every thousand examples; it was working all along. Two healthy runs were killed because of this. We found a check that does not rely on the progress bar (the process's cumulative bytes read) and reduced the batch size so the bar actually moves.</p>
+    <p><strong>Thread oversubscription.</strong> One image takes 0.021 s with 1 thread and 7.862 s with 128 threads, a 374× difference; the default is 64. This is now fixed in the configs.</p>
+    <p><strong>Double-launched evaluation.</strong> The parent of an <span class="en">&amp;&amp;</span> chain was still waiting for training to finish when I added a separate wait loop. When training exited, both triggered evaluation, two processes wrote to the same file, and an hour was lost. The rule now is to check that nothing else is waiting before launching.</p>
+    <p><strong>The one we could not solve at first:</strong> same machine, same model, C1 ran at 4.7 s per step and the next three runs at 38–40 s per step, eight times slower. We ruled out seven causes: dual GPU, memory, disk, network, threads, VRAM fluctuation and GPU performance (measured 68.5 TFLOPS, normal). The stack showed it stuck in the backward pass with GPU utilisation at only 5%. <strong>The seed run gave the answer</strong>: it took 45 minutes, 2.8 s per step, while another user's job was idle. Across four runs, the three slow ones all coincided with that other account's job saturating both GPUs, and the two fast ones ran when it was absent or idle. It is GPU time-sharing, not our configuration. Correlation is not proof, but the operating rule is set: check other users' utilisation before launching, and run when the GPU is free.</p>
+  </div>
+  <div class="srcline"><span class="en">docs/SERVER.md</span> · operations notes section, all written up as documentation</div>
+</section>
+
+<!-- ============================ 11 Next steps ============================ -->
+<section class="section deep" id="next">
+  <div class="prose">
+    <div class="kicker">11 · Next steps</div>
+    <h2>The curve is done; next, a different dimension</h2>
+  </div>
+  <div class="card next">
+    <h3>In priority order</h3>
+    <ol>
+      <li><strong>Two items closed this week.</strong> A second random seed was added at both ends of the curve (two runs each at 300 and 900). Macro-F1 differs by 0.7 / 0.4 between seeds, and both "saturation at 300" and "small budgets over-correct" hold under the widened noise yardstick. The point between 0 and 300 was added at 99: about 60% of the gain, the highest maybe recall, and the furthest push on yes recall. The shape of the curve is settled.</li>
+      <li><strong>Group D ablations are now affordable.</strong> When the other job is idle, one run takes about an hour: rank 8 / 32, epochs 2 / 4 and learning rate, one run each. One night covers a group and answers which factor matters.</li>
+      <li><strong>An open-ended generation probe.</strong> TextVQA and MMBench both have short outputs, so neither can see drift in open-ended description. This is the only case not yet covered.</li>
+      <li><strong>Waiting for the teammate's CheXpert Plus subset</strong> (week 5) → experiment B3, image-text CPT filtered by alignment score.</li>
+    </ol>
+  </div>
+  <div class="srcline">About one hour per run when the other job is idle, overnight when it is saturated. Before each run, check other users' utilisation in nvidia-smi, then confirm nothing else is waiting.</div>
+</section>
+
+<footer>
+  MedLoRA · <a href="https://github.com/AugustLoo/MedLoRA">github.com/AugustLoo/MedLoRA</a> · every number comes from the repository's <span class="en">results/</span> and <span class="en">outputs/eval/</span> and can be reproduced with one command · <a href="Topic6_WeeklyReport.html">中文版</a>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(t,a,x){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;return e;}
+function clear(svg){while(svg.firstChild)svg.removeChild(svg.firstChild);}
+var C={navy:"#14263B",soft:"#3D4E63",taupe:"#8C8577",rule:"#D8CFBA",card:"#FDFAF2",idle:"#E4DBC4",
+       base:"#0E67B5",a:"#C25E28",b2:"#B8860B",c1:"#8E44AD",c2:"#C2185B",gold:"#9A9283",red:"#C0392B",good:"#1F8A70"};
+var MONO="IBM Plex Mono,monospace";
+
+/* ---------- scrolly 1: distribution ---------- */
+var GOLD=[276,169,55];
+var DIST=[{k:"base",n:"Base",c:C.base,v:[320,97,83]},
+          {k:"a",n:"Replay 0 (A-server)",c:C.a,v:[356,112,32]},
+          {k:"c100",n:"Replay 99",c:C.b2,v:[197,183,120]},
+          {k:"c2",n:"Replay 300",c:C.c2,v:[228,178,94]},
+          {k:"c1",n:"Replay 900",c:C.c1,v:[269,151,80]}];
+var DIST_STEPS=[
+  {shown:["base"],focus:"base",ttl:"Base vs gold distribution · held-out half, 500 questions"},
+  {shown:["base","a"],focus:"a",ttl:"Fine-tuning only (replay 0) · the bias gets worse"},
+  {shown:["base","a","c100"],focus:"c100",ttl:"Add 99 · overshoots at once"},
+  {shown:["base","a","c100","c2"],focus:"c2",ttl:"Add 300 · pulled back, still overshooting"},
+  {shown:["base","a","c100","c2","c1"],focus:"c1",ttl:"Add 900 · closest to the gold distribution"}];
+var distState=DIST_STEPS[0];
+function drawDist(){
+  var svg=document.getElementById("dist"); clear(svg);
+  var W=720,H=360,L=54,R=14,T=24,B=64,pw=W-L-R,ph=H-T-B;
+  var y=function(v){return T+ph-(v/380)*ph;};
+  var d=el("defs",{}); var pg=el("pattern",{id:"hg2",width:6,height:6,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
+  pg.appendChild(el("rect",{width:6,height:6,fill:C.card})); pg.appendChild(el("rect",{width:2.6,height:6,fill:C.gold})); d.appendChild(pg); svg.appendChild(d);
+  [0,100,200,300].forEach(function(t){
+    svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:C.rule}));
+    svg.appendChild(el("text",{x:L-10,y:y(t)+4,"text-anchor":"end","font-family":MONO,"font-size":11,fill:C.taupe},t));
+  });
+  var labs=["yes","no","maybe"], gw=pw/3, n=DIST.length+1, bw=Math.min(30,gw*0.86/n);
+  labs.forEach(function(lb,i){
+    var cx=L+gw*i+gw/2;
+    var series=[{gold:true,v:GOLD[i]}].concat(DIST.map(function(m){return {m:m,v:m.v[i]};}));
+    series.forEach(function(s,j){
+      var x=cx+(j-(n-1)/2)*bw*1.08, v=s.v;
+      var shown=s.gold||distState.shown.indexOf(s.m.k)>=0;
+      var focus=!s.gold&&s.m.k===distState.focus;
+      var fill=s.gold?"url(#hg2)":(shown?s.m.c:C.idle), stroke=s.gold?C.gold:(shown?s.m.c:C.idle);
+      svg.appendChild(el("rect",{x:x-bw/2+1,y:y(shown||s.gold?v:0),width:bw-2,height:y(0)-y(shown||s.gold?v:0),fill:fill,stroke:stroke,"stroke-width":focus?2.2:1.2,rx:3,opacity:shown||s.gold?1:.55}));
+      if(s.gold||focus) svg.appendChild(el("text",{x:x,y:y(v)-7,"text-anchor":"middle","font-family":MONO,"font-size":11.5,"font-weight":700,fill:s.gold?C.taupe:s.m.c},v));
+    });
+    svg.appendChild(el("text",{x:cx,y:H-B+26,"text-anchor":"middle","font-family":MONO,"font-size":16,"font-weight":700,fill:C.navy},lb));
+    svg.appendChild(el("text",{x:cx,y:H-B+45,"text-anchor":"middle","font-family":MONO,"font-size":11.5,fill:C.taupe},"gold "+GOLD[i]));
+  });
+  svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(0),y2:y(0),stroke:C.navy,"stroke-width":1.6}));
+  document.getElementById("dist-ttl").textContent=distState.ttl;
+  var lg=document.getElementById("dist-legend");
+  lg.innerHTML='<span class="lg">Gold answers</span>'+DIST.map(function(m){
+    var on=distState.shown.indexOf(m.k)>=0;
+    return '<span style="opacity:'+(on?1:.35)+'"><i style="display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(20,38,59,.25);background:'+m.c+'"></i>'+m.n+'</span>';}).join("");
+}
+
+/* ---------- scrolly 2: two forgetting curves ---------- */
+var X=[0,99,300,900];
+var RET={tv:{n:"TextVQA (300 q, short answer)",c:C.a,v:[83.56,82.78,82.45,81.83],seeds:[null,null,[82.33,82.56],[81.33,82.33]],base:84.22},
+         mm:{n:"MMBench (500 q, multiple choice)",c:C.good,v:[87.40,87.20,87.20,87.80],seeds:[null,null,[87.40,87.00],[88.00,87.60]],base:88.40}};
+var RET_STEPS=[
+  {series:["tv"],base:false,ttl:"TextVQA · more replay, lower score"},
+  {series:["tv"],base:true,ttl:"Take fine-tuning out first: base → replay 0 drops only 0.66"},
+  {series:["tv","mm"],base:true,ttl:"Second probe MMBench · no movement"},
+  {series:["tv","mm"],base:true,ttl:"The loss is short-answer format, not ability"}];
+var retState=RET_STEPS[0];
+function drawRet(){
+  var svg=document.getElementById("ret"); clear(svg);
+  var W=720,H=360,L=56,R=150,T=24,B=64,pw=W-L-R,ph=H-T-B;
+  var lo=80,hi=90, PAD=36, y=function(v){return T+ph-((v-lo)/(hi-lo))*ph;}, x=function(k){return L+PAD+(k/900)*(pw-2*PAD);};
+  [80,82,84,86,88,90].forEach(function(t){
+    svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:C.rule}));
+    svg.appendChild(el("text",{x:L-10,y:y(t)+4,"text-anchor":"end","font-family":MONO,"font-size":11,fill:C.taupe},t));
+  });
+  X.forEach(function(k){
+    svg.appendChild(el("line",{x1:x(k),x2:x(k),y1:y(lo),y2:y(lo)+6,stroke:C.navy}));
+    svg.appendChild(el("text",{x:x(k),y:H-B+26,"text-anchor":"middle","font-family":MONO,"font-size":13,"font-weight":700,fill:C.navy},k+""));
+  });
+  svg.appendChild(el("text",{x:L+pw/2,y:H-B+46,"text-anchor":"middle","font-family":MONO,"font-size":11.5,fill:C.taupe},"Replay examples (0 = A-server; 300 / 900 are two-seed means)"));
+  svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(lo),y2:y(lo),stroke:C.navy,"stroke-width":1.6}));
+  svg.appendChild(el("text",{x:L,y:T-8,"font-family":MONO,"font-size":11,fill:C.taupe},"y-axis starts at 80"));
+  ["tv","mm"].forEach(function(key){
+    var s=RET[key], on=retState.series.indexOf(key)>=0; if(!on)return;
+    var path="M"+X.map(function(k,i){return x(k).toFixed(1)+" "+y(s.v[i]).toFixed(1);}).join(" L");
+    svg.appendChild(el("path",{d:path,fill:"none",stroke:s.c,"stroke-width":2.5,"stroke-linejoin":"round"}));
+    X.forEach(function(k,i){
+      var low=s.v[i];
+      if(s.seeds[i]) s.seeds[i].forEach(function(sv,q){low=Math.min(low,sv);svg.appendChild(el("circle",{cx:x(k)+(q?8:-8),cy:y(sv),r:3.2,fill:C.card,stroke:s.c,"stroke-width":1.6}));});
+      svg.appendChild(el("circle",{cx:x(k),cy:y(s.v[i]),r:5.5,fill:s.c,stroke:C.card,"stroke-width":2}));
+      var dy=18;
+      svg.appendChild(el("text",{x:x(k),y:y(low)+dy,"text-anchor":"middle","font-family":MONO,"font-size":11.5,"font-weight":700,fill:s.c},s.v[i].toFixed(2)));
+    });
+    var last=s.v[X.length-1]-s.v[0];
+    svg.appendChild(el("text",{x:W-R+14,y:y(s.v[X.length-1])+4,"font-family":MONO,"font-size":12,"font-weight":700,fill:s.c},(last>=0?"+":"")+last.toFixed(2)));
+    svg.appendChild(el("text",{x:W-R+14,y:y(s.v[X.length-1])+19,"font-size":10.5,fill:C.taupe},"vs replay 0"));
+    if(retState.base){
+      svg.appendChild(el("circle",{cx:x(0),cy:y(s.base),r:5,fill:C.card,stroke:s.c,"stroke-width":2,"stroke-dasharray":"2 2"}));
+      svg.appendChild(el("line",{x1:x(0),x2:x(0),y1:y(s.base),y2:y(s.v[0]),stroke:s.c,"stroke-width":1.4,"stroke-dasharray":"3 3"}));
+      svg.appendChild(el("text",{x:x(0)+9,y:y(s.base)+4,"font-family":MONO,"font-size":10.5,fill:C.taupe},"base "+s.base.toFixed(2)+"  (fine-tuning itself "+(s.v[0]-s.base).toFixed(2)+")"));
+    }
+  });
+  document.getElementById("ret-ttl").textContent=retState.ttl;
+  var lg=document.getElementById("ret-legend");
+  lg.innerHTML=["tv","mm"].map(function(key){var on=retState.series.indexOf(key)>=0;
+    return '<span style="opacity:'+(on?1:.35)+'"><i style="display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(20,38,59,.25);background:'+RET[key].c+'"></i>'+RET[key].n+'</span>';}).join("")
+    +(retState.base?'<span style="color:#8C8577">hollow dot = base (untuned)</span>':'')+'<span style="color:#8C8577">small hollow dots = individual seeds</span>';
+}
+
+/* ---------- step driver (same mechanism as week 1) ---------- */
+function scrolly(id,onStep){
+  var root=document.getElementById(id); if(!root)return;
+  var steps=Array.prototype.slice.call(root.querySelectorAll(".step"));
+  var setActive=function(i){steps.forEach(function(s,j){s.classList.toggle("is-active",j===i);});onStep(i);};
+  setActive(0);
+  if(!("IntersectionObserver" in window))return;
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting)setActive(parseInt(e.target.getAttribute("data-step"),10));});
+  },{rootMargin:"-45% 0px -45% 0px",threshold:0});
+  steps.forEach(function(s){io.observe(s);});
+}
+scrolly("scrolly-dist",function(i){distState=DIST_STEPS[i]||DIST_STEPS[0];drawDist();});
+scrolly("scrolly-ret",function(i){retState=RET_STEPS[i]||RET_STEPS[0];drawRet();});
+})();
+</script>
+</body>
+</html>
