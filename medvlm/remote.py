@@ -115,7 +115,8 @@ class RemoteModel:
     def list_models(self) -> list[str]:
         return [m.get("id", "") for m in self._request("GET", "/models").get("data", [])]
 
-    def chat(self, prompt: str, image: Image.Image | None = None, max_new_tokens: int = 32) -> str:
+    def build_payload(self, prompt: str, image: Image.Image | None = None, max_new_tokens: int = 32) -> dict:
+        """真正发出去的请求体; 单独拆出来, 演示脚本展示的格式就是实际格式。"""
         if image is not None:
             content = [{"type": "image_url", "image_url": {"url": encode_image(image, self.max_pixels)}},
                        {"type": "text", "text": prompt}]
@@ -124,7 +125,10 @@ class RemoteModel:
         payload = {"model": self.model, "messages": [{"role": "user", "content": content}],
                    "max_tokens": max_new_tokens, "temperature": 0, "top_p": 1}
         payload.update(self.extra)
-        out = self._request("POST", "/chat/completions", payload)
+        return payload
+
+    def chat(self, prompt: str, image: Image.Image | None = None, max_new_tokens: int = 32) -> str:
+        out = self._request("POST", "/chat/completions", self.build_payload(prompt, image, max_new_tokens))
         msg = (out.get("choices") or [{}])[0].get("message") or {}
         text = msg.get("content")
         if isinstance(text, list):  # 少数服务端把 content 返回成分段列表

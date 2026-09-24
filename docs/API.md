@@ -140,3 +140,23 @@ python scripts/check_api.py
 - 管理员账号的密码、API key 只放环境变量，不写进仓库任何文件。
 - 评估数据里的 SLAKE 测试集和 PubMedQA 考卷半边只用于评估，不拿去训练 35B。
 - 在同学的容器里只动自己建的目录。
+
+## 八、给同学演示端到端测试
+
+一条命令跑完，生成一份 Markdown 报告 `outputs/api_demo/api_demo_report.md`，可以直接发给别人看。
+报告里有逐题结果、速度、以及**实际发出去的请求体**（图片已截短），同学可以对照检查服务端收到的格式。
+
+```bash
+# 模拟模式：还没部署模型时，脚本自己起一个假服务，证明我们这边的链路是通的
+python scripts/api_demo.py
+
+# 真实模式：模型部署好以后
+export MEDVLM_API_BASE=http://127.0.0.1:8000/v1
+python scripts/api_demo.py --model big35b
+python scripts/api_demo.py --model big35b --slake 10    # 再加 10 道真实 SLAKE 题
+```
+
+测试题是 5 道自带的题：3 道看图（颜色、形状、数数，图片由脚本画出来）和 2 道 PubMedQA 格式的文字题，不需要任何数据集。
+加 `--slake N` 会再跑 N 道真实 SLAKE 测试题。真实模式下报告还会按实测速度估算四张表全跑要多久。
+
+演示走的是和评估脚本完全相同的调用入口，演示通过，四张表的评估就能直接接上。
