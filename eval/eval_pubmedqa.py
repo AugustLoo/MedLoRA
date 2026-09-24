@@ -20,7 +20,7 @@ from tqdm import tqdm
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 from medvlm.metrics import normalize  # noqa: E402
-from medvlm.model import generate, load_model  # noqa: E402
+from medvlm.model import backend_info, generate, load_model  # noqa: E402
 from medvlm.prompts import PUBMEDQA  # noqa: E402
 
 LABELS = ["yes", "no", "maybe"]
@@ -66,7 +66,7 @@ def main():
             fout.write(json.dumps({"pubid": r["pubid"], "gold": r["final_decision"], "pred": lab, "raw": raw}) + "\n")
 
     summary = {
-        "model": args.model, "adapter": args.adapter, "n": len(golds),
+        "model": args.model, "adapter": args.adapter, "backend": backend_info(model), "n": len(golds),
         "accuracy": round(100 * accuracy_score(golds, preds), 2),
         "macro_f1": round(100 * f1_score(golds, preds, labels=LABELS, average="macro"), 2),
         "pred_dist": dict(Counter(preds)), "gold_dist": dict(Counter(golds)),

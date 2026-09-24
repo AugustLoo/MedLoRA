@@ -18,7 +18,7 @@ from tqdm import tqdm
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 from medvlm.metrics import vqa_accuracy  # noqa: E402
-from medvlm.model import generate, load_model  # noqa: E402
+from medvlm.model import backend_info, generate, load_model  # noqa: E402
 from medvlm.prompts import GENERAL_VQA  # noqa: E402
 
 
@@ -48,7 +48,8 @@ def main():
             fout.write(json.dumps({"question_id": r.get("question_id"), "question": r["question"],
                                    "golds": list(r["answers"]), "pred": pred, "score": s}) + "\n")
 
-    summary = {"model": args.model, "adapter": args.adapter, "n": len(scores), "seed": args.seed,
+    summary = {"model": args.model, "adapter": args.adapter, "backend": backend_info(model),
+               "n": len(scores), "seed": args.seed,
                "textvqa_acc": round(100 * sum(scores) / len(scores), 2)}
     (out_dir / f"textvqa_{args.tag}.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(json.dumps(summary, indent=2))

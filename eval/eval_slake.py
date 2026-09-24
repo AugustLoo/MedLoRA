@@ -22,7 +22,7 @@ from tqdm import tqdm
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 from medvlm import metrics as M  # noqa: E402
-from medvlm.model import generate, load_model  # noqa: E402
+from medvlm.model import backend_info, generate, load_model  # noqa: E402
 from medvlm.prompts import slake_prompt  # noqa: E402
 from medvlm.slake import load_split, open_image  # noqa: E402
 
@@ -81,7 +81,7 @@ def main():
 
     summary = {
         "model": args.model, "adapter": args.adapter, "split": args.split, "n": len(rows),
-        "load_4bit": args.load_4bit, "max_pixels": args.max_pixels,
+        "load_4bit": args.load_4bit, "max_pixels": args.max_pixels, "backend": backend_info(model),
         "seconds": round(time.time() - t0, 1),
         "metrics": {k: mean(v) for k, v in agg.items()},
         "n_closed": len(agg["closed_acc"]), "n_open": len(agg["open_em"]),

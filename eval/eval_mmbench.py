@@ -31,7 +31,7 @@ from tqdm import tqdm
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
-from medvlm.model import generate, load_model  # noqa: E402
+from medvlm.model import backend_info, generate, load_model  # noqa: E402
 from medvlm.prompts import MMBENCH  # noqa: E402
 
 DATASET = "lmms-lab/MMBench"
@@ -96,7 +96,7 @@ def main():
                                    "score": s}, ensure_ascii=False) + "\n")
 
     summary = {
-        "model": args.model, "adapter": args.adapter, "n": len(scores), "seed": args.seed,
+        "model": args.model, "adapter": args.adapter, "backend": backend_info(model), "n": len(scores), "seed": args.seed,
         "dataset": f"{DATASET}/{CONFIG}/{SPLIT}",
         "mmbench_acc": round(100 * sum(scores) / len(scores), 2),
         "unparsed": sum(1 for line in open(out_dir / f"mmbench_{args.tag}_preds.jsonl", encoding="utf-8")
