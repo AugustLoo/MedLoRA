@@ -75,6 +75,7 @@ td.best{font-weight:700;color:var(--c-c1)} td.best2{font-weight:700;color:var(--
 td.bad{color:var(--c-red);font-weight:700} td.ok{color:var(--c-good);font-weight:700}
 tbody tr:last-child td{border-bottom:0}
 tbody tr.hl{background:#F3EAF6}
+#ops td:last-child{white-space:normal;min-width:420px}
 
 /* scrolly */
 .scrolly{max-width:1160px;margin:40px auto 0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr);gap:40px;align-items:start}
@@ -329,36 +330,46 @@ footer a{color:var(--ink-soft)}
   <div class="srcline"><span class="en">docs/cards/MODEL_CARD.md</span> · <span class="en">docs/cards/DATA_CARD.md</span> · <span class="en">docs/refs.bib</span> · <span class="en">docs/report.md</span></div>
 </section>
 
-<!-- ============================ 10 Candidly ============================ -->
+<!-- ============================ 10 Summary ============================ -->
 <section class="section" id="ops">
   <div class="prose">
-    <div class="kicker">10 · Candidly</div>
-    <h2>Where the time went</h2>
-    <p class="lede">Six server runs in two weeks. The first four were slow not because of the experiments, but because this was our first time on the college server and we hit a series of pitfalls. They are recorded here because one of them affects future scheduling.</p>
-    <p><strong>The fake preprocessing hang.</strong> The progress bar sat at 0% for a long time, but the framework only refreshes it every thousand examples; it was working all along. Two healthy runs were killed because of this. We found a check that does not rely on the progress bar (the process's cumulative bytes read) and reduced the batch size so the bar actually moves.</p>
-    <p><strong>Thread oversubscription.</strong> One image takes 0.021 s with 1 thread and 7.862 s with 128 threads, a 374× difference; the default is 64. This is now fixed in the configs.</p>
-    <p><strong>Double-launched evaluation.</strong> The parent of an <span class="en">&amp;&amp;</span> chain was still waiting for training to finish when I added a separate wait loop. When training exited, both triggered evaluation, two processes wrote to the same file, and an hour was lost. The rule now is to check that nothing else is waiting before launching.</p>
-    <p><strong>The one we could not solve at first:</strong> same machine, same model, C1 ran at 4.7 s per step and the next three runs at 38–40 s per step, eight times slower. We ruled out seven causes: dual GPU, memory, disk, network, threads, VRAM fluctuation and GPU performance (measured 68.5 TFLOPS, normal). The stack showed it stuck in the backward pass with GPU utilisation at only 5%. <strong>The seed run gave the answer</strong>: it took 45 minutes, 2.8 s per step, while another user's job was idle. Across four runs, the three slow ones all coincided with that other account's job saturating both GPUs, and the two fast ones ran when it was absent or idle. It is GPU time-sharing, not our configuration. Correlation is not proof, but the operating rule is set: check other users' utilisation before launching, and run when the GPU is free.</p>
+    <div class="kicker">10 · Summary</div>
+    <h2>What was done in the last two weeks</h2>
+    <p class="lede">Six pieces of work since the last report. The first three are experiments; the last three make the results sound and ready to hand in.</p>
   </div>
-  <div class="srcline"><span class="en">docs/SERVER.md</span> · operations notes section, all written up as documentation</div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>What was done</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>① Split PubMedQA</td><td>1,000 questions split in half by label, one half for training and one for testing only; the split is committed and protected. Earlier models were re-scored on it without re-running</td></tr>
+        <tr><td>② Experiment C1: add 900 three-class text questions</td><td>Macro-F1 <strong>51.5 → 61.1</strong>, maybe correct 6 → 19, gold-no-answered-yes 63 → 26; last week's claim confirmed</td></tr>
+        <tr><td>③ Experiment C2: the replay curve</td><td>Four points at 0 / 99 / 300 / 900, two seeds each at 300 and 900; <strong>300 examples give 90% of the effect</strong></td></tr>
+        <tr><td>④ Control run A-server</td><td>Experiment A re-run on the server; all five metrics within half a point, so results from both machines can be compared</td></tr>
+        <tr><td>⑤ Second forgetting probe, MMBench</td><td>New evaluation script, added as the fourth table; replay costs nothing on it, which overturned last week's worry about TextVQA</td></tr>
+        <tr><td>⑥ Deliverables and server workflow</td><td>Model card, data card, Related Work, all 29 references checked, report v0.9; found why training was sometimes slow (another account's job occupying the GPU) and documented it in SERVER.md; about one hour per run when the GPU is free</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="srcline"><span class="en">results/README.md</span> · <span class="en">docs/report.md</span> sections 5.5–5.6 · <span class="en">docs/SERVER.md</span></div>
 </section>
 
-<!-- ============================ 11 Next steps ============================ -->
+<!-- ============================ 11 Plan ============================ -->
 <section class="section deep" id="next">
   <div class="prose">
-    <div class="kicker">11 · Next steps</div>
-    <h2>The curve is done; next, a different dimension</h2>
+    <div class="kicker">11 · Plan</div>
+    <h2>The plan from here</h2>
+    <p class="lede">The replay curve is finished. Next, a different direction: find out whether other training settings change the result, and close the remaining blind spot in the evaluation.</p>
   </div>
   <div class="card next">
     <h3>In priority order</h3>
     <ol>
-      <li><strong>Two items closed this week.</strong> A second random seed was added at both ends of the curve (two runs each at 300 and 900). Macro-F1 differs by 0.7 / 0.4 between seeds, and both "saturation at 300" and "small budgets over-correct" hold under the widened noise yardstick. The point between 0 and 300 was added at 99: about 60% of the gain, the highest maybe recall, and the furthest push on yes recall. The shape of the curve is settled.</li>
-      <li><strong>Group D ablations are now affordable.</strong> When the other job is idle, one run takes about an hour: rank 8 / 32, epochs 2 / 4 and learning rate, one run each. One night covers a group and answers which factor matters.</li>
-      <li><strong>An open-ended generation probe.</strong> TextVQA and MMBench both have short outputs, so neither can see drift in open-ended description. This is the only case not yet covered.</li>
-      <li><strong>Waiting for the teammate's CheXpert Plus subset</strong> (week 5) → experiment B3, image-text CPT filtered by alignment score.</li>
+      <li><strong>Next week · Group D ablations.</strong> Starting from the 300-replay setting, vary LoRA rank (8 / 32), number of epochs (2 / 4) and learning rate, one run each, to find which factor matters most. About one hour per run when the GPU is free, so one night covers a group.</li>
+      <li><strong>Next week · An open-ended generation probe.</strong> TextVQA and MMBench both have short answers, so neither can see degradation in long descriptions. This is the only case not yet covered.</li>
+      <li><strong>Week 5 · Experiment B3.</strong> Once the teammate's CheXpert Plus subset arrives, run larger-scale image-text pre-training with data filtered by image-text alignment score.</li>
+      <li><strong>Ongoing · The report.</strong> Each finished group goes into the matching report section; the report reaches v1.0 by the week 3 meeting.</li>
     </ol>
   </div>
-  <div class="srcline">About one hour per run when the other job is idle, overnight when it is saturated. Before each run, check other users' utilisation in nvidia-smi, then confirm nothing else is waiting.</div>
+  <div class="srcline">Check other users' utilisation in nvidia-smi before launching; about one hour per run when the GPU is free.</div>
 </section>
 
 <footer>
