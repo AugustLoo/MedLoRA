@@ -163,7 +163,7 @@ def load(args):
     log(f"可见 GPU {n_gpu} 张 (CUDA_VISIBLE_DEVICES={os.environ.get('CUDA_VISIBLE_DEVICES', '未设置')}), 每张上限 {args.max_memory}")
     model = AutoModelForImageTextToText.from_pretrained(
         args.model, trust_remote_code=True, dtype=torch.bfloat16, device_map="auto",
-        max_memory={i: args.max_memory for i in range(n_gpu)}, attn_implementation="sdpa")
+        max_memory={i: args.max_memory for i in range(n_gpu)})  # 不指定: 各子模块自选 (时间序列模块不支持 sdpa, 指定会报错)
     model.config.use_cache = False
     for p in model.parameters():
         p.requires_grad_(False)
