@@ -1,0 +1,193 @@
+{
+  "slake": {
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+    "adapter": null,
+    "split": "test",
+    "n": 1061,
+    "load_4bit": false,
+    "max_pixels": 401408,
+    "backend": {
+      "backend": "api",
+      "api_base": "http://172.17.0.1:23333/v1",
+      "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+      "max_pixels": 401408,
+      "extra": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      }
+    },
+    "seconds": 312.7,
+    "metrics": {
+      "open_em": 67.13,
+      "open_recall": 75.33,
+      "open_f1": 75.18,
+      "closed_acc": 84.38
+    },
+    "n_closed": 416,
+    "n_open": 645,
+    "by_modality": {
+      "CT": {
+        "open_recall": 76.9,
+        "closed_acc": 78.97
+      },
+      "X-Ray": {
+        "open_recall": 71.79,
+        "closed_acc": 89.47
+      },
+      "MRI": {
+        "open_recall": 78.69,
+        "closed_acc": 90.91
+      }
+    }
+  },
+  "textvqa": {
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+    "adapter": null,
+    "backend": {
+      "backend": "api",
+      "api_base": "http://172.17.0.1:23333/v1",
+      "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+      "max_pixels": 602112,
+      "extra": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      }
+    },
+    "n": 300,
+    "seed": 42,
+    "textvqa_acc": 88.78
+  },
+  "pubmedqa": {
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+    "adapter": null,
+    "backend": {
+      "backend": "api",
+      "api_base": "http://172.17.0.1:23333/v1",
+      "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+      "max_pixels": 401408,
+      "extra": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      }
+    },
+    "n": 1000,
+    "accuracy": 80.4,
+    "macro_f1": 63.84,
+    "pred_dist": {
+      "yes": 591,
+      "no": 346,
+      "maybe": 63
+    },
+    "gold_dist": {
+      "yes": 552,
+      "no": 338,
+      "maybe": 110
+    },
+    "unparsed": 0
+  },
+  "mmbench": {
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+    "adapter": null,
+    "backend": {
+      "backend": "api",
+      "api_base": "http://172.17.0.1:23333/v1",
+      "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+      "max_pixels": 602112,
+      "extra": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      }
+    },
+    "n": 500,
+    "seed": 42,
+    "dataset": "lmms-lab/MMBench/en/dev",
+    "mmbench_acc": 93.6,
+    "unparsed": 1,
+    "by_category": {
+      "action_recognition": {
+        "n": 23,
+        "acc": 100.0
+      },
+      "attribute_comparison": {
+        "n": 17,
+        "acc": 100.0
+      },
+      "attribute_recognition": {
+        "n": 38,
+        "acc": 94.74
+      },
+      "celebrity_recognition": {
+        "n": 40,
+        "acc": 100.0
+      },
+      "function_reasoning": {
+        "n": 44,
+        "acc": 95.45
+      },
+      "future_prediction": {
+        "n": 13,
+        "acc": 61.54
+      },
+      "identity_reasoning": {
+        "n": 17,
+        "acc": 100.0
+      },
+      "image_emotion": {
+        "n": 19,
+        "acc": 94.74
+      },
+      "image_quality": {
+        "n": 25,
+        "acc": 72.0
+      },
+      "image_scene": {
+        "n": 56,
+        "acc": 100.0
+      },
+      "image_style": {
+        "n": 29,
+        "acc": 89.66
+      },
+      "image_topic": {
+        "n": 14,
+        "acc": 100.0
+      },
+      "nature_relation": {
+        "n": 23,
+        "acc": 95.65
+      },
+      "object_localization": {
+        "n": 35,
+        "acc": 97.14
+      },
+      "ocr": {
+        "n": 15,
+        "acc": 93.33
+      },
+      "physical_property_reasoning": {
+        "n": 19,
+        "acc": 94.74
+      },
+      "physical_relation": {
+        "n": 9,
+        "acc": 100.0
+      },
+      "social_relation": {
+        "n": 13,
+        "acc": 92.31
+      },
+      "spatial_relationship": {
+        "n": 22,
+        "acc": 81.82
+      },
+      "structuralized_imagetext_understanding": {
+        "n": 29,
+        "acc": 89.66
+      }
+    }
+  }
+}
