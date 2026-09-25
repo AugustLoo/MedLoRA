@@ -102,3 +102,36 @@ LoRA 挂在线性注意力的投影层上, LMDeploy 能否直接加载这种 ada
 SFT 压掉 maybe (幅度小得多)、回放 300 修复 (且不过冲)、主任务零代价、代价只在短答格式。
 合并后的两份完整模型在 `/home/ubuntu/chunqian/merged/` (共约 146 GB), 需要时可删, adapter 在 `outputs/` 里, 随时能重新合并。
 
+## D 组消融 (35B, 2026-09-26 起)
+
+在回放 300 的设置上每次只改一样, 对照组是已跑过的 `interns2_mix_300`:
+
+| 名字 | 改动 | 问题 |
+|---|---|---|
+| ep1 | 3 轮 → 1 轮 | 是否根本不用练 3 轮 |
+| attn | LoRA 只挂注意力, 不挂共享专家 | 混合专家模型特有: 共享专家的 LoRA 有没有用 |
+| r8 / r32 | rank 16 → 8 / 32 (alpha 同比) | 容量 |
+| lr5e-5 / lr2e-4 | 学习率减半 / 加倍 | 步长 |
+
+`train/interns2/ablation.sh` 全自动跑完一轮的全部步骤 (训练 → 合并 → 服务 → 评估 → 停服务 → 删合并模型), 评估也在主机上做,
+不用在两个窗口之间切换。可重复运行, 做完的自动跳过。每轮约 3 小时 (ep1 约 1.5 小时), 6 轮约 15-17 小时, 期间同学的服务停着。
+
+**一次性准备 (ubuntu 主机):**
+
+```bash
+conda activate /home/ubuntu/chunqian/envs/s2train
+pip install datasets scikit-learn -i https://pypi.tuna.tsinghua.edu.cn/simple
+python -c "import transformers, datasets, sklearn; print(transformers.__version__, datasets.__version__)"   # transformers 必须仍是 5.2.0
+
+# 评估数据: 三个 HF 数据集的缓存从 user0 容器拷到主机 (放我们自己的 HF_HOME, 不碰 ~/.cache)
+mkdir -p /home/ubuntu/chunqian/hf
+ssh -p 20322 user0@127.0.0.1 "du -sh /home/user0/.cache/huggingface/hub/datasets--*"
+ssh -p 20322 user0@127.0.0.1 "tar -C /home/user0/.cache/huggingface -cf - hub/datasets--qiaojin--PubMedQA hub/datasets--lmms-lab--textvqa hub/datasets--lmms-lab--MMBench" | tar -C /home/ubuntu/chunqian/hf -xf -
+
+# SLAKE 测试集: 让主机上的 data/raw/SLAKE 指到已经拷过来的图片
+cd /home/ubuntu/chunqian/MedLoRA && ln -sfn /home/ubuntu/chunqian/data/SLAKE data/raw/SLAKE && ls data/raw/SLAKE/test.json
+```
+
+**开跑:** 停同学的服务, 在 tmux 里 `bash train/interns2/ablation.sh`。进度 `tail -3 /home/ubuntu/chunqian/logs/ablation.log`,
+每轮的训练 / 合并 / 服务 / 评估日志在同目录 `interns2_abl_<名字>.*.log`。全部跑完后 `start_server.sh` 把同学的服务开回来。
+

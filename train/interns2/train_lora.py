@@ -49,10 +49,13 @@ from torch.utils.data import DataLoader, Dataset
 
 MODEL_DEFAULT = "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview"
 # LoRA 目标: 只在语言模型里 (不碰 model.visual / model.time_series)
-LORA_TARGET = (r"model\.language_model\.layers\.\d+\."
-               r"(self_attn\.(q_proj|k_proj|v_proj|o_proj)"
-               r"|linear_attn\.(in_proj_qkv|in_proj_z|out_proj)"
-               r"|mlp\.shared_expert\.(gate_proj|up_proj|down_proj))")
+_ATTN = (r"self_attn\.(q_proj|k_proj|v_proj|o_proj)"
+         r"|linear_attn\.(in_proj_qkv|in_proj_z|out_proj)")
+_SHARED = r"|mlp\.shared_expert\.(gate_proj|up_proj|down_proj)"
+LORA_TARGETS = {
+    "attn_shared": r"model\.language_model\.layers\.\d+\.(" + _ATTN + _SHARED + ")",  # 默认, 主实验用的
+    "attn": r"model\.language_model\.layers\.\d+\.(" + _ATTN + ")",                 # 消融: 不挂共享专家
+}
 MODEL_KEYS = ("input_ids", "attention_mask", "pixel_values", "image_grid_thw")
 
 
@@ -171,7 +174,7 @@ def load(args):
     model.enable_input_require_grads()
 
     cfg = LoraConfig(r=args.rank, lora_alpha=args.alpha, lora_dropout=args.dropout,
-                     target_modules=LORA_TARGET, bias="none")
+                     target_modules=LORA_TARGETS[args.targets], bias="none")
     model = get_peft_model(model, cfg)
     trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
     total = sum(p.numel() for p in model.parameters())
@@ -204,6 +207,8 @@ def main():
     ap.add_argument("--rank", type=int, default=16)
     ap.add_argument("--alpha", type=int, default=32)
     ap.add_argument("--dropout", type=float, default=0.05)
+    ap.add_argument("--targets", choices=sorted(LORA_TARGETS), default="attn_shared",
+                    help="LoRA 挂在哪些层; attn = 只挂注意力 (消融)")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--max-memory", default="19GiB", help="每张卡放权重的上限, 其余留给激活")
     ap.add_argument("--path-map", action="append", default=[],
