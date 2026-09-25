@@ -94,6 +94,25 @@ def main():
             oidx["weight_map"][k] = extra_fn
         oidx_fn.write_text(json.dumps(oidx, indent=2))
         log(f"已补 {len(missing)} 个张量到 {extra_fn}")
+    # 精度核对: 基座里个别张量是 F32 (例如 lm_head.weight), 以 bf16 加载后会被存成 BF16。
+    # 这些张量都不是 LoRA 目标、训练没动过, 从基座原样拷回, 保证与同学部署的模型逐字节一致。
+    from safetensors.torch import load_file
+    oidx = json.loads(oidx_fn.read_text())
+    fixed = []
+    for k, bfn in bidx["weight_map"].items():
+        ofn = oidx["weight_map"].get(k)
+        if ofn is None:
+            continue
+        with safe_open(str(base / bfn), framework="pt") as fb, safe_open(str(out / ofn), framework="pt") as fo:
+            if fb.get_slice(k).get_dtype() == fo.get_slice(k).get_dtype():
+                continue
+            src = fb.get_tensor(k)
+        shard = load_file(str(out / ofn))
+        log(f"精度不一致, 从基座拷回: {k} {shard[k].dtype} -> {src.dtype}, 最大差 {(shard[k].float() - src.float()).abs().max().item():.3g}")
+        shard[k] = src
+        save_file(shard, str(out / ofn), metadata={"format": "pt"})
+        fixed.append(k)
+    log(f"精度核对: 拷回 {len(fixed)} 个张量")
     size = sum(f.stat().st_size for f in out.glob("*.safetensors")) / 1e9
     log(f"完成: {out} 权重共 {size:.1f} GB (基座 73.2 GB)")
 
