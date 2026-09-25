@@ -1,0 +1,193 @@
+{
+  "slake": {
+    "model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+    "adapter": null,
+    "split": "test",
+    "n": 1061,
+    "load_4bit": false,
+    "max_pixels": 401408,
+    "backend": {
+      "backend": "api",
+      "api_base": "http://172.17.0.1:23334/v1",
+      "served_model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+      "max_pixels": 401408,
+      "extra": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      }
+    },
+    "seconds": 1339.0,
+    "metrics": {
+      "open_em": 86.36,
+      "open_recall": 90.54,
+      "open_f1": 90.14,
+      "closed_acc": 94.47
+    },
+    "n_closed": 416,
+    "n_open": 645,
+    "by_modality": {
+      "CT": {
+        "open_recall": 91.44,
+        "closed_acc": 92.52
+      },
+      "X-Ray": {
+        "open_recall": 89.51,
+        "closed_acc": 97.37
+      },
+      "MRI": {
+        "open_recall": 90.71,
+        "closed_acc": 95.45
+      }
+    }
+  },
+  "textvqa": {
+    "model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+    "adapter": null,
+    "backend": {
+      "backend": "api",
+      "api_base": "http://172.17.0.1:23334/v1",
+      "served_model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+      "max_pixels": 602112,
+      "extra": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      }
+    },
+    "n": 300,
+    "seed": 42,
+    "textvqa_acc": 88.22
+  },
+  "pubmedqa": {
+    "model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+    "adapter": null,
+    "backend": {
+      "backend": "api",
+      "api_base": "http://172.17.0.1:23334/v1",
+      "served_model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+      "max_pixels": 401408,
+      "extra": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      }
+    },
+    "n": 1000,
+    "accuracy": 80.9,
+    "macro_f1": 62.55,
+    "pred_dist": {
+      "yes": 601,
+      "no": 356,
+      "maybe": 43
+    },
+    "gold_dist": {
+      "yes": 552,
+      "no": 338,
+      "maybe": 110
+    },
+    "unparsed": 0
+  },
+  "mmbench": {
+    "model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+    "adapter": null,
+    "backend": {
+      "backend": "api",
+      "api_base": "http://172.17.0.1:23334/v1",
+      "served_model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+      "max_pixels": 602112,
+      "extra": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      }
+    },
+    "n": 500,
+    "seed": 42,
+    "dataset": "lmms-lab/MMBench/en/dev",
+    "mmbench_acc": 94.4,
+    "unparsed": 0,
+    "by_category": {
+      "action_recognition": {
+        "n": 23,
+        "acc": 100.0
+      },
+      "attribute_comparison": {
+        "n": 17,
+        "acc": 100.0
+      },
+      "attribute_recognition": {
+        "n": 38,
+        "acc": 97.37
+      },
+      "celebrity_recognition": {
+        "n": 40,
+        "acc": 100.0
+      },
+      "function_reasoning": {
+        "n": 44,
+        "acc": 95.45
+      },
+      "future_prediction": {
+        "n": 13,
+        "acc": 53.85
+      },
+      "identity_reasoning": {
+        "n": 17,
+        "acc": 100.0
+      },
+      "image_emotion": {
+        "n": 19,
+        "acc": 94.74
+      },
+      "image_quality": {
+        "n": 25,
+        "acc": 68.0
+      },
+      "image_scene": {
+        "n": 56,
+        "acc": 100.0
+      },
+      "image_style": {
+        "n": 29,
+        "acc": 89.66
+      },
+      "image_topic": {
+        "n": 14,
+        "acc": 100.0
+      },
+      "nature_relation": {
+        "n": 23,
+        "acc": 100.0
+      },
+      "object_localization": {
+        "n": 35,
+        "acc": 100.0
+      },
+      "ocr": {
+        "n": 15,
+        "acc": 93.33
+      },
+      "physical_property_reasoning": {
+        "n": 19,
+        "acc": 89.47
+      },
+      "physical_relation": {
+        "n": 9,
+        "acc": 100.0
+      },
+      "social_relation": {
+        "n": 13,
+        "acc": 100.0
+      },
+      "spatial_relationship": {
+        "n": 22,
+        "acc": 86.36
+      },
+      "structuralized_imagetext_understanding": {
+        "n": 29,
+        "acc": 96.55
+      }
+    }
+  }
+}

@@ -95,3 +95,10 @@ LoRA 挂在线性注意力的投影层上, LMDeploy 能否直接加载这种 ada
 - 评估走「合并 → 起服务 → 接口」: `train/interns2/merge_lora.py` 把 adapter 并进权重存到 `/home/ubuntu/chunqian/merged/<名字>`,
   `train/interns2/serve.sh start <目录>` 用同学环境里的 LMDeploy 在 23334 端口起服务 (参数与他的 start_server.sh 相同),
   容器里 `MEDVLM_API_BASE=http://172.17.0.1:23334/v1` 跑四张表, 与基座评估路径完全一致。
+
+## 结果 (2026-09-26)
+
+三个模型都已评估完, 数字与结论在 `results/README.md` 最后两节。一句话: 3B 的四条结论在 35B 上全部复现 ——
+SFT 压掉 maybe (幅度小得多)、回放 300 修复 (且不过冲)、主任务零代价、代价只在短答格式。
+合并后的两份完整模型在 `/home/ubuntu/chunqian/merged/` (共约 146 GB), 需要时可删, adapter 在 `outputs/` 里, 随时能重新合并。
+
