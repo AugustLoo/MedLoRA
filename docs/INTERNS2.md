@@ -78,3 +78,20 @@ LoRA 挂在线性注意力的投影层上, LMDeploy 能否直接加载这种 ada
 
 1. 把 adapter 合并进权重, 存一份完整模型到我们目录 (约 69 GB), 用同学的 `start_server.sh` 换模型路径起服务, 走接口评估。
 2. 用 transformers 本地加载「基座 + adapter」在 0-3 号卡上直接生成, 评估脚本走本地模式 (慢, 但不依赖 LMDeploy)。
+
+## 记录 (2026-09-25)
+
+- 训练环境: 克隆同学的 inference 环境后, peft 升到 0.21, **transformers 必须降到 5.2.0** (模型自带代码按 5.2 写,
+  5.12 里 `create_causal_mask` 不收 `cache_position`); 不指定 `attn_implementation` (时间序列子模块不支持 sdpa)。
+- 冒烟: LoRA 挂 250 个线性层, 可训练 19,169,280 / 35,270,223,168 = 0.054%; 标签只覆盖答案 (`Head<|im_end|>`、`maybe<|im_end|>`);
+  batch 2 时显存峰值 16.9 / 18.1 / 18.1 / 20.4 GiB, 首步 83 秒 (编译), 之后约 11 秒一步。
+- 正式训练用 batch 4 × 累积 4 (与 3B 相同):
+
+| 轮 | 步数 | 用时 | 秒/步 | 末段 loss | 超长跳过 |
+|---|---|---|---|---|---|
+| interns2_mix_300 | 978 | 1 h 58 min | 5.75 | 0.053 | 0 |
+| interns2_mix_0 | 921 | 1 h 18 min | 4.97 | 0.029 | 0 |
+
+- 评估走「合并 → 起服务 → 接口」: `train/interns2/merge_lora.py` 把 adapter 并进权重存到 `/home/ubuntu/chunqian/merged/<名字>`,
+  `train/interns2/serve.sh start <目录>` 用同学环境里的 LMDeploy 在 23334 端口起服务 (参数与他的 start_server.sh 相同),
+  容器里 `MEDVLM_API_BASE=http://172.17.0.1:23334/v1` 跑四张表, 与基座评估路径完全一致。
