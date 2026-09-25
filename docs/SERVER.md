@@ -476,6 +476,17 @@ kill -ABRT <PID>                 # 打印所有线程的调用栈, 然后进程�
 - tmux 服务器本身会没 (`no server running on /tmp/tmux-20003/default`), 里面的任务跟着死。
   每次跑之前先 `tmux ls` 确认会话在。
 
+### 整包解压会把 data/raw 的符号链接换成空目录 (2026-09-25)
+
+服务器上 `data/raw` 是指向 `/workspace/chunqian/data` 的符号链接 (SLAKE 在 `/workspace/chunqian/data/SLAKE`)。
+用 `git archive HEAD` 打的整包里带着空目录 `data/raw/` (有 `.gitkeep`), GNU tar 默认会把同名的目录符号链接
+**替换成真目录**, 于是链接断掉, SLAKE 评估退回去联网下载, 在离线模式下报 `OfflineModeIsEnabled`。数据本身没有丢。
+
+- 解压整包一律加 `--keep-directory-symlink`: `tar -xzf ../xxx-update.tar.gz --keep-directory-symlink`
+- 已经断了就接回去 (只在 data/raw 里只剩 .gitkeep 时才动):
+  `[ "$(ls -A data/raw)" = ".gitkeep" ] && rm data/raw/.gitkeep && rmdir data/raw && ln -s /workspace/chunqian/data data/raw`
+- `data/processed` 同理, 训练前先 `ls -la data/processed` 确认训练数据还在。
+
 ### 三条流程纪律
 - 训练输出**不要**重定向进文件。tqdm 在非终端环境不刷新, 进度条永远停在第一帧, 看不出死活。
   在 tmux 里直接跑 (tmux 本身是终端), 事后用 `tmux capture-pane -p -t <会话> -S -400` 捞。
