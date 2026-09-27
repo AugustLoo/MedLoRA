@@ -8,6 +8,14 @@
 % issue/DOI for Med-PaLM M, article number/DOI for PubMedBERT, pages/DOI for VQA-RAD, OpenI,
 % MIMIC-CXR and Robins 1995. Venues for LoRA (ICLR 2022), InstructGPT and DPO (NeurIPS 2022/2023)
 % and EWC (PNAS 2017) are not stated on their arXiv pages and rest on general knowledge.
+%
+% ADDED AND VERIFIED 2026-09-27 (9 entries, for the 35B scaling check and the free-text probe in Section 5.7).
+% arXiv abstract pages: COCO (1405.0312), COCO Captions (1504.00325), CIDEr (1411.5726, page states CVPR 2015),
+% sparse MoE (1701.06538), Gated DeltaNet (2412.06464, page states ICLR 2025). ACL Anthology W04-1013: ROUGE
+% (Text Summarization Branches Out, pp. 74-81, Barcelona). Hugging Face model pages: Qwen3.5-35B-A3B (the BibTeX
+% below is copied from the page) and Intern-S2-Preview (35B, "continued pretrained from Qwen3.5", Apache 2.0; the
+% page gives no technical report, so the model page itself is cited). LMDeploy: BibTeX copied from the GitHub README.
+% Venues not stated on the arXiv pages and resting on general knowledge: COCO (ECCV 2014), sparse MoE (ICLR 2017).
 
 % ---------------- Parameter-efficient adaptation ----------------
 
@@ -331,4 +339,87 @@
   year      = {2019},
   eprint    = {1810.03993},
   archivePrefix = {arXiv}
+}
+
+% ---------------- 35B scaling check and free-text probe (added 2026-09-27) ----------------
+
+@misc{qwen2026qwen35,
+  title        = {{Qwen3.5}: Towards Native Multimodal Agents},
+  author       = {{Qwen Team}},
+  month        = {February},
+  year         = {2026},
+  howpublished = {\url{https://qwen.ai/blog?id=qwen3.5}},
+  note         = {Model card of Qwen3.5-35B-A3B: \url{https://huggingface.co/Qwen/Qwen3.5-35B-A3B}}
+}
+
+@misc{internlm2026interns2,
+  title        = {{Intern-S2-Preview}},
+  author       = {{InternLM Team}},
+  year         = {2026},
+  howpublished = {\url{https://huggingface.co/internlm/Intern-S2-Preview}},
+  note         = {35B scientific multimodal model continued-pretrained from Qwen3.5; model card, no technical report}
+}
+
+@inproceedings{shazeer2017moe,
+  title     = {Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer},
+  author    = {Shazeer, Noam and Mirhoseini, Azalia and Maziarz, Krzysztof and Davis, Andy and
+               Le, Quoc and Hinton, Geoffrey and Dean, Jeff},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2017},
+  eprint    = {1701.06538},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{yang2025gateddeltanet,
+  title     = {Gated Delta Networks: Improving {Mamba2} with Delta Rule},
+  author    = {Yang, Songlin and Kautz, Jan and Hatamizadeh, Ali},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2025},
+  eprint    = {2412.06464},
+  archivePrefix = {arXiv}
+}
+
+@misc{lmdeploy2023,
+  title        = {{LMDeploy}: A Toolkit for Compressing, Deploying, and Serving {LLM}},
+  author       = {{LMDeploy Contributors}},
+  year         = {2023},
+  howpublished = {\url{https://github.com/InternLM/lmdeploy}}
+}
+
+@inproceedings{lin2014coco,
+  title     = {Microsoft {COCO}: Common Objects in Context},
+  author    = {Lin, Tsung-Yi and Maire, Michael and Belongie, Serge and Bourdev, Lubomir and Girshick, Ross and
+               Hays, James and Perona, Pietro and Ramanan, Deva and Zitnick, C. Lawrence and Doll{\'a}r, Piotr},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year      = {2014},
+  eprint    = {1405.0312},
+  archivePrefix = {arXiv}
+}
+
+@article{chen2015cococaptions,
+  title   = {Microsoft {COCO} Captions: Data Collection and Evaluation Server},
+  author  = {Chen, Xinlei and Fang, Hao and Lin, Tsung-Yi and Vedantam, Ramakrishna and Gupta, Saurabh and
+             Doll{\'a}r, Piotr and Zitnick, C. Lawrence},
+  journal = {arXiv preprint arXiv:1504.00325},
+  year    = {2015}
+}
+
+@inproceedings{vedantam2015cider,
+  title     = {{CIDEr}: Consensus-based Image Description Evaluation},
+  author    = {Vedantam, Ramakrishna and Zitnick, C. Lawrence and Parikh, Devi},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2015},
+  eprint    = {1411.5726},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{lin2004rouge,
+  title     = {{ROUGE}: A Package for Automatic Evaluation of Summaries},
+  author    = {Lin, Chin-Yew},
+  booktitle = {Text Summarization Branches Out},
+  pages     = {74--81},
+  address   = {Barcelona, Spain},
+  publisher = {Association for Computational Linguistics},
+  year      = {2004},
+  url       = {https://aclanthology.org/W04-1013/}
 }
