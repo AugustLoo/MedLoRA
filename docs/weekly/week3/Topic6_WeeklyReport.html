@@ -284,33 +284,59 @@ footer a{color:var(--ink-soft)}
   <div class="prose">
     <div class="kicker">08 · 消融</div>
     <h2>D 组消融：改超参，远不如改数据</h2>
-    <p class="lede">在 35B 回放 300 的设置上每次只改一样，六轮全自动跑完，3 轮训练的每一轮连评估约 2 小时 20 分。</p>
-    <p><strong>数据配比的影响远大于任何训练设置。</strong>六轮的 macro-F1 都在 64 到 67 之间，全部比不掺题的 59.5 高 4.6 分以上；改超参最多挪 3 分，掺不掺题挪 8 分。</p>
-    <p><strong>唯一明显变差的是「练得不够」。</strong>只练 1 轮、学习率减半，maybe 照样答对 21、22 道，但 maybe 说得太多（1 轮时答了 96 次，标准只有 55），yes 召回掉到 75 左右——和 3B 只掺 99 道时一模一样：学会了可以说 maybe，还没学会什么时候说。多练也不再涨，容量加倍减半都一样。</p>
-    <p><strong>混合专家模型特有的发现：共享专家上的 LoRA 没有贡献。</strong>去掉它，macro-F1 和封闭题一分不差，可训练参数少四分之一。</p>
+    <p class="lede">在 35B 回放 300 的设置上每次只改一样，一共 6 轮；最关键的三个设置又各补了一个种子。</p>
+    <p><strong>先说一个意外：35B 换种子的波动比 3B 大。</strong>同一个设置跑两次，macro-F1 差 1.9 分（3B 是 0.7），maybe 答对差 7 道。所以 35B 上单次运行差 2 分以内的，都不能下结论。</p>
+    <p><strong>数据配比的影响远大于任何训练设置。</strong>10 轮掺了题的训练，macro-F1 都在 62 到 67 之间；改超参最多挪 3 分，掺不掺题挪 6 到 8 分。</p>
+    <p><strong>唯一可靠变差的是「练得不够」。</strong>只练 1 轮，两个种子都比对照低，医学题也低。但它是 maybe 说得太多还是太少，两个种子正好相反——只能说练得不够时这一类很不稳定。</p>
+    <p><strong>共享专家的 LoRA：看不出有用。</strong>两个种子平均只比对照低 0.6 分，是波动的三分之一。第一次「一分不差」是巧合，但结论不变：去掉它、少四分之一参数，测不出损失。</p>
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>轮</th><th>改动</th><th class="num">macro-F1</th><th class="num">maybe 答对</th><th class="num">SLAKE 封闭</th><th class="num">TextVQA</th><th>结论</th></tr></thead>
+      <thead><tr><th>设置</th><th class="num">种子 42</th><th class="num">种子 43</th><th class="num">均值</th><th class="num">SLAKE 封闭（两次）</th><th>结论</th></tr></thead>
       <tbody>
-        <tr class="hl"><td><strong>对照</strong></td><td>原设置</td><td class="num best">67.29</td><td class="num">22</td><td class="num">94.47</td><td class="num">86.67</td><td></td></tr>
-        <tr><td>ep1</td><td>3 轮 → 1 轮</td><td class="num bad">64.14</td><td class="num">22</td><td class="num bad">93.03</td><td class="num ok">87.44</td><td>练得不够</td></tr>
-        <tr><td>lr5e-5</td><td>学习率减半</td><td class="num bad">64.56</td><td class="num">21</td><td class="num bad">92.55</td><td class="num">86.67</td><td>练得不够</td></tr>
-        <tr><td>lr2e-4</td><td>学习率加倍</td><td class="num">66.28</td><td class="num">22</td><td class="num ok">95.19</td><td class="num">86.11</td><td>多练不再涨</td></tr>
-        <tr><td>r8</td><td>rank 16 → 8</td><td class="num">66.28</td><td class="num">23</td><td class="num">93.27</td><td class="num">87.44</td><td rowspan="2">容量不是瓶颈</td></tr>
-        <tr><td>r32</td><td>rank 16 → 32</td><td class="num">66.31</td><td class="num">24</td><td class="num">93.27</td><td class="num">87.11</td></tr>
-        <tr class="hl"><td><strong>attn</strong></td><td>只挂注意力，不挂共享专家</td><td class="num best">67.29</td><td class="num">25</td><td class="num">94.47</td><td class="num">86.00</td><td><strong>共享专家可以不挂</strong></td></tr>
-        <tr><td>参考</td><td>回放 0（不掺题）</td><td class="num bad">59.51</td><td class="num bad">4</td><td class="num">94.47</td><td class="num">88.22</td><td>掺题的作用</td></tr>
+        <tr class="hl"><td><strong>对照（回放 300）</strong></td><td class="num">67.29</td><td class="num">65.38</td><td class="num best">66.34</td><td class="num">94.47 / 93.99</td><td></td></tr>
+        <tr><td>只挂注意力</td><td class="num">67.29</td><td class="num">64.25</td><td class="num">65.77</td><td class="num">94.47 / 93.51</td><td>差 0.6，看不出损失</td></tr>
+        <tr><td>只练 1 轮</td><td class="num">64.14</td><td class="num">62.32</td><td class="num bad">63.23</td><td class="num bad">93.03 / 93.03</td><td><strong>两次都更差</strong></td></tr>
+        <tr><td>学习率减半</td><td class="num">64.56</td><td class="num">—</td><td class="num">—</td><td class="num">92.55</td><td>方向同上，单次</td></tr>
+        <tr><td>学习率加倍</td><td class="num">66.28</td><td class="num">—</td><td class="num">—</td><td class="num">95.19</td><td>在波动内，单次</td></tr>
+        <tr><td>rank 8 / 32</td><td class="num">66.28 / 66.31</td><td class="num">—</td><td class="num">—</td><td class="num">93.27 / 93.27</td><td>在波动内，单次</td></tr>
+        <tr><td>参考：回放 0</td><td class="num bad">59.51</td><td class="num">—</td><td class="num">—</td><td class="num">94.47</td><td>掺题的作用</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="srcline">PubMedQA 都只算考卷那一半 500 题。全部单次运行；3B 换种子时 macro-F1 波动约 0.7，SLAKE 封闭题 1 题 = 0.24 分。</div>
+  <div class="srcline">表中是 PubMedQA macro-F1（考卷半边 500 题）。种子 43 同时换了回放样本的抽样和训练种子，与 3B 的做法一致。</div>
+</section>
+
+<!-- ============================ 08b 开放式 ============================ -->
+<section class="section deep" id="oe">
+  <div class="prose">
+    <div class="kicker">09 · 新探针</div>
+    <h2>让它写一段话：通用描述没退化，<br>医学描述里藏着一个危险错误</h2>
+    <p class="lede">之前三个通用能力测试的答案都很短。这周加了第四个：让模型用两三句话描述一张图。</p>
+    <p><strong>日常图片（COCO，300 张）：没有退化。</strong>训练后的模型照样写 44 到 49 个词，基座 48 个；没有一条缩成几个字，没有一条拒答；和人工描述的相似度基本持平。</p>
+    <p><strong>医学图片（SLAKE，96 张）：只做短答微调的模型，把 44 张异常图里的 13 张说成了「正常」，基座只有 4 张。</strong>掺了 300 道三选一题的模型，两个种子分别只有 2 张和 4 张。我逐条看了那 13 张：比如两张胸片，基座和回放 300 都写了「心影增大，提示心脏扩大」，只做微调的模型写的是「心脏大小正常，肺野清晰」。</p>
+    <p>回放 300 也没有变得什么都报异常：12 张正常图里它说「正常」的有 5 张，基座是 3 张。而且五个训练后的模型里，<strong>PubMedQA 上越会说 maybe 的，描述里把异常说成正常的越少</strong>。在文字题上学到的「不要硬答」，迁移到了写报告上。</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>35B 模型</th><th class="num">COCO 相似度</th><th class="num">平均词数</th><th class="num">缩成短答</th><th class="num">部位说对</th><th class="num">异常说成正常</th><th class="num">PubMedQA F1</th></tr></thead>
+      <tbody>
+        <tr><td>基座</td><td class="num">65.79</td><td class="num">48.2</td><td class="num">0%</td><td class="num">96.9%</td><td class="num">4 / 44</td><td class="num">61.83</td></tr>
+        <tr><td>只做微调（回放 0）</td><td class="num">68.18</td><td class="num">46.0</td><td class="num">0%</td><td class="num">94.8%</td><td class="num bad">13 / 44</td><td class="num bad">59.51</td></tr>
+        <tr class="hl"><td><strong>回放 300 · 种子 42</strong></td><td class="num">68.84</td><td class="num">44.5</td><td class="num">0%</td><td class="num">94.8%</td><td class="num ok">2 / 44</td><td class="num best">67.29</td></tr>
+        <tr class="hl"><td><strong>回放 300 · 种子 43</strong></td><td class="num">68.01</td><td class="num">45.3</td><td class="num">0%</td><td class="num">93.8%</td><td class="num ok">4 / 44</td><td class="num">65.38</td></tr>
+        <tr><td>只挂注意力 · 种子 43</td><td class="num">66.85</td><td class="num">45.3</td><td class="num">0%</td><td class="num">92.7%</td><td class="num">10 / 44</td><td class="num">64.25</td></tr>
+        <tr><td>只练 1 轮 · 种子 43</td><td class="num">65.55</td><td class="num">49.0</td><td class="num">0%</td><td class="num">93.8%</td><td class="num">8 / 44</td><td class="num">62.32</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="srcline">「异常」从同一张图的封闭题推出（44 张异常、12 张正常）；「说成正常」用关键词判定，去掉「no evidence of ...」这类否定说法后再看；回放 0 的 13 例已人工核对。COCO 相似度是不带长度惩罚的 CIDEr。</div>
 </section>
 
 <!-- ============================ 09 总结 ============================ -->
 <section class="section deep" id="done">
   <div class="prose">
-    <div class="kicker">09 · 总结</div>
+    <div class="kicker">10 · 总结</div>
     <h2>这周做了什么</h2>
   </div>
   <div class="tbl">
@@ -322,7 +348,8 @@ footer a{color:var(--ink-soft)}
         <tr><td>③ 35B 训练流程</td><td>自写 LoRA 训练、合并、服务脚本，两轮训练共约 3 小时 16 分</td></tr>
         <tr><td>④ 35B 回放 0 / 300</td><td><strong>四条规律全部复现</strong>；回放 300 修好 maybe 且不过冲，危险错误各 13</td></tr>
         <tr><td>⑤ 报告 v1.0</td><td>新增 5.7 节「35B 复验」和消融表，摘要、实验矩阵、成本表、局限性同步更新</td></tr>
-        <tr><td>⑥ 35B 上的 D 组消融</td><td>6 轮全自动跑完：<strong>只有练得不够会变差</strong>（1 轮、学习率减半）；多练和改容量的影响都在波动内；共享专家的 LoRA 可以不挂</td></tr>
+        <tr><td>⑥ 35B 上的 D 组消融</td><td>6 轮 + 3 个补种子：<strong>只有练得不够会变差</strong>；多练、改容量都在波动内；共享专家的 LoRA 看不出有用</td></tr>
+        <tr><td>⑦ 开放式探针</td><td>新的第四个通用探针：长段描述没有退化；<strong>只做短答微调会把异常图说成正常（4 → 13），回放 300 拉回到 2 和 4</strong></td></tr>
       </tbody>
     </table>
   </div>
@@ -332,14 +359,14 @@ footer a{color:var(--ink-soft)}
 <!-- ============================ 10 计划 ============================ -->
 <section class="section" id="next">
   <div class="prose">
-    <div class="kicker">10 · 计划</div>
+    <div class="kicker">11 · 计划</div>
     <h2>接下来的计划</h2>
   </div>
   <div class="card next">
     <h3>按优先级</h3>
     <ol>
-      <li><strong>已完成 · 35B 消融写进报告 5.7 节。</strong>下一步给「只挂注意力」和「练得不够」各补一个种子，确认不是单次运行的偶然。</li>
-      <li><strong>下周 · 开放式生成的探针。</strong>两个通用能力探针的答案都很短，长段描述会不会退化还没测。35B 微调后 TextVQA 上多出 3 道答「unanswerable」，提示这件事值得测。</li>
+      <li><strong>本周 · 更新模型卡和数据卡。</strong>加入 35B、开放式探针和「异常说成正常」这一失败模式。</li>
+      <li><strong>下周 · 核实「异常说成正常」。</strong>现在是关键词判定、只人工核对了一组，请懂影像的同学或老师抽查一批；如果成立，它是报告里最有临床意义的一条。</li>
       <li><strong>有空 · 3B 上补同一组消融</strong>，和 35B 对照：哪些因素的影响随规模变化。</li>
       <li><strong>第 5 周 · 实验 B3</strong>，等队友的 CheXpert Plus 子集。</li>
     </ol>
