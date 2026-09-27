@@ -7,7 +7,7 @@
 两个任务, 同一套约定 (固定抽样、贪心解码、逐条预测入 outputs/eval/):
 
   coco   通用图片描述。lmms-lab/COCO-Caption2017 val 固定抽 300 张 (seed 42), 每张 5 条人工参考描述。
-         指标: CIDEr / ROUGE-L (与参考描述的相似度)、平均词数、少于 5 个词的比例 (「缩成短答」)、
+         指标: CIDEr (不带长度惩罚) / ROUGE-L / 参考实词召回 (与参考描述的内容相似度)、平均词数、少于 5 个词的比例 (「缩成短答」)、
                拒答比例 (unanswerable / cannot / not possible ...)、重复度 (distinct-2)。
   slake  医学图片描述。SLAKE 测试集全部 96 张图, 每张图的成像方式和身体部位是标注好的, 异常与否从同一张图的
          封闭题答案推出 (「Is the lung healthy? No」「Are there abnormalities? Yes」...)。不需要参考描述:
@@ -85,8 +85,10 @@ def ngrams(t: list[str], n: int) -> Counter:
     return Counter(tuple(t[i:i + n]) for i in range(len(t) - n + 1))
 
 
-def cider_d(preds: list[list[str]], refs: list[list[list[str]]], sigma: float = 6.0) -> list[float]:
-    """CIDEr-D (Vedantam et al. 2015), 文档频率取自本次评估的参考描述集合, 与 pycocoevalcap 的做法一致。"""
+def cider(preds: list[list[str]], refs: list[list[list[str]]], sigma: float = 6.0, length_penalty: bool = False) -> list[float]:
+    """CIDEr (Vedantam et al. 2015), 文档频率取自本次评估的参考描述集合。
+    默认**不带** CIDEr-D 的高斯长度惩罚: 我们要模型写两三句 (约 50 词), 参考描述每条约 10 词,
+    带惩罚时 exp(-(50-10)^2/72) 约等于 0, 分数全部归零 (2026-09-27 实测)。不带惩罚时只比内容。"""
     N = len(refs)
     df = [Counter() for _ in range(4)]
     for rs in refs:
@@ -115,9 +117,25 @@ def cider_d(preds: list[list[str]], refs: list[list[list[str]]], sigma: float = 
             for n in range(4):
                 dot = sum(min(vp[n][g], vr[n].get(g, 0.0)) * vr[n].get(g, 0.0) for g in vp[n])
                 if np_[n] and nr[n]:
-                    s[n] += dot / (np_[n] * nr[n]) * math.exp(-((lp - lr) ** 2) / (2 * sigma ** 2))
+                    pen = math.exp(-((lp - lr) ** 2) / (2 * sigma ** 2)) if length_penalty else 1.0
+                    s[n] += dot / (np_[n] * nr[n]) * pen
         scores.append(10.0 * sum(x / len(rs) for x in s) / 4)
     return scores
+
+
+STOP = set("a an the of on in at to and or is are was were be with for by from it its this that there these those "
+           "some two three one near next while as into over under up down out".split())
+
+
+def ref_recall(pred: list[str], refs: list[list[str]]) -> float:
+    """参考描述里的实词 (去掉虚词), 模型的描述覆盖了多少; 对每条参考取最好的一条。与长度无关。"""
+    ps = set(pred)
+    best = 0.0
+    for r in refs:
+        content = {w for w in r if w not in STOP}
+        if content:
+            best = max(best, len(content & ps) / len(content))
+    return best
 
 
 def distinct2(t: list[str]) -> float:
@@ -210,10 +228,12 @@ def main():
                 p = generate(model, processor, PROMPT_COCO, it["image"], args.max_new_tokens)
                 preds.append(p)
                 f.write(json.dumps({"id": it["id"], "pred": p, "refs": it["refs"]}, ensure_ascii=False) + "\n")
-        cid = cider_d([toks(p) for p in preds], [[toks(r) for r in it["refs"]] for it in items])
+        cid = cider([toks(p) for p in preds], [[toks(r) for r in it["refs"]] for it in items])
+        rr = [ref_recall(toks(p), [toks(r) for r in it["refs"]]) for p, it in zip(preds, items)]
         rl = [max(rouge_l(toks(p), toks(r)) for r in it["refs"]) for p, it in zip(preds, items)]
         summary["coco"] = {"n": len(items), "dataset": COCO_DATASET, "prompt": PROMPT_COCO,
-                           "cider": round(100 * sum(cid) / len(cid), 2), "rouge_l": round(100 * sum(rl) / len(rl), 2),
+                           "cider_no_lp": round(100 * sum(cid) / len(cid), 2), "rouge_l": round(100 * sum(rl) / len(rl), 2),
+                           "ref_recall": round(100 * sum(rr) / len(rr), 2),
                            **style_stats(preds)}
 
     if args.task in ("all", "slake"):
