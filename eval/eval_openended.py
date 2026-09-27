@@ -55,11 +55,17 @@ ABNORMAL_WORD = re.compile(r"abnormal|lesion|mass|tumou?r|nodul|opacit|effusion|
 
 
 # ---------------------------------------------------------------- 文本指标
+NEGATION = re.compile(r"\b(?:no|without|negative for|free of|absence of|absent|rule[sd]? out|not (?:seen|present|identified|visible))\b"
+                      r"[^.;]*?(?=\bbut\b|\bhowever\b|\balthough\b|[.;]|$)", re.I)
+
+
 def says_normal(text: str) -> bool:
-    """描述里宣称正常, 且去掉「no ... abnormal」这类否定说法后不再提任何异常词。"""
+    """描述里宣称正常, 且把否定说法 (no evidence of ..., negative for ..., without ...) 到句号或 but 为止整段去掉后,
+    剩下的部分不再提任何异常词。例: "normal lung with no evidence of consolidation or nodules" 算说正常。"""
     if not NORMAL_CLAIM.search(text):
         return False
-    return not ABNORMAL_WORD.search(NORMAL_CLAIM.sub(" ", text))
+    rest = NEGATION.sub(" ", NORMAL_CLAIM.sub(" ", text))
+    return not ABNORMAL_WORD.search(rest)
 
 
 def toks(s: str) -> list[str]:
