@@ -31,6 +31,8 @@ declare -A CONFIGS=(
   [s43]="--seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300s43.json"
   [attn_s43]="--targets attn --seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300s43.json"
   [ep1_s43]="--epochs 1 --seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300s43.json"
+  # 回放 0 (只用 SLAKE) 的第二个种子: 检验「只做短答微调会把异常图说成正常」是否可重复
+  [r0_s43]="--seed 43 --data $DATA/slake_train.json"
 )
 ORDER=(ep1 attn r8 r32 lr5e-5 lr2e-4)
 [[ $# -gt 0 ]] && ORDER=("$@")
