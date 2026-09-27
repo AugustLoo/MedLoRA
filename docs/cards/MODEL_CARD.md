@@ -227,8 +227,8 @@ within noise. The one-word replay targets perturb the short-answer output distri
 ability untouched. So the TextVQA number overstates general forgetting rather than understating it. Both probes are short-output;
 the free-text probe added later covers long-form description for the 35B models only.
 
-**35B: single runs are unreliable.** Two seeds of the same 35B condition differ by up to 3.7 macro-F1 and 9 correct
-"maybe" answers (3B: about 0.7 and 3). A first-seed result that short-answer SFT pushes the 35B model toward "yes"
+**35B: single runs are unreliable.** Two seeds of the same 35B condition differ by up to 3.7 macro-F1 and 12 correct
+"maybe" answers (3B: about 0.7 macro-F1 and 3-7 answers). A first-seed result that short-answer SFT pushes the 35B model toward "yes"
 did not survive the second seed; only differences confirmed across two seeds are reported as findings.
 
 **Every model describes some abnormal studies as normal.** Asked to describe the 96 SLAKE test images in free text,
@@ -255,7 +255,8 @@ ultrasound, pathology, dermatology, or non-English clinical text.
   git or public Kaggle datasets. IU X-Ray is used from its public mirror.
 - No patient identifiers are present in any released artefact. The adapters contain weights only.
 - The Intern-S2-Preview base weights were provided by the course instructor for this study, referenced in place on
-  the host and never copied, redistributed or modified; merged evaluation copies were deleted after use.
+  the host and never copied, redistributed or modified; merged evaluation copies live only in the project's own
+  directory on that host and are deleted once evaluated.
 - Training data is public teaching material, not a representative clinical population; performance
   on any real patient distribution is unknown and untested.
 
