@@ -146,7 +146,8 @@ def load_coco(n: int, seed: int):
         ds = load_from_disk(str(local))
         print(f"[coco] 读本地抽样 {local} ({len(ds)} 张)")
     else:
-        full = load_dataset(COCO_DATASET, data_files={"val": "data/val-*.parquet"}, split="val")
+        full = load_dataset(COCO_DATASET, data_files={"val": "data/val-*.parquet"}, split="val",
+                            verification_mode="no_checks")  # 只下了 val, 跳过「应有 test 划分」的检查
         print(f"[coco] val {len(full)} 张, 列 {full.column_names}")
         ds = full.shuffle(seed=seed).select(range(min(n, len(full))))
         ds.save_to_disk(str(local))
