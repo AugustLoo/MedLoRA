@@ -135,3 +135,10 @@ cd /home/ubuntu/chunqian/MedLoRA && ln -sfn /home/ubuntu/chunqian/data/SLAKE dat
 **开跑:** 停同学的服务, 在 tmux 里 `bash train/interns2/ablation.sh`。进度 `tail -3 /home/ubuntu/chunqian/logs/ablation.log`,
 每轮的训练 / 合并 / 服务 / 评估日志在同目录 `interns2_abl_<名字>.*.log`。全部跑完后 `start_server.sh` 把同学的服务开回来。
 
+## 消融结果 (2026-09-27)
+
+6 轮全部跑完 (ep1 训练 41 分钟; 其余五轮每轮连合并和评估约 2 小时 20 分), 结果与结论在 `results/README.md` 最后一节和报告 5.7 节。
+坑: 第一次在主机上评估时只拷了 HF 下载缓存, `datasets` 离线读不到 TextVQA; 还要拷 `~/.cache/huggingface/datasets/` 下的处理后缓存
+(`lmms-lab___textvqa`、`qiaojin___pub_med_qa`、`lmms-lab___mm_bench`)。换机器评估前先用三行 `load_dataset` 测一遍再开跑。
+`ablation.log` 里的 PubMedQA F1 是全部 1000 题口径 (含训练半边), 比较时用 `scripts/eval_pubmedqa_split.py` 的考卷半边数字。
+

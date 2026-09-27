@@ -132,10 +132,10 @@ footer a{color:var(--ink-soft)}
     <rect width="1400" height="900" fill="url(#gp)"/>
   </svg>
   <div class="inner">
-    <div class="kicker">Topic 6 · Task 1.3 · 第 3 周进展汇报 · 更新至 2026-09-26</div>
+    <div class="kicker">Topic 6 · Task 1.3 · 第 3 周进展汇报 · 更新至 2026-09-27</div>
     <h1>3B 上的规律，<br>在 <span class="hi">35B</span> 上<span class="hi2">成立了</span></h1>
     <p class="sub">老师给了一个大十二倍的模型。同样的数据、同样的设置再做一遍：短答微调照样让它不敢说「不确定」，同样 300 道题照样修好——而且修得比 3B 干净，没有矫枉过正。</p>
-    <div class="asof-line">Intern-S2-Preview · 35B 混合专家 · 8 × RTX 5090 · LoRA r16 · 关思考模式评估 · results as of 2026-09-26</div>
+    <div class="asof-line">Intern-S2-Preview · 35B 混合专家 · 8 × RTX 5090 · LoRA r16 · 关思考模式评估 · results as of 2026-09-27</div>
     <div class="stats">
       <div class="stat"><div class="v" style="color:var(--c-c1)">67.3<small>← 59.5</small></div><div class="bar" style="background:var(--c-c1)"></div><div class="l">35B 回放 300 的 PubMedQA macro-F1，相对只做微调</div></div>
       <div class="stat"><div class="v" style="color:var(--c-good)">13 / 13</div><div class="bar" style="background:var(--c-good)"></div><div class="l">两类危险错误，都比没训练的基座少；3B 同样设置是 14 / 32</div></div>
@@ -282,22 +282,29 @@ footer a{color:var(--ink-soft)}
 <!-- ============================ 08 消融 ============================ -->
 <section class="section" id="abl">
   <div class="prose">
-    <div class="kicker">08 · 进行中</div>
-    <h2>D 组消融：直接在 35B 上做</h2>
-    <p class="lede">在回放 300 的设置上每次只改一样，看哪个因素最重要。全自动：训练、合并、起服务、评估、清理，一轮接一轮。</p>
+    <div class="kicker">08 · 消融</div>
+    <h2>D 组消融：改超参，远不如改数据</h2>
+    <p class="lede">在 35B 回放 300 的设置上每次只改一样，六轮全自动跑完，3 轮训练的每一轮连评估约 2 小时 20 分。</p>
+    <p><strong>数据配比的影响远大于任何训练设置。</strong>六轮的 macro-F1 都在 64 到 67 之间，全部比不掺题的 59.5 高 4.6 分以上；改超参最多挪 3 分，掺不掺题挪 8 分。</p>
+    <p><strong>唯一明显变差的是「练得不够」。</strong>只练 1 轮、学习率减半，maybe 照样答对 21、22 道，但 maybe 说得太多（1 轮时答了 96 次，标准只有 55），yes 召回掉到 75 左右——和 3B 只掺 99 道时一模一样：学会了可以说 maybe，还没学会什么时候说。多练也不再涨，容量加倍减半都一样。</p>
+    <p><strong>混合专家模型特有的发现：共享专家上的 LoRA 没有贡献。</strong>去掉它，macro-F1 和封闭题一分不差，可训练参数少四分之一。</p>
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>轮</th><th>改动</th><th>回答什么</th><th>状态</th></tr></thead>
+      <thead><tr><th>轮</th><th>改动</th><th class="num">macro-F1</th><th class="num">maybe 答对</th><th class="num">SLAKE 封闭</th><th class="num">TextVQA</th><th>结论</th></tr></thead>
       <tbody>
-        <tr><td>ep1</td><td>3 轮 → 1 轮</td><td>是不是根本不用练 3 轮</td><td>训练完成，评估中</td></tr>
-        <tr class="hl"><td>attn</td><td>LoRA 只挂注意力，不挂共享专家</td><td><strong>混合专家模型特有</strong>：共享专家那部分有没有用</td><td>排队</td></tr>
-        <tr><td>r8 / r32</td><td>LoRA rank 16 → 8 / 32</td><td>容量</td><td>排队</td></tr>
-        <tr><td>lr5e-5 / lr2e-4</td><td>学习率减半 / 加倍</td><td>步长</td><td>排队</td></tr>
+        <tr class="hl"><td><strong>对照</strong></td><td>原设置</td><td class="num best">67.29</td><td class="num">22</td><td class="num">94.47</td><td class="num">86.67</td><td></td></tr>
+        <tr><td>ep1</td><td>3 轮 → 1 轮</td><td class="num bad">64.14</td><td class="num">22</td><td class="num bad">93.03</td><td class="num ok">87.44</td><td>练得不够</td></tr>
+        <tr><td>lr5e-5</td><td>学习率减半</td><td class="num bad">64.56</td><td class="num">21</td><td class="num bad">92.55</td><td class="num">86.67</td><td>练得不够</td></tr>
+        <tr><td>lr2e-4</td><td>学习率加倍</td><td class="num">66.28</td><td class="num">22</td><td class="num ok">95.19</td><td class="num">86.11</td><td>多练不再涨</td></tr>
+        <tr><td>r8</td><td>rank 16 → 8</td><td class="num">66.28</td><td class="num">23</td><td class="num">93.27</td><td class="num">87.44</td><td rowspan="2">容量不是瓶颈</td></tr>
+        <tr><td>r32</td><td>rank 16 → 32</td><td class="num">66.31</td><td class="num">24</td><td class="num">93.27</td><td class="num">87.11</td></tr>
+        <tr class="hl"><td><strong>attn</strong></td><td>只挂注意力，不挂共享专家</td><td class="num best">67.29</td><td class="num">25</td><td class="num">94.47</td><td class="num">86.00</td><td><strong>共享专家可以不挂</strong></td></tr>
+        <tr><td>参考</td><td>回放 0（不掺题）</td><td class="num bad">59.51</td><td class="num bad">4</td><td class="num">94.47</td><td class="num">88.22</td><td>掺题的作用</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="srcline">对照组是已经跑过的 35B 回放 300。6 轮约 15 小时；3B 上的同一组消融，有空再补做对照。</div>
+  <div class="srcline">PubMedQA 都只算考卷那一半 500 题。全部单次运行；3B 换种子时 macro-F1 波动约 0.7，SLAKE 封闭题 1 题 = 0.24 分。</div>
 </section>
 
 <!-- ============================ 09 总结 ============================ -->
@@ -314,8 +321,8 @@ footer a{color:var(--ink-soft)}
         <tr><td>② 35B 基座评测</td><td>封闭题 84.4 追平 3B 训练后；是非判断强，maybe 和 3B 一样弱</td></tr>
         <tr><td>③ 35B 训练流程</td><td>自写 LoRA 训练、合并、服务脚本，两轮训练共约 3 小时 16 分</td></tr>
         <tr><td>④ 35B 回放 0 / 300</td><td><strong>四条规律全部复现</strong>；回放 300 修好 maybe 且不过冲，危险错误各 13</td></tr>
-        <tr><td>⑤ 报告 v1.0</td><td>新增 5.7 节「35B 复验」，摘要、实验矩阵、成本表、局限性同步更新</td></tr>
-        <tr><td>⑥ D 组消融</td><td>6 轮全自动流程已上线，第一轮训练完成</td></tr>
+        <tr><td>⑤ 报告 v1.0</td><td>新增 5.7 节「35B 复验」和消融表，摘要、实验矩阵、成本表、局限性同步更新</td></tr>
+        <tr><td>⑥ 35B 上的 D 组消融</td><td>6 轮全自动跑完：<strong>只有练得不够会变差</strong>（1 轮、学习率减半）；多练和改容量的影响都在波动内；共享专家的 LoRA 可以不挂</td></tr>
       </tbody>
     </table>
   </div>
@@ -331,7 +338,7 @@ footer a{color:var(--ink-soft)}
   <div class="card next">
     <h3>按优先级</h3>
     <ol>
-      <li><strong>本周末 · 35B 消融跑完、写进报告。</strong>重点看只挂注意力那一轮：如果共享专家的 LoRA 没用，可训练参数还能少四分之一。</li>
+      <li><strong>已完成 · 35B 消融写进报告 5.7 节。</strong>下一步给「只挂注意力」和「练得不够」各补一个种子，确认不是单次运行的偶然。</li>
       <li><strong>下周 · 开放式生成的探针。</strong>两个通用能力探针的答案都很短，长段描述会不会退化还没测。35B 微调后 TextVQA 上多出 3 道答「unanswerable」，提示这件事值得测。</li>
       <li><strong>有空 · 3B 上补同一组消融</strong>，和 35B 对照：哪些因素的影响随规模变化。</li>
       <li><strong>第 5 周 · 实验 B3</strong>，等队友的 CheXpert Plus 子集。</li>

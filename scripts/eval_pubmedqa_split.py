@@ -21,7 +21,8 @@ TAGS = [("基座", "baseline"), ("基座(服务器)", "baseline_server"),
         ("C2 回放100", "sft_mix_100"), ("C2 回放300", "sft_mix_300"), ("C2 回放300 s43", "sft_mix_300_s43"),
         ("C1 回放900 s43", "sft_mix_900_s43"),
         ("Intern-S2 35B 基座", "interns2_base"),
-        ("Intern-S2 35B 回放300", "interns2_mix_300"), ("Intern-S2 35B 回放0", "interns2_mix_0")]
+        ("Intern-S2 35B 回放300", "interns2_mix_300"), ("Intern-S2 35B 回放0", "interns2_mix_0"),
+        ("35B 消融 ep1", "interns2_abl_ep1"), ("35B 消融 attn", "interns2_abl_attn"), ("35B 消融 r8", "interns2_abl_r8"), ("35B 消融 r32", "interns2_abl_r32"), ("35B 消融 lr5e-5", "interns2_abl_lr5e-5"), ("35B 消融 lr2e-4", "interns2_abl_lr2e-4")]
 
 
 def macro_f1(pairs):

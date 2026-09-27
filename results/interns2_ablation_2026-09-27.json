@@ -1,0 +1,1160 @@
+{
+  "ep1": {
+    "slake": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1",
+      "adapter": null,
+      "split": "test",
+      "n": 1061,
+      "load_4bit": false,
+      "max_pixels": 401408,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "seconds": 376.2,
+      "metrics": {
+        "open_em": 82.79,
+        "open_recall": 88.68,
+        "open_f1": 88.47,
+        "closed_acc": 93.03
+      },
+      "n_closed": 416,
+      "n_open": 645,
+      "by_modality": {
+        "CT": {
+          "open_recall": 89.11,
+          "closed_acc": 91.12
+        },
+        "X-Ray": {
+          "open_recall": 89.09,
+          "closed_acc": 96.49
+        },
+        "MRI": {
+          "open_recall": 87.16,
+          "closed_acc": 93.18
+        }
+      }
+    },
+    "textvqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 300,
+      "seed": 42,
+      "textvqa_acc": 87.44
+    },
+    "pubmedqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 1000,
+      "accuracy": 76.9,
+      "macro_f1": 68.96,
+      "pred_dist": {
+        "yes": 455,
+        "no": 342,
+        "maybe": 203
+      },
+      "gold_dist": {
+        "yes": 552,
+        "no": 338,
+        "maybe": 110
+      },
+      "unparsed": 0
+    },
+    "mmbench": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 500,
+      "seed": 42,
+      "dataset": "lmms-lab/MMBench/en/dev",
+      "mmbench_acc": 94.2,
+      "unparsed": 0,
+      "by_category": {
+        "action_recognition": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "attribute_comparison": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "attribute_recognition": {
+          "n": 38,
+          "acc": 94.74
+        },
+        "celebrity_recognition": {
+          "n": 40,
+          "acc": 100.0
+        },
+        "function_reasoning": {
+          "n": 44,
+          "acc": 97.73
+        },
+        "future_prediction": {
+          "n": 13,
+          "acc": 53.85
+        },
+        "identity_reasoning": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "image_emotion": {
+          "n": 19,
+          "acc": 94.74
+        },
+        "image_quality": {
+          "n": 25,
+          "acc": 72.0
+        },
+        "image_scene": {
+          "n": 56,
+          "acc": 100.0
+        },
+        "image_style": {
+          "n": 29,
+          "acc": 89.66
+        },
+        "image_topic": {
+          "n": 14,
+          "acc": 100.0
+        },
+        "nature_relation": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "object_localization": {
+          "n": 35,
+          "acc": 94.29
+        },
+        "ocr": {
+          "n": 15,
+          "acc": 93.33
+        },
+        "physical_property_reasoning": {
+          "n": 19,
+          "acc": 89.47
+        },
+        "physical_relation": {
+          "n": 9,
+          "acc": 88.89
+        },
+        "social_relation": {
+          "n": 13,
+          "acc": 100.0
+        },
+        "spatial_relationship": {
+          "n": 22,
+          "acc": 90.91
+        },
+        "structuralized_imagetext_understanding": {
+          "n": 29,
+          "acc": 96.55
+        }
+      }
+    }
+  },
+  "attn": {
+    "slake": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_attn",
+      "adapter": null,
+      "split": "test",
+      "n": 1061,
+      "load_4bit": false,
+      "max_pixels": 401408,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_attn",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "seconds": 381.3,
+      "metrics": {
+        "open_em": 85.74,
+        "open_recall": 90.55,
+        "open_f1": 90.21,
+        "closed_acc": 94.47
+      },
+      "n_closed": 416,
+      "n_open": 645,
+      "by_modality": {
+        "CT": {
+          "open_recall": 91.57,
+          "closed_acc": 91.59
+        },
+        "X-Ray": {
+          "open_recall": 90.39,
+          "closed_acc": 98.25
+        },
+        "MRI": {
+          "open_recall": 88.95,
+          "closed_acc": 96.59
+        }
+      }
+    },
+    "textvqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_attn",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_attn",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 300,
+      "seed": 42,
+      "textvqa_acc": 86.0
+    },
+    "pubmedqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_attn",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_attn",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 1000,
+      "accuracy": 82.8,
+      "macro_f1": 75.86,
+      "pred_dist": {
+        "yes": 493,
+        "no": 339,
+        "maybe": 168
+      },
+      "gold_dist": {
+        "yes": 552,
+        "no": 338,
+        "maybe": 110
+      },
+      "unparsed": 0
+    },
+    "mmbench": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_attn",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_attn",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 500,
+      "seed": 42,
+      "dataset": "lmms-lab/MMBench/en/dev",
+      "mmbench_acc": 93.8,
+      "unparsed": 1,
+      "by_category": {
+        "action_recognition": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "attribute_comparison": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "attribute_recognition": {
+          "n": 38,
+          "acc": 94.74
+        },
+        "celebrity_recognition": {
+          "n": 40,
+          "acc": 100.0
+        },
+        "function_reasoning": {
+          "n": 44,
+          "acc": 95.45
+        },
+        "future_prediction": {
+          "n": 13,
+          "acc": 53.85
+        },
+        "identity_reasoning": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "image_emotion": {
+          "n": 19,
+          "acc": 94.74
+        },
+        "image_quality": {
+          "n": 25,
+          "acc": 68.0
+        },
+        "image_scene": {
+          "n": 56,
+          "acc": 100.0
+        },
+        "image_style": {
+          "n": 29,
+          "acc": 89.66
+        },
+        "image_topic": {
+          "n": 14,
+          "acc": 100.0
+        },
+        "nature_relation": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "object_localization": {
+          "n": 35,
+          "acc": 97.14
+        },
+        "ocr": {
+          "n": 15,
+          "acc": 93.33
+        },
+        "physical_property_reasoning": {
+          "n": 19,
+          "acc": 89.47
+        },
+        "physical_relation": {
+          "n": 9,
+          "acc": 88.89
+        },
+        "social_relation": {
+          "n": 13,
+          "acc": 92.31
+        },
+        "spatial_relationship": {
+          "n": 22,
+          "acc": 95.45
+        },
+        "structuralized_imagetext_understanding": {
+          "n": 29,
+          "acc": 93.1
+        }
+      }
+    }
+  },
+  "r8": {
+    "slake": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_r8",
+      "adapter": null,
+      "split": "test",
+      "n": 1061,
+      "load_4bit": false,
+      "max_pixels": 401408,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r8",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "seconds": 390.5,
+      "metrics": {
+        "open_em": 86.98,
+        "open_recall": 90.55,
+        "open_f1": 90.38,
+        "closed_acc": 93.27
+      },
+      "n_closed": 416,
+      "n_open": 645,
+      "by_modality": {
+        "CT": {
+          "open_recall": 90.79,
+          "closed_acc": 91.12
+        },
+        "X-Ray": {
+          "open_recall": 90.47,
+          "closed_acc": 95.61
+        },
+        "MRI": {
+          "open_recall": 90.23,
+          "closed_acc": 95.45
+        }
+      }
+    },
+    "textvqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_r8",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r8",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 300,
+      "seed": 42,
+      "textvqa_acc": 87.44
+    },
+    "pubmedqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_r8",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r8",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 1000,
+      "accuracy": 82.3,
+      "macro_f1": 75.3,
+      "pred_dist": {
+        "yes": 496,
+        "no": 333,
+        "maybe": 171
+      },
+      "gold_dist": {
+        "yes": 552,
+        "no": 338,
+        "maybe": 110
+      },
+      "unparsed": 0
+    },
+    "mmbench": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_r8",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r8",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 500,
+      "seed": 42,
+      "dataset": "lmms-lab/MMBench/en/dev",
+      "mmbench_acc": 94.2,
+      "unparsed": 0,
+      "by_category": {
+        "action_recognition": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "attribute_comparison": {
+          "n": 17,
+          "acc": 94.12
+        },
+        "attribute_recognition": {
+          "n": 38,
+          "acc": 97.37
+        },
+        "celebrity_recognition": {
+          "n": 40,
+          "acc": 100.0
+        },
+        "function_reasoning": {
+          "n": 44,
+          "acc": 100.0
+        },
+        "future_prediction": {
+          "n": 13,
+          "acc": 53.85
+        },
+        "identity_reasoning": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "image_emotion": {
+          "n": 19,
+          "acc": 94.74
+        },
+        "image_quality": {
+          "n": 25,
+          "acc": 68.0
+        },
+        "image_scene": {
+          "n": 56,
+          "acc": 100.0
+        },
+        "image_style": {
+          "n": 29,
+          "acc": 89.66
+        },
+        "image_topic": {
+          "n": 14,
+          "acc": 100.0
+        },
+        "nature_relation": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "object_localization": {
+          "n": 35,
+          "acc": 100.0
+        },
+        "ocr": {
+          "n": 15,
+          "acc": 93.33
+        },
+        "physical_property_reasoning": {
+          "n": 19,
+          "acc": 89.47
+        },
+        "physical_relation": {
+          "n": 9,
+          "acc": 88.89
+        },
+        "social_relation": {
+          "n": 13,
+          "acc": 92.31
+        },
+        "spatial_relationship": {
+          "n": 22,
+          "acc": 86.36
+        },
+        "structuralized_imagetext_understanding": {
+          "n": 29,
+          "acc": 96.55
+        }
+      }
+    }
+  },
+  "r32": {
+    "slake": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_r32",
+      "adapter": null,
+      "split": "test",
+      "n": 1061,
+      "load_4bit": false,
+      "max_pixels": 401408,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r32",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "seconds": 384.2,
+      "metrics": {
+        "open_em": 86.51,
+        "open_recall": 90.77,
+        "open_f1": 90.25,
+        "closed_acc": 93.27
+      },
+      "n_closed": 416,
+      "n_open": 645,
+      "by_modality": {
+        "CT": {
+          "open_recall": 91.44,
+          "closed_acc": 91.12
+        },
+        "X-Ray": {
+          "open_recall": 90.17,
+          "closed_acc": 96.49
+        },
+        "MRI": {
+          "open_recall": 90.59,
+          "closed_acc": 94.32
+        }
+      }
+    },
+    "textvqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_r32",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r32",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 300,
+      "seed": 42,
+      "textvqa_acc": 87.11
+    },
+    "pubmedqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_r32",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r32",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 1000,
+      "accuracy": 82.9,
+      "macro_f1": 76.18,
+      "pred_dist": {
+        "yes": 505,
+        "no": 326,
+        "maybe": 169
+      },
+      "gold_dist": {
+        "yes": 552,
+        "no": 338,
+        "maybe": 110
+      },
+      "unparsed": 0
+    },
+    "mmbench": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_r32",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r32",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 500,
+      "seed": 42,
+      "dataset": "lmms-lab/MMBench/en/dev",
+      "mmbench_acc": 94.0,
+      "unparsed": 0,
+      "by_category": {
+        "action_recognition": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "attribute_comparison": {
+          "n": 17,
+          "acc": 94.12
+        },
+        "attribute_recognition": {
+          "n": 38,
+          "acc": 94.74
+        },
+        "celebrity_recognition": {
+          "n": 40,
+          "acc": 100.0
+        },
+        "function_reasoning": {
+          "n": 44,
+          "acc": 95.45
+        },
+        "future_prediction": {
+          "n": 13,
+          "acc": 53.85
+        },
+        "identity_reasoning": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "image_emotion": {
+          "n": 19,
+          "acc": 94.74
+        },
+        "image_quality": {
+          "n": 25,
+          "acc": 68.0
+        },
+        "image_scene": {
+          "n": 56,
+          "acc": 100.0
+        },
+        "image_style": {
+          "n": 29,
+          "acc": 89.66
+        },
+        "image_topic": {
+          "n": 14,
+          "acc": 100.0
+        },
+        "nature_relation": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "object_localization": {
+          "n": 35,
+          "acc": 97.14
+        },
+        "ocr": {
+          "n": 15,
+          "acc": 93.33
+        },
+        "physical_property_reasoning": {
+          "n": 19,
+          "acc": 89.47
+        },
+        "physical_relation": {
+          "n": 9,
+          "acc": 88.89
+        },
+        "social_relation": {
+          "n": 13,
+          "acc": 100.0
+        },
+        "spatial_relationship": {
+          "n": 22,
+          "acc": 90.91
+        },
+        "structuralized_imagetext_understanding": {
+          "n": 29,
+          "acc": 100.0
+        }
+      }
+    }
+  },
+  "lr5e-5": {
+    "slake": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_lr5e-5",
+      "adapter": null,
+      "split": "test",
+      "n": 1061,
+      "load_4bit": false,
+      "max_pixels": 401408,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_lr5e-5",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "seconds": 388.0,
+      "metrics": {
+        "open_em": 85.89,
+        "open_recall": 90.06,
+        "open_f1": 89.7,
+        "closed_acc": 92.55
+      },
+      "n_closed": 416,
+      "n_open": 645,
+      "by_modality": {
+        "CT": {
+          "open_recall": 89.59,
+          "closed_acc": 90.19
+        },
+        "X-Ray": {
+          "open_recall": 91.48,
+          "closed_acc": 95.61
+        },
+        "MRI": {
+          "open_recall": 88.42,
+          "closed_acc": 94.32
+        }
+      }
+    },
+    "textvqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_lr5e-5",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_lr5e-5",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 300,
+      "seed": 42,
+      "textvqa_acc": 86.67
+    },
+    "pubmedqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_lr5e-5",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_lr5e-5",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 1000,
+      "accuracy": 81.3,
+      "macro_f1": 73.9,
+      "pred_dist": {
+        "yes": 493,
+        "no": 335,
+        "maybe": 172
+      },
+      "gold_dist": {
+        "yes": 552,
+        "no": 338,
+        "maybe": 110
+      },
+      "unparsed": 0
+    },
+    "mmbench": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_lr5e-5",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_lr5e-5",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 500,
+      "seed": 42,
+      "dataset": "lmms-lab/MMBench/en/dev",
+      "mmbench_acc": 94.4,
+      "unparsed": 0,
+      "by_category": {
+        "action_recognition": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "attribute_comparison": {
+          "n": 17,
+          "acc": 94.12
+        },
+        "attribute_recognition": {
+          "n": 38,
+          "acc": 97.37
+        },
+        "celebrity_recognition": {
+          "n": 40,
+          "acc": 100.0
+        },
+        "function_reasoning": {
+          "n": 44,
+          "acc": 97.73
+        },
+        "future_prediction": {
+          "n": 13,
+          "acc": 53.85
+        },
+        "identity_reasoning": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "image_emotion": {
+          "n": 19,
+          "acc": 89.47
+        },
+        "image_quality": {
+          "n": 25,
+          "acc": 72.0
+        },
+        "image_scene": {
+          "n": 56,
+          "acc": 100.0
+        },
+        "image_style": {
+          "n": 29,
+          "acc": 89.66
+        },
+        "image_topic": {
+          "n": 14,
+          "acc": 100.0
+        },
+        "nature_relation": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "object_localization": {
+          "n": 35,
+          "acc": 100.0
+        },
+        "ocr": {
+          "n": 15,
+          "acc": 93.33
+        },
+        "physical_property_reasoning": {
+          "n": 19,
+          "acc": 89.47
+        },
+        "physical_relation": {
+          "n": 9,
+          "acc": 100.0
+        },
+        "social_relation": {
+          "n": 13,
+          "acc": 92.31
+        },
+        "spatial_relationship": {
+          "n": 22,
+          "acc": 90.91
+        },
+        "structuralized_imagetext_understanding": {
+          "n": 29,
+          "acc": 96.55
+        }
+      }
+    }
+  },
+  "lr2e-4": {
+    "slake": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_lr2e-4",
+      "adapter": null,
+      "split": "test",
+      "n": 1061,
+      "load_4bit": false,
+      "max_pixels": 401408,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_lr2e-4",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "seconds": 384.3,
+      "metrics": {
+        "open_em": 86.2,
+        "open_recall": 90.14,
+        "open_f1": 90.05,
+        "closed_acc": 95.19
+      },
+      "n_closed": 416,
+      "n_open": 645,
+      "by_modality": {
+        "CT": {
+          "open_recall": 90.6,
+          "closed_acc": 92.99
+        },
+        "X-Ray": {
+          "open_recall": 89.82,
+          "closed_acc": 98.25
+        },
+        "MRI": {
+          "open_recall": 89.85,
+          "closed_acc": 96.59
+        }
+      }
+    },
+    "textvqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_lr2e-4",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_lr2e-4",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 300,
+      "seed": 42,
+      "textvqa_acc": 86.11
+    },
+    "pubmedqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_lr2e-4",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_lr2e-4",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 1000,
+      "accuracy": 83.3,
+      "macro_f1": 76.1,
+      "pred_dist": {
+        "yes": 511,
+        "no": 328,
+        "maybe": 161
+      },
+      "gold_dist": {
+        "yes": 552,
+        "no": 338,
+        "maybe": 110
+      },
+      "unparsed": 0
+    },
+    "mmbench": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_lr2e-4",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_lr2e-4",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 500,
+      "seed": 42,
+      "dataset": "lmms-lab/MMBench/en/dev",
+      "mmbench_acc": 94.2,
+      "unparsed": 0,
+      "by_category": {
+        "action_recognition": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "attribute_comparison": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "attribute_recognition": {
+          "n": 38,
+          "acc": 97.37
+        },
+        "celebrity_recognition": {
+          "n": 40,
+          "acc": 100.0
+        },
+        "function_reasoning": {
+          "n": 44,
+          "acc": 95.45
+        },
+        "future_prediction": {
+          "n": 13,
+          "acc": 53.85
+        },
+        "identity_reasoning": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "image_emotion": {
+          "n": 19,
+          "acc": 94.74
+        },
+        "image_quality": {
+          "n": 25,
+          "acc": 72.0
+        },
+        "image_scene": {
+          "n": 56,
+          "acc": 100.0
+        },
+        "image_style": {
+          "n": 29,
+          "acc": 89.66
+        },
+        "image_topic": {
+          "n": 14,
+          "acc": 100.0
+        },
+        "nature_relation": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "object_localization": {
+          "n": 35,
+          "acc": 100.0
+        },
+        "ocr": {
+          "n": 15,
+          "acc": 93.33
+        },
+        "physical_property_reasoning": {
+          "n": 19,
+          "acc": 89.47
+        },
+        "physical_relation": {
+          "n": 9,
+          "acc": 88.89
+        },
+        "social_relation": {
+          "n": 13,
+          "acc": 92.31
+        },
+        "spatial_relationship": {
+          "n": 22,
+          "acc": 86.36
+        },
+        "structuralized_imagetext_understanding": {
+          "n": 29,
+          "acc": 96.55
+        }
+      }
+    }
+  }
+}
