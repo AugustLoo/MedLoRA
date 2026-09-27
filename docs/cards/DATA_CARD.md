@@ -1,6 +1,6 @@
 # Data Card — MedLoRA
 
-**Version** 1.1 · 2026-09-24 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.2 · 2026-09-27 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 Every dataset used for training or evaluation in this project, how it was obtained, what was done to
@@ -17,6 +17,8 @@ it, and the rules that govern it. Each row of the pipeline is reproducible from 
 | PubMedQA `pqa_labeled` | **reliability evaluation**; from C1 on, also a three-class SFT source | 1,000, split 500 / 500 | MIT |
 | TextVQA validation | **general-ability retention probe** (short-answer) | fixed 300-question sample | CC BY 4.0 |
 | MMBench (en, dev) | **general-ability retention probe** (multiple-choice) | fixed 500-question sample | see dataset card |
+| COCO Caption 2017 (val) | **free-text probe** (35B models) | fixed 300-image sample | CC BY 4.0 annotations |
+| SLAKE test images | **free-text medical probe** (35B models) | all 96 test images | CC BY 4.0 |
 | IU X-Ray (OpenI, Kaggle mirror) | image-text CPT prototype | ≈3,483 frontal image-report pairs | public |
 | CheXpert Plus | image-text CPT at scale (planned, B3) | 5k → 20k studies | registered; download pending |
 
@@ -158,6 +160,31 @@ open-ended generation, which remains the unmeasured case.
 the dataset card — verify before any redistribution of the sampled subset (none is redistributed here; only
 per-question predictions and scores are stored).
 
+## 4c. Free-text probe data (added 2026-09-27, 35B models)
+
+`eval/eval_openended.py` asks for two-to-three-sentence descriptions to measure drift in long-form output, which the
+three short-output probes cannot see.
+
+**COCO captions.** `lmms-lab/COCO-Caption2017`, split `val` only (two parquet files, 815 MB; the 6.6 GB `test` split
+is never downloaded). A **fixed 300-image sample drawn with seed 42** is saved once to
+`$HF_HOME/medlora_coco_val_n300_seed42` and read from there afterwards, so offline runs do not depend on the `datasets`
+cache. Each image has five to seven human captions. Scores: CIDEr **without** the CIDEr-D length penalty (the penalty
+zeroes out 50-word answers against 10-word references), ROUGE-L, recall of reference content words, mean length,
+share of answers under five words, refusal rate. Licence: COCO annotations CC BY 4.0; images under their Flickr terms.
+
+**SLAKE free-text reports.** All **96 SLAKE test images**, each asked for modality, body region and abnormal
+findings. No reference text is needed: modality and region come from the image's own annotation. Abnormality is
+derived from the same image's closed questions — a "no" to "Is the … healthy / normal?" or a "yes" to "Are there
+abnormalities?" marks it abnormal, the opposite answers mark it normal. This yields **44 abnormal, 12 normal and 40
+undetermined** images. A description counts as "abnormal called normal" if it claims normality and, after negated
+phrases ("no evidence of consolidation or nodules") are removed, mentions no abnormal finding.
+
+**Known weakness, stated plainly.** Over 44 abnormal images and one greedy decoding the false-normal count is too
+unstable to compare models: the same zero-replay condition gave 13 and 3 across two seeds, and twelve fine-tuned
+models spread from 2 to 15 without relation to calibration. The measure documents that the failure exists; comparing
+models on it would need a larger annotated set (for example CheXpert Plus reports), several seeds and human reading.
+The keyword judge was checked by hand only on one model's 13 flagged cases.
+
 ---
 
 ## 5. IU X-Ray (image-text CPT prototype)
@@ -218,11 +245,19 @@ python data/convert_iu_xray.py
 python data/split_pubmedqa.py
 python data/convert_pubmedqa_sft.py --per-class 100 --tag 300     # C2-300 replay sample
 python data/convert_pubmedqa_sft.py --per-class 300               # C1 replay sample
+python data/convert_pubmedqa_sft.py --per-class 33 --tag 100      # C2-100 replay sample
+python data/convert_pubmedqa_sft.py --per-class 100 --tag 300s43 --seed 43   # second-seed 300 sample (3B and 35B)
+python data/convert_pubmedqa_sft.py --per-class 300 --tag 900s43 --seed 43   # second-seed 900 sample
 ```
 
 Processed files land in `data/processed/` and register themselves in `dataset_info.json` for
 LLaMA-Factory. Raw downloads go to `data/raw/`, which is git-ignored; on the GPU server it is a
 symlink to a workspace directory so it does not consume the project quota.
+
+**35B host.** The 35B experiments ran on a separate 8-GPU host. The processed training files and SLAKE images were
+copied there unchanged; image paths inside the training files are rewritten at load time (`--path-map`) rather than
+edited. The Hugging Face caches for PubMedQA, TextVQA and MMBench were copied from the college server, so every model
+on both hosts is scored on byte-identical samples.
 
 ---
 

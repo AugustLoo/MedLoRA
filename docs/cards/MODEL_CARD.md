@@ -1,10 +1,11 @@
-# Model Card — MedLoRA adapters for Qwen2.5-VL-3B-Instruct
+# Model Card — MedLoRA adapters for Qwen2.5-VL-3B-Instruct and Intern-S2-Preview (35B)
 
-**Version** 1.1 · 2026-09-24 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.2 · 2026-09-27 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
-This card covers the family of LoRA adapters released in this project. All of them patch the same
-base model and are used the same way; they differ only in what they were trained on. Numbers quoted
+This card covers the LoRA adapters produced in this project: the main family on Qwen2.5-VL-3B-Instruct, and a
+scaling check on Intern-S2-Preview (35B). Within each family all adapters patch the same base model and are used the
+same way; they differ only in what they were trained on. Numbers quoted
 here are reproduced by `train/eval_all.sh <tag> <adapter>` from the stored per-question predictions
 in `outputs/eval/`.
 
@@ -31,6 +32,22 @@ compute. From experiment C1 on, training moved to a college RTX 5090 (32 GB) wit
 bf16** base. The A-server control (§3) shows the two regimes agree to within half a point on every
 metric, so figures from both are read on one axis.
 
+### Second base model: Intern-S2-Preview (35B), added 2026-09-25
+
+To test whether the findings are a small-model effect, the two central conditions (and a set of ablations) were
+repeated on a model roughly twelve times larger, provided by the course instructor and served on an 8 × RTX 5090 host.
+
+| | |
+|---|---|
+| **Base model** | Intern-S2-Preview (continued-pretrained from Qwen3.5; 35B total parameters, mixture of experts with 256 routed experts, 8 active per token, about 3B active) |
+| **Adapter type** | LoRA (`peft` 0.21), rank 16, alpha 32, dropout 0.05 — same as 3B |
+| **Adapter targets** | language-model attention only: full-attention `q/k/v/o_proj`, linear-attention `in_proj_qkv / in_proj_z / out_proj`, plus the shared expert's `gate/up/down_proj` — 250 layers, **19,169,280 parameters, 0.054 %** |
+| **Not adapted** | the 256 routed experts (stored as packed 3D parameters, not linear layers), router, vision encoder, time-series module, embeddings |
+| **Framework** | own training script `train/interns2/train_lora.py` (transformers 5.2 + peft; LLaMA-Factory does not support the model), model split layer-wise over 4 GPUs |
+| **Chat template** | thinking mode **disabled** in training and evaluation (the model reasons before answering by default, which consumes the short answer budget) |
+| **Serving for evaluation** | adapter merged into the weights (`train/interns2/merge_lora.py`, MTP layers and the F32 `lm_head` copied from the base unchanged) and served with LMDeploy (`train/interns2/serve.sh`); evaluated through the same OpenAI-compatible client as the base (`medvlm/remote.py`) |
+| **Licence** | base weights provided by the instructor and referenced in place on the host, never copied or redistributed; only adapters are produced |
+
 ---
 
 ## 2. The adapters
@@ -48,6 +65,20 @@ metric, so figures from both are read on one axis.
 | `sft_mix_300_s43` (**C2-300-s43**) | SFT | same, sampling and training seed 43 | 5090, bf16 | run-to-run variance of the 300 point |
 | `sft_mix_100` (**C2-100**) | SFT | SLAKE 4,919 + PubMedQA replay 99 (33 per class) | 5090, bf16 | the point between 0 and 300 where the gain occurs; each "maybe" item seen at most once |
 | `sft_mix_900_s43` (**C1-s43**) | SFT | as C1, sampling and training seed 43 | 5090, bf16 | run-to-run variance of the 900 point |
+
+### 35B adapters (Intern-S2-Preview)
+
+All use the SLAKE training set; the replay sample is the same file as at 3B. Seed 43 changes the replay sample and
+the training seed together, as for the 3B replications.
+
+| Tag | Replay | Change from the 35B default | Seeds | Purpose |
+|---|---|---|---|---|
+| `interns2_mix_0`, `interns2_abl_r0_s43` | 0 | — | 42, 43 | SFT alone at 35B |
+| `interns2_mix_300`, `interns2_abl_s43` | 300 | — | 42, 43 | the replay fix at 35B (control for the ablations) |
+| `interns2_abl_attn`, `…_attn_s43` | 300 | no LoRA on the shared expert (130 layers, 0.040 %) | 42, 43 | does the shared expert need adapting |
+| `interns2_abl_ep1`, `…_ep1_s43` | 300 | 1 epoch instead of 3 | 42, 43 | training length |
+| `interns2_abl_r8`, `…_r32` | 300 | rank 8 / 32 | 42 | capacity |
+| `interns2_abl_lr5e-5`, `…_lr2e-4` | 300 | learning rate halved / doubled | 42 | step size |
 
 ### Hyper-parameters
 
@@ -67,7 +98,7 @@ from one another by `scripts/make_bf16_configs.py`.
 
 ## 3. Evaluation
 
-Four fixed tables, greedy decoding (`do_sample=False`), at most 32 new tokens, images capped at
+Four fixed tables plus, for the 35B models, a free-text probe; greedy decoding (`do_sample=False`), at most 32 new tokens, images capped at
 512×512. Per-question predictions are stored so every number can be recomputed without re-running
 a model.
 
@@ -77,6 +108,7 @@ a model.
 | General retention | TextVQA validation, fixed 300-question sample (seed 42) | forgetting probe, short-answer |
 | General retention (2nd) | MMBench en-dev, fixed 500-question sample (seed 42), letter-choice | forgetting probe, format-insensitive |
 | Reliability | PubMedQA `pqa_labeled`, **held-out 500 of 1,000** | calibration over {yes, no, maybe} |
+| Free text (35B only) | 300 fixed COCO val images + the 96 SLAKE test images, "describe in two or three sentences" | long-form drift; modality / region / abnormal-called-normal in medical descriptions |
 
 ### Results
 
@@ -105,6 +137,31 @@ two-thirds of the gain and 300 about nine-tenths, and the per-class balance keep
 **Second retention probe (MMBench, 500 questions; the six server-side models only).** Base 88.40 · A-server 87.40 ·
 C2-100 87.20 · C2-300 87.40 / 87.00 · C1 88.00 / 87.60. Every replay point is within ±0.6 (three questions) of zero replay — no replay cost. The TextVQA decline is a
 short-answer-format effect; see §5.
+
+### Results: Intern-S2-Preview (35B)
+
+Same four tables, same prompts and scoring, served through LMDeploy with thinking disabled. Where two seeds exist,
+both are shown (seed 42 / seed 43). PubMedQA on the held-out half.
+
+| Model | SLAKE closed | SLAKE open EM | TextVQA | MMBench | PubMedQA macro-F1 | maybe correct | no→yes / yes→no |
+|---|---|---|---|---|---|---|---|
+| 35B base | 84.38 | 67.13 | 88.78 | 93.60 | 61.83 | 7 / 55 | 20 / 17 |
+| replay 0 | 94.47 / 93.75 | 86.36 / 86.98 | 88.22 / 86.89 | 94.40 / 93.40 | 59.51 / 63.23 | 4 / 10 | 24 / 16 · 22 / 16 |
+| **replay 300** | 94.47 / 93.99 | 86.36 / 87.44 | 86.67 / 86.89 | 94.00 / 94.00 | **67.29 / 65.38** | 22 / 15 | 13 / 13 · 9 / 18 |
+| attention only | 94.47 / 93.51 | 85.74 / 86.67 | 86.00 / 87.00 | 93.80 / 93.40 | 67.29 / 64.25 | 25 / 16 | 10 / 19 · 13 / 23 |
+| 1 epoch | 93.03 / 93.03 | 82.79 / 84.34 | 87.44 / 87.67 | 94.20 / 94.20 | 64.14 / 62.32 | 22 / 10 | 9 / 16 · 13 / 19 |
+| rank 8 · rank 32 | 93.27 · 93.27 | 86.98 · 86.51 | 87.44 · 87.11 | 94.20 · 94.00 | 66.28 · 66.31 | 23 · 24 | 15 / 15 · 17 / 12 |
+| lr 5e-5 · lr 2e-4 | 92.55 · 95.19 | 85.89 · 86.20 | 86.67 · 86.11 | 94.40 · 94.20 | 64.56 · 66.28 | 21 · 22 | 13 / 18 · 14 / 12 |
+
+**Reading the table.** Fine-tuning lifts SLAKE by about 10 closed and 20 open points, 8-11 points above the
+fine-tuned 3B model. The base is as reluctant to answer "maybe" as the 3B base (7 of 55), but short-answer SFT does not
+reliably make it worse (the two zero-replay seeds fall either side of the base). Replay 300 raises macro-F1 by 5.0 on
+average (61.4 → 66.3) and correct "maybe" from 7 to 18.5, without the 3B over-correction ("yes"→"no" stays at 13-18).
+Among training settings only under-training reliably hurts; LoRA on the shared expert shows no detectable benefit.
+
+**Free-text probe (35B only).** Long-form description does not degrade: every fine-tuned model writes 44-52 words
+(base 48) on 300 COCO images, none collapses to a short answer or refuses, and caption similarity is unchanged. See §5
+for the medical free-text result.
 
 ---
 
@@ -167,8 +224,22 @@ in budget across four runs, so it is a property of the budget, not of a run.
 **The retention cost is a format effect, and neither probe covers open-ended output.** TextVQA (300 short-answer
 OCR questions) records a replay cost of −1.23 / −2.23; MMBench (500 multiple-choice questions) records 0.00 / +0.60,
 within noise. The one-word replay targets perturb the short-answer output distribution and leave letter-choice
-ability untouched. So the TextVQA number overstates general forgetting rather than understating it — but both
-probes are short-output, and drift in open-ended description remains unmeasured.
+ability untouched. So the TextVQA number overstates general forgetting rather than understating it. Both probes are short-output;
+the free-text probe added later covers long-form description for the 35B models only.
+
+**35B: single runs are unreliable.** Two seeds of the same 35B condition differ by up to 3.7 macro-F1 and 9 correct
+"maybe" answers (3B: about 0.7 and 3). A first-seed result that short-answer SFT pushes the 35B model toward "yes"
+did not survive the second seed; only differences confirmed across two seeds are reported as findings.
+
+**Every model describes some abnormal studies as normal.** Asked to describe the 96 SLAKE test images in free text,
+the 35B base calls 4 of the 44 abnormal studies normal and the twelve fine-tuned 35B models call between 2 and 15 of
+them normal (examples include an enlarged cardiac silhouette described as "heart size normal, lung fields clear").
+The count varies more between seeds of one condition (13 and 3 at zero replay) than between conditions, so no model
+can be said to be safer than another on this measure — but the failure itself is real and is the clinically most
+dangerous one. The 3B adapters were not given this probe.
+
+**Thinking mode is off for the 35B model.** It was disabled to make the answers comparable with 3B and to fit the
+short-answer budget. The model's behaviour with reasoning enabled is unmeasured.
 
 **English only, three modalities.** SLAKE covers X-Ray, CT and MRI. Nothing here says anything about
 ultrasound, pathology, dermatology, or non-English clinical text.
@@ -183,6 +254,8 @@ ultrasound, pathology, dermatology, or non-English clinical text.
 - Controlled-access data (MIMIC-CXR, CheXpert Plus) and any patient-level derived files never enter
   git or public Kaggle datasets. IU X-Ray is used from its public mirror.
 - No patient identifiers are present in any released artefact. The adapters contain weights only.
+- The Intern-S2-Preview base weights were provided by the course instructor for this study, referenced in place on
+  the host and never copied, redistributed or modified; merged evaluation copies were deleted after use.
 - Training data is public teaching material, not a representative clinical population; performance
   on any real patient distribution is unknown and untested.
 
@@ -198,6 +271,27 @@ base = "Qwen/Qwen2.5-VL-3B-Instruct"
 model = Qwen2_5_VLForConditionalGeneration.from_pretrained(base, dtype="bfloat16", device_map="cuda:0")
 model = PeftModel.from_pretrained(model, "outputs/sft_mix_300")     # any adapter from §2
 processor = AutoProcessor.from_pretrained(base, max_pixels=262144)
+```
+
+**35B adapters.** The routed experts are packed parameters, so load the base with its own code and attach the adapter,
+or merge and serve it as the evaluation did:
+
+```python
+from transformers import AutoModelForImageTextToText, AutoProcessor
+from peft import PeftModel
+base = "/path/to/Intern-S2-Preview"
+model = AutoModelForImageTextToText.from_pretrained(base, trust_remote_code=True, dtype="bfloat16", device_map="auto")
+model = PeftModel.from_pretrained(model, "outputs/interns2_mix_300")
+processor = AutoProcessor.from_pretrained(base, trust_remote_code=True)
+# build prompts with processor.apply_chat_template(..., enable_thinking=False)
+```
+
+```bash
+python train/interns2/merge_lora.py --adapter outputs/interns2_mix_300 --out merged/interns2_mix_300
+bash train/interns2/serve.sh start merged/interns2_mix_300          # LMDeploy on port 23334
+MEDVLM_API_BASE=http://127.0.0.1:23334/v1 MEDVLM_API_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}' \
+  MODEL=merged/interns2_mix_300 bash train/eval_all.sh interns2_mix_300
+python eval/eval_openended.py --model merged/interns2_mix_300 --tag interns2_mix_300   # free-text probe
 ```
 
 Reproduce the full evaluation for any adapter:
