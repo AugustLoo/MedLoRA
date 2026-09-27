@@ -7,6 +7,7 @@
 #   bash train/interns2/ablation.sh                # 全部 6 轮, 按下面 CONFIGS 的顺序
 #   bash train/interns2/ablation.sh ep1 attn       # 只跑指定的几轮
 #   OPENENDED=1 bash train/interns2/ablation.sh s43   # 评估时顺带跑开放式探针 (eval/eval_openended.py)
+#   bash train/interns2/ablation.sh r900 r100 r900_s43 r100_s43   # 回放剂量曲线 (2026-09-28)
 # 进度: tail -3 /home/ubuntu/chunqian/logs/ablation.log
 # 前置 (一次): docs/INTERNS2.md「D 组消融」一节 —— 评估数据放到主机、s2train 环境补装 datasets / scikit-learn。
 set -Eeuo pipefail
@@ -33,9 +34,21 @@ declare -A CONFIGS=(
   [ep1_s43]="--epochs 1 --seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300s43.json"
   # 回放 0 (只用 SLAKE) 的第二个种子: 检验「只做短答微调会把异常图说成正常」是否可重复
   [r0_s43]="--seed 43 --data $DATA/slake_train.json"
+  # 回放剂量曲线 (与 3B 的 C2 同一批数据文件): 99 条 (每类 33) 与 900 条 (每类 300, 即 C1), 各两个种子
+  [r100]="--data $DATA/slake_train.json $DATA/pubmedqa_sft_train_100.json"
+  [r900]="--data $DATA/slake_train.json $DATA/pubmedqa_sft_train.json"
+  [r900_s43]="--seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_900s43.json"
+  [r100_s43]="--seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_100s43.json"
 )
 ORDER=(ep1 attn r8 r32 lr5e-5 lr2e-4)
 [[ $# -gt 0 ]] && ORDER=("$@")
+
+# 开跑前先查好每一轮要用的数据文件都在, 免得半夜停在第二轮
+for NAME in "${ORDER[@]}"; do
+  for F in ${CONFIGS[$NAME]:?未知的消融名 $NAME}; do
+    [[ $F == *.json && ! -f $F ]] && { echo "缺数据文件 $F (轮 $NAME), 先按 docs/INTERNS2.md 生成"; exit 1; }
+  done
+done
 
 log() { echo "[$(date '+%m-%d %H:%M:%S')] $*" | tee -a "$LOG"; }
 cleanup() { bash "$REPO/train/interns2/serve.sh" stop >/dev/null 2>&1 || true; }

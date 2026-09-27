@@ -148,3 +148,23 @@ cd /home/ubuntu/chunqian/MedLoRA && ln -sfn /home/ubuntu/chunqian/data/SLAKE dat
 35B 种子间 macro-F1 差可达 3.7 (3B 约 0.7), 单次运行不可靠。结论见 `results/README.md` 最后一节与报告 5.7 节。
 开放式探针的「异常说成正常」在 44 张图上太不稳 (同一条件两个种子 13 与 3), 不作为指标使用。
 
+
+## 回放剂量曲线 (35B, 2026-09-28 起)
+
+3B 上回放 99 / 300 / 900 条画出了「300 条左右就拿到几乎全部收益、99 条反而矫枉过正」的曲线 (报告 5.6 节)。
+35B 目前只有 0 和 300 两个点, 这里补 99 和 900, 各两个种子。数据文件与 3B 完全相同 (同一转换脚本、同一种子),
+在主机上用离线 HF 缓存直接生成, 先重新生成一份 300 条的和已有文件逐字节比对, 确认生成结果与容器里那批一致。
+
+```bash
+conda activate /home/ubuntu/chunqian/envs/s2train && cd /home/ubuntu/chunqian/MedLoRA
+export HF_HOME=/home/ubuntu/chunqian/hf HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1
+python data/convert_pubmedqa_sft.py --per-class 100 --tag 300 && cmp data/processed/pubmedqa_sft_train_300.json /home/ubuntu/chunqian/data/processed/pubmedqa_sft_train_300.json && echo 与容器一致
+python data/convert_pubmedqa_sft.py --per-class 33 --tag 100                  # 99 条
+python data/convert_pubmedqa_sft.py --per-class 300                           # 900 条 (C1)
+python data/convert_pubmedqa_sft.py --per-class 300 --tag 900s43 --seed 43
+python data/convert_pubmedqa_sft.py --per-class 33 --tag 100s43 --seed 43
+cp data/processed/pubmedqa_sft_train{_100,,_900s43,_100s43}.json /home/ubuntu/chunqian/data/processed/
+bash train/interns2/ablation.sh r900 r100 r900_s43 r100_s43                   # 在 tmux 里; 每轮约 2.5 小时
+```
+
+脚本开跑前会检查四轮的数据文件是否都在, 缺了直接退出, 不会停同学的服务。中途 Ctrl-C 可以随时停, 再次运行从检查点接着练。
