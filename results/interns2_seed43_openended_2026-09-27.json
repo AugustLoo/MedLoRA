@@ -1,0 +1,827 @@
+{
+  "interns2_abl_s43": {
+    "slake": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+      "adapter": null,
+      "split": "test",
+      "n": 1061,
+      "load_4bit": false,
+      "max_pixels": 401408,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "seconds": 383.3,
+      "metrics": {
+        "open_em": 87.44,
+        "open_recall": 91.69,
+        "open_f1": 91.21,
+        "closed_acc": 93.99
+      },
+      "n_closed": 416,
+      "n_open": 645,
+      "by_modality": {
+        "CT": {
+          "open_recall": 92.15,
+          "closed_acc": 91.59
+        },
+        "X-Ray": {
+          "open_recall": 91.07,
+          "closed_acc": 97.37
+        },
+        "MRI": {
+          "open_recall": 91.92,
+          "closed_acc": 95.45
+        }
+      }
+    },
+    "textvqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 300,
+      "seed": 42,
+      "textvqa_acc": 86.89
+    },
+    "pubmedqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 1000,
+      "accuracy": 84.9,
+      "macro_f1": 76.26,
+      "pred_dist": {
+        "yes": 529,
+        "no": 351,
+        "maybe": 120
+      },
+      "gold_dist": {
+        "yes": 552,
+        "no": 338,
+        "maybe": 110
+      },
+      "unparsed": 0
+    },
+    "mmbench": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 500,
+      "seed": 42,
+      "dataset": "lmms-lab/MMBench/en/dev",
+      "mmbench_acc": 94.0,
+      "unparsed": 1,
+      "by_category": {
+        "action_recognition": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "attribute_comparison": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "attribute_recognition": {
+          "n": 38,
+          "acc": 94.74
+        },
+        "celebrity_recognition": {
+          "n": 40,
+          "acc": 100.0
+        },
+        "function_reasoning": {
+          "n": 44,
+          "acc": 97.73
+        },
+        "future_prediction": {
+          "n": 13,
+          "acc": 53.85
+        },
+        "identity_reasoning": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "image_emotion": {
+          "n": 19,
+          "acc": 94.74
+        },
+        "image_quality": {
+          "n": 25,
+          "acc": 68.0
+        },
+        "image_scene": {
+          "n": 56,
+          "acc": 100.0
+        },
+        "image_style": {
+          "n": 29,
+          "acc": 89.66
+        },
+        "image_topic": {
+          "n": 14,
+          "acc": 100.0
+        },
+        "nature_relation": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "object_localization": {
+          "n": 35,
+          "acc": 97.14
+        },
+        "ocr": {
+          "n": 15,
+          "acc": 93.33
+        },
+        "physical_property_reasoning": {
+          "n": 19,
+          "acc": 89.47
+        },
+        "physical_relation": {
+          "n": 9,
+          "acc": 88.89
+        },
+        "social_relation": {
+          "n": 13,
+          "acc": 100.0
+        },
+        "spatial_relationship": {
+          "n": 22,
+          "acc": 90.91
+        },
+        "structuralized_imagetext_understanding": {
+          "n": 29,
+          "acc": 93.1
+        }
+      }
+    },
+    "openended": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "max_new_tokens": 160,
+      "coco": {
+        "n": 300,
+        "dataset": "lmms-lab/COCO-Caption2017",
+        "prompt": "Describe this image in two or three sentences.",
+        "cider_no_lp": 68.01,
+        "rouge_l": 29.08,
+        "ref_recall": 71.42,
+        "mean_words": 45.3,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 0.0,
+        "distinct2": 0.984
+      },
+      "slake": {
+        "n": 96,
+        "prompt": "Describe this medical image in two or three sentences: the imaging modality, the body region, and any abnormal findings.",
+        "modality_ok_pct": 99.0,
+        "location_ok_pct": 93.8,
+        "n_abnormal": 44,
+        "abnormal_called_normal": 4,
+        "mean_words": 64.1,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 0.0,
+        "distinct2": 0.964
+      }
+    }
+  },
+  "interns2_abl_attn_s43": {
+    "slake": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_attn_s43",
+      "adapter": null,
+      "split": "test",
+      "n": 1061,
+      "load_4bit": false,
+      "max_pixels": 401408,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_attn_s43",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "seconds": 384.6,
+      "metrics": {
+        "open_em": 86.67,
+        "open_recall": 91.19,
+        "open_f1": 90.87,
+        "closed_acc": 93.51
+      },
+      "n_closed": 416,
+      "n_open": 645,
+      "by_modality": {
+        "CT": {
+          "open_recall": 92.15,
+          "closed_acc": 91.59
+        },
+        "X-Ray": {
+          "open_recall": 90.4,
+          "closed_acc": 95.61
+        },
+        "MRI": {
+          "open_recall": 90.83,
+          "closed_acc": 95.45
+        }
+      }
+    },
+    "textvqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_attn_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_attn_s43",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 300,
+      "seed": 42,
+      "textvqa_acc": 87.0
+    },
+    "pubmedqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_attn_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_attn_s43",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 1000,
+      "accuracy": 82.8,
+      "macro_f1": 74.03,
+      "pred_dist": {
+        "yes": 518,
+        "no": 354,
+        "maybe": 128
+      },
+      "gold_dist": {
+        "yes": 552,
+        "no": 338,
+        "maybe": 110
+      },
+      "unparsed": 1
+    },
+    "mmbench": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_attn_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_attn_s43",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 500,
+      "seed": 42,
+      "dataset": "lmms-lab/MMBench/en/dev",
+      "mmbench_acc": 93.4,
+      "unparsed": 1,
+      "by_category": {
+        "action_recognition": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "attribute_comparison": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "attribute_recognition": {
+          "n": 38,
+          "acc": 97.37
+        },
+        "celebrity_recognition": {
+          "n": 40,
+          "acc": 100.0
+        },
+        "function_reasoning": {
+          "n": 44,
+          "acc": 95.45
+        },
+        "future_prediction": {
+          "n": 13,
+          "acc": 53.85
+        },
+        "identity_reasoning": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "image_emotion": {
+          "n": 19,
+          "acc": 94.74
+        },
+        "image_quality": {
+          "n": 25,
+          "acc": 68.0
+        },
+        "image_scene": {
+          "n": 56,
+          "acc": 100.0
+        },
+        "image_style": {
+          "n": 29,
+          "acc": 89.66
+        },
+        "image_topic": {
+          "n": 14,
+          "acc": 100.0
+        },
+        "nature_relation": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "object_localization": {
+          "n": 35,
+          "acc": 91.43
+        },
+        "ocr": {
+          "n": 15,
+          "acc": 93.33
+        },
+        "physical_property_reasoning": {
+          "n": 19,
+          "acc": 89.47
+        },
+        "physical_relation": {
+          "n": 9,
+          "acc": 100.0
+        },
+        "social_relation": {
+          "n": 13,
+          "acc": 100.0
+        },
+        "spatial_relationship": {
+          "n": 22,
+          "acc": 86.36
+        },
+        "structuralized_imagetext_understanding": {
+          "n": 29,
+          "acc": 89.66
+        }
+      }
+    },
+    "openended": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_attn_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_attn_s43",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "max_new_tokens": 160,
+      "coco": {
+        "n": 300,
+        "dataset": "lmms-lab/COCO-Caption2017",
+        "prompt": "Describe this image in two or three sentences.",
+        "cider_no_lp": 66.85,
+        "rouge_l": 28.89,
+        "ref_recall": 71.4,
+        "mean_words": 45.3,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 0.0,
+        "distinct2": 0.984
+      },
+      "slake": {
+        "n": 96,
+        "prompt": "Describe this medical image in two or three sentences: the imaging modality, the body region, and any abnormal findings.",
+        "modality_ok_pct": 96.9,
+        "location_ok_pct": 92.7,
+        "n_abnormal": 44,
+        "abnormal_called_normal": 10,
+        "mean_words": 63.5,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 0.0,
+        "distinct2": 0.962
+      }
+    }
+  },
+  "interns2_abl_ep1_s43": {
+    "slake": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1_s43",
+      "adapter": null,
+      "split": "test",
+      "n": 1061,
+      "load_4bit": false,
+      "max_pixels": 401408,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1_s43",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "seconds": 389.4,
+      "metrics": {
+        "open_em": 84.34,
+        "open_recall": 88.95,
+        "open_f1": 88.82,
+        "closed_acc": 93.03
+      },
+      "n_closed": 416,
+      "n_open": 645,
+      "by_modality": {
+        "CT": {
+          "open_recall": 89.14,
+          "closed_acc": 90.65
+        },
+        "X-Ray": {
+          "open_recall": 89.01,
+          "closed_acc": 96.49
+        },
+        "MRI": {
+          "open_recall": 88.52,
+          "closed_acc": 94.32
+        }
+      }
+    },
+    "textvqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1_s43",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 300,
+      "seed": 42,
+      "textvqa_acc": 87.67
+    },
+    "pubmedqa": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1_s43",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 1000,
+      "accuracy": 81.3,
+      "macro_f1": 69.49,
+      "pred_dist": {
+        "yes": 544,
+        "no": 354,
+        "maybe": 102
+      },
+      "gold_dist": {
+        "yes": 552,
+        "no": 338,
+        "maybe": 110
+      },
+      "unparsed": 0
+    },
+    "mmbench": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1_s43",
+        "max_pixels": 602112,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "n": 500,
+      "seed": 42,
+      "dataset": "lmms-lab/MMBench/en/dev",
+      "mmbench_acc": 94.2,
+      "unparsed": 0,
+      "by_category": {
+        "action_recognition": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "attribute_comparison": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "attribute_recognition": {
+          "n": 38,
+          "acc": 97.37
+        },
+        "celebrity_recognition": {
+          "n": 40,
+          "acc": 100.0
+        },
+        "function_reasoning": {
+          "n": 44,
+          "acc": 95.45
+        },
+        "future_prediction": {
+          "n": 13,
+          "acc": 53.85
+        },
+        "identity_reasoning": {
+          "n": 17,
+          "acc": 100.0
+        },
+        "image_emotion": {
+          "n": 19,
+          "acc": 94.74
+        },
+        "image_quality": {
+          "n": 25,
+          "acc": 68.0
+        },
+        "image_scene": {
+          "n": 56,
+          "acc": 100.0
+        },
+        "image_style": {
+          "n": 29,
+          "acc": 89.66
+        },
+        "image_topic": {
+          "n": 14,
+          "acc": 100.0
+        },
+        "nature_relation": {
+          "n": 23,
+          "acc": 100.0
+        },
+        "object_localization": {
+          "n": 35,
+          "acc": 97.14
+        },
+        "ocr": {
+          "n": 15,
+          "acc": 93.33
+        },
+        "physical_property_reasoning": {
+          "n": 19,
+          "acc": 89.47
+        },
+        "physical_relation": {
+          "n": 9,
+          "acc": 100.0
+        },
+        "social_relation": {
+          "n": 13,
+          "acc": 100.0
+        },
+        "spatial_relationship": {
+          "n": 22,
+          "acc": 90.91
+        },
+        "structuralized_imagetext_understanding": {
+          "n": 29,
+          "acc": 93.1
+        }
+      }
+    },
+    "openended": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1_s43",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_ep1_s43",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "max_new_tokens": 160,
+      "coco": {
+        "n": 300,
+        "dataset": "lmms-lab/COCO-Caption2017",
+        "prompt": "Describe this image in two or three sentences.",
+        "cider_no_lp": 65.55,
+        "rouge_l": 27.96,
+        "ref_recall": 72.28,
+        "mean_words": 49.0,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 0.0,
+        "distinct2": 0.982
+      },
+      "slake": {
+        "n": 96,
+        "prompt": "Describe this medical image in two or three sentences: the imaging modality, the body region, and any abnormal findings.",
+        "modality_ok_pct": 99.0,
+        "location_ok_pct": 93.8,
+        "n_abnormal": 44,
+        "abnormal_called_normal": 8,
+        "mean_words": 69.2,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 0.0,
+        "distinct2": 0.957
+      }
+    }
+  },
+  "interns2_base": {
+    "openended": {
+      "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23333/v1",
+        "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "max_new_tokens": 160,
+      "coco": {
+        "n": 300,
+        "dataset": "lmms-lab/COCO-Caption2017",
+        "prompt": "Describe this image in two or three sentences.",
+        "cider_no_lp": 65.79,
+        "rouge_l": 28.14,
+        "ref_recall": 71.4,
+        "mean_words": 48.2,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 0.0,
+        "distinct2": 0.983
+      },
+      "slake": {
+        "n": 96,
+        "prompt": "Describe this medical image in two or three sentences: the imaging modality, the body region, and any abnormal findings.",
+        "modality_ok_pct": 99.0,
+        "location_ok_pct": 96.9,
+        "n_abnormal": 44,
+        "abnormal_called_normal": 4,
+        "mean_words": 63.9,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 1.0,
+        "distinct2": 0.975
+      }
+    }
+  },
+  "interns2_mix_0": {
+    "openended": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "max_new_tokens": 160,
+      "coco": {
+        "n": 300,
+        "dataset": "lmms-lab/COCO-Caption2017",
+        "prompt": "Describe this image in two or three sentences.",
+        "cider_no_lp": 68.18,
+        "rouge_l": 28.92,
+        "ref_recall": 71.54,
+        "mean_words": 46.0,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 0.0,
+        "distinct2": 0.983
+      },
+      "slake": {
+        "n": 96,
+        "prompt": "Describe this medical image in two or three sentences: the imaging modality, the body region, and any abnormal findings.",
+        "modality_ok_pct": 100.0,
+        "location_ok_pct": 94.8,
+        "n_abnormal": 44,
+        "abnormal_called_normal": 13,
+        "mean_words": 72.4,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 0.0,
+        "distinct2": 0.963
+      }
+    }
+  },
+  "interns2_mix_300": {
+    "openended": {
+      "model": "/home/ubuntu/chunqian/merged/interns2_mix_300",
+      "adapter": null,
+      "backend": {
+        "backend": "api",
+        "api_base": "http://127.0.0.1:23334/v1",
+        "served_model": "/home/ubuntu/chunqian/merged/interns2_mix_300",
+        "max_pixels": 401408,
+        "extra": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "max_new_tokens": 160,
+      "coco": {
+        "n": 300,
+        "dataset": "lmms-lab/COCO-Caption2017",
+        "prompt": "Describe this image in two or three sentences.",
+        "cider_no_lp": 68.84,
+        "rouge_l": 29.61,
+        "ref_recall": 72.54,
+        "mean_words": 44.5,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 0.0,
+        "distinct2": 0.984
+      },
+      "slake": {
+        "n": 96,
+        "prompt": "Describe this medical image in two or three sentences: the imaging modality, the body region, and any abnormal findings.",
+        "modality_ok_pct": 99.0,
+        "location_ok_pct": 94.8,
+        "n_abnormal": 44,
+        "abnormal_called_normal": 2,
+        "mean_words": 69.1,
+        "short_lt5_pct": 0.0,
+        "refusal_pct": 0.0,
+        "distinct2": 0.962
+      }
+    }
+  }
+}
