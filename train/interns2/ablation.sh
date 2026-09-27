@@ -6,6 +6,7 @@
 # 用法 (在 tmux 里):
 #   bash train/interns2/ablation.sh                # 全部 6 轮, 按下面 CONFIGS 的顺序
 #   bash train/interns2/ablation.sh ep1 attn       # 只跑指定的几轮
+#   OPENENDED=1 bash train/interns2/ablation.sh s43   # 评估时顺带跑开放式探针 (eval/eval_openended.py)
 # 进度: tail -3 /home/ubuntu/chunqian/logs/ablation.log
 # 前置 (一次): docs/INTERNS2.md「D 组消融」一节 —— 评估数据放到主机、s2train 环境补装 datasets / scikit-learn。
 set -Eeuo pipefail
@@ -26,6 +27,10 @@ declare -A CONFIGS=(
   [r32]="--rank 32 --alpha 64"
   [lr5e-5]="--lr 5e-5"
   [lr2e-4]="--lr 2e-4"
+  # 第二个种子: 回放样本的抽样和训练种子一起换成 43 (与 3B 的 C2-300-s43 同一做法)
+  [s43]="--seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300s43.json"
+  [attn_s43]="--targets attn --seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300s43.json"
+  [ep1_s43]="--epochs 1 --seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300s43.json"
 )
 ORDER=(ep1 attn r8 r32 lr5e-5 lr2e-4)
 [[ $# -gt 0 ]] && ORDER=("$@")
@@ -57,7 +62,9 @@ for NAME in "${ORDER[@]}"; do
     log "训练完成: $(tail -1 $OUT/train_log.jsonl)"
   fi
 
-  if [[ -f outputs/eval/mmbench_$TAG.json ]]; then
+  NEED_STD=1; [[ -f outputs/eval/mmbench_$TAG.json ]] && NEED_STD=0
+  NEED_OE=0; [[ "${OPENENDED:-0}" == 1 && ! -f outputs/eval/openended_$TAG.json ]] && NEED_OE=1
+  if [[ $NEED_STD == 0 && $NEED_OE == 0 ]]; then
     log "评估: 已有结果, 跳过"; continue
   fi
   if [[ ! -f $MERGED/model.safetensors.index.json ]]; then
@@ -68,12 +75,19 @@ for NAME in "${ORDER[@]}"; do
   fi
   log "起服务"
   bash train/interns2/serve.sh start $MERGED >> $ROOT/logs/$TAG.serve.log 2>&1
-  log "评估开始"
-  MEDVLM_API_BASE=http://127.0.0.1:23334/v1 \
-  MEDVLM_API_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}' \
-  MODEL=$MERGED bash train/eval_all.sh $TAG >> $ROOT/logs/$TAG.eval.log 2>&1
+  export MEDVLM_API_BASE=http://127.0.0.1:23334/v1
+  export MEDVLM_API_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}'
+  if [[ $NEED_STD == 1 ]]; then
+    log "评估开始"
+    MODEL=$MERGED bash train/eval_all.sh $TAG >> $ROOT/logs/$TAG.eval.log 2>&1
+    log "评估完成: $(python -c "import json;print('SLAKE closed',json.load(open('outputs/eval/slake_$TAG.json'))['metrics']['closed_acc'],'| PubMedQA F1 (1000 题口径)',json.load(open('outputs/eval/pubmedqa_$TAG.json'))['macro_f1'],'| TextVQA',json.load(open('outputs/eval/textvqa_$TAG.json'))['textvqa_acc'],'| MMBench',json.load(open('outputs/eval/mmbench_$TAG.json'))['mmbench_acc'])")"
+  fi
+  if [[ $NEED_OE == 1 ]]; then
+    log "开放式探针开始"
+    python eval/eval_openended.py --model $MERGED --tag $TAG >> $ROOT/logs/$TAG.openended.log 2>&1
+    log "开放式探针完成: $(python -c "import json;d=json.load(open('outputs/eval/openended_$TAG.json'));c,s=d['coco'],d['slake'];print('COCO CIDEr',c['cider'],'词数',c['mean_words'],'短答%',c['short_lt5_pct'],'| SLAKE 部位%',s['location_ok_pct'],'异常说成正常',s['abnormal_called_normal'],'/',s['n_abnormal'])")"
+  fi
   bash train/interns2/serve.sh stop >> $ROOT/logs/$TAG.serve.log 2>&1
-  log "评估完成: $(python -c "import json;print('SLAKE closed',json.load(open('outputs/eval/slake_$TAG.json'))['metrics']['closed_acc'],'| PubMedQA F1',json.load(open('outputs/eval/pubmedqa_$TAG.json'))['macro_f1'],'| TextVQA',json.load(open('outputs/eval/textvqa_$TAG.json'))['textvqa_acc'],'| MMBench',json.load(open('outputs/eval/mmbench_$TAG.json'))['mmbench_acc'])")"
   rm -rf "$MERGED"
   log "已删除合并模型 (adapter 保留在 $OUT)"
 done
