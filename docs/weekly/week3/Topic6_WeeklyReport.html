@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Topic 6 第 3 周</title>
+<title>Topic 6 第 3 周 · Week 3</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap">
 <style>
 :root{
@@ -121,6 +121,26 @@ footer a{color:var(--ink-soft)}
   #cover .stats{gap:26px}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.step-card{transition:none}}
+
+/* ---- 中英对照 bilingual ---- */
+.tr-h{display:block;font-family:var(--font-body);font-weight:500;font-size:.5em;letter-spacing:0;line-height:1.35;color:var(--ink-soft);margin-top:10px}
+#cover h1 .tr-h{font-size:.4em;margin-top:16px}
+.tr-h3{display:block;font-family:var(--font-body);font-weight:500;font-size:.74em;color:var(--ink-soft);margin-top:3px;line-height:1.4}
+p.tr,.prose p.tr{color:#566577;font-size:.92em;line-height:1.75;border-left:3px solid var(--rule);padding-left:12px;margin-top:-.4em}
+.prose p.lede.tr{font-size:16.5px;color:#4A5A6C}
+#cover .sub.tr{font-size:15.5px;margin-top:10px;border-left:3px solid var(--rule);padding-left:12px}
+.tr-l{display:block;color:var(--taupe);font-size:12px;margin-top:4px;line-height:1.45}
+.tr-c{display:block;font-family:var(--font-body);font-size:11.5px;font-weight:400;color:var(--taupe);letter-spacing:0;text-transform:none;white-space:normal;margin-top:1px;line-height:1.35}
+thead th .tr-c{font-size:10.5px}
+.tr-s{display:block;margin-top:4px}
+.tr-li{display:block;color:#566577;font-size:.92em;margin-top:3px}
+.quote p.tr{font-size:16px;margin-top:10px;border-left:none;padding-left:0}
+.step-card p.tr{font-size:14px;margin-top:8px}
+.tiles p.tr{font-size:13.5px;margin-top:8px}
+#done td:last-child,#abl td:last-child{white-space:normal;min-width:260px}
+#done td:last-child{min-width:440px}
+#cover .inner{padding-bottom:6vh}
+#cover .stats{margin-top:32px}
 </style>
 </head>
 <body>
@@ -132,14 +152,15 @@ footer a{color:var(--ink-soft)}
     <rect width="1400" height="900" fill="url(#gp)"/>
   </svg>
   <div class="inner">
-    <div class="kicker">Topic 6 · Task 1.3 · 第 3 周进展汇报 · 更新至 2026-09-27</div>
-    <h1>在 <span class="hi">35B</span> 上，<br>修法有效，<span class="hi2">病因不同</span></h1>
+    <div class="kicker">Topic 6 · Task 1.3 · 第 3 周进展汇报 · Week 3 progress report · 2026-09-27</div>
+    <h1>在 <span class="hi">35B</span> 上，<br>修法有效，<span class="hi2">病因不同</span><span class="tr-h">At 35B, the fix works — but the cause is different</span></h1>
     <p class="sub">老师给了一个大十二倍的模型。同样的数据、同样的设置再做一遍，每个关键条件跑两个种子：掺 300 道三选一题照样把 maybe 修回来，而且没有矫枉过正；但在 3B 上「短答微调制造偏置」这一步，35B 上并不明显——它的偏置是自带的。</p>
-    <div class="asof-line">Intern-S2-Preview · 35B 混合专家 · 8 × RTX 5090 · LoRA r16 · 关思考模式评估 · 关键条件各两个种子 · results as of 2026-09-27</div>
+    <p class="sub tr">We repeated the experiment on a model twelve times larger, with the same data and settings and two seeds per key condition. Adding 300 three-class examples still restores "maybe" without over-correcting. But the step we saw at 3B — short-answer fine-tuning creating the bias — is not clear at 35B: its bias is built in.</p>
+    <div class="asof-line">Intern-S2-Preview · 35B MoE · 8 × RTX 5090 · LoRA r16 · thinking off · two seeds per key condition · results as of 2026-09-27</div>
     <div class="stats">
-      <div class="stat"><div class="v" style="color:var(--c-c1)">66.3<small>← 61.4</small></div><div class="bar" style="background:var(--c-c1)"></div><div class="l">PubMedQA macro-F1，掺 300 道对比只做微调，两个种子的均值</div></div>
-      <div class="stat"><div class="v" style="color:var(--c-good)">18.5<small>← 7</small></div><div class="bar" style="background:var(--c-good)"></div><div class="l">55 道 maybe 答对几道，两个种子的均值</div></div>
-      <div class="stat"><div class="v" style="color:var(--c-base)">94.2<small>← 84.4</small></div><div class="bar" style="background:var(--c-base)"></div><div class="l">SLAKE 封闭题，训练前后，比 3B 训练后高 8 分</div></div>
+      <div class="stat"><div class="v" style="color:var(--c-c1)">66.3<small>← 61.4</small></div><div class="bar" style="background:var(--c-c1)"></div><div class="l">PubMedQA macro-F1，掺 300 道对比只做微调，两个种子的均值<span class="tr-l">macro-F1, replay 300 vs fine-tuning only, mean of two seeds</span></div></div>
+      <div class="stat"><div class="v" style="color:var(--c-good)">18.5<small>← 7</small></div><div class="bar" style="background:var(--c-good)"></div><div class="l">55 道 maybe 答对几道，两个种子的均值<span class="tr-l">"maybe" questions answered correctly out of 55, mean of two seeds</span></div></div>
+      <div class="stat"><div class="v" style="color:var(--c-base)">94.2<small>← 84.4</small></div><div class="bar" style="background:var(--c-base)"></div><div class="l">SLAKE 封闭题，训练前后，比 3B 训练后高 8 分<span class="tr-l">SLAKE closed accuracy before → after; 8 points above the fine-tuned 3B</span></div></div>
     </div>
   </div>
   <div class="scrollhint">SCROLL ▼</div>
@@ -148,29 +169,34 @@ footer a{color:var(--ink-soft)}
 <!-- ============================ 01 问题 ============================ -->
 <section class="section deep" id="why">
   <div class="prose">
-    <div class="kicker">01 · 问题</div>
-    <h2>规律会不会只是小模型的毛病</h2>
+    <div class="kicker">01 · 问题 · The question</div>
+    <h2>规律会不会只是小模型的毛病<span class="tr-h">Is this just a small-model problem?</span></h2>
     <p class="lede">前两周所有结论都来自一个 3B 模型。一个自然的质疑是：大模型本来就不会犯这些错，结论不能推广。</p>
+    <p class="lede tr">Every conclusion so far came from one 3B model. The natural objection: a larger model would not make these mistakes, so the findings may not generalise.</p>
     <p>这周老师提供了 <span class="en">Intern-S2-Preview</span>：在 <span class="en">Qwen3.5</span> 上继续预训练出来的 35B 视觉语言模型，混合专家结构，256 个专家每次激活 8 个，实际计算量约 3B。部署在同学的 8 卡 5090 主机上。</p>
+    <p class="tr">This week the instructor provided Intern-S2-Preview, a 35B vision-language model continued-pretrained from Qwen3.5. It is a mixture of experts — 256 experts, 8 active per token, about 3B parameters active — served on a classmate's 8 × RTX 5090 host.</p>
     <p>我们重复最能说明问题的两个条件：<strong>只做医学微调（回放 0）</strong>和<strong>掺 300 道三选一题（回放 300）</strong>，每个都跑两个随机种子。数据文件、提示词、学习率、轮数、批次、LoRA 大小，全部和 3B 一模一样。</p>
+    <p class="tr">We repeated the two conditions that carry the argument — <strong>medical fine-tuning only (replay 0)</strong> and <strong>fine-tuning plus 300 three-class examples (replay 300)</strong> — each with two random seeds. Data files, prompts, learning rate, epochs, batch size and LoRA size are identical to 3B.</p>
   </div>
   <div class="quote">
     <p>四个问题：35B 天生会不会说 maybe？短答微调会不会也把它推向 yes？回放能不能修好？代价是不是还只在短答格式上？</p>
-    <div class="who">— 本周要回答的</div>
+    <p class="tr">Four questions: does the 35B model say "maybe" on its own? Does short-answer fine-tuning push it toward "yes"? Does replay fix it? Is the cost still confined to short-answer format?</p>
+    <div class="who">— 本周要回答的 · what this week answers</div>
   </div>
 </section>
 
 <!-- ============================ 02 方法 ============================ -->
 <section class="section" id="how">
   <div class="prose">
-    <div class="kicker">02 · 方法</div>
-    <h2>同一套尺子，接到一个新模型上</h2>
+    <div class="kicker">02 · 方法 · Method</div>
+    <h2>同一套尺子，接到一个新模型上<span class="tr-h">The same ruler, on a new model</span></h2>
     <p class="lede">这个模型很新，现成的训练框架都不认识它，有三处不得不和 3B 不同。</p>
+    <p class="lede tr">The model is new and existing training frameworks do not support it, so three things had to differ from 3B.</p>
   </div>
   <div class="tiles">
-    <div class="card"><div class="big" style="color:var(--c-base)">接口</div><h3>评估：走同一条路</h3><p>写了一个 OpenAI 兼容的调用后端，四个评估脚本一行没改，设一个地址就切换。基座和所有训练后的模型，都经同一个 LMDeploy 服务、同一套提示词和打分代码评测。</p></div>
-    <div class="card"><div class="big" style="color:var(--c-c1)">0.054%</div><h3>训练：自己写脚本</h3><p>LLaMA-Factory 不支持，改用 transformers + peft，模型按层切到 4 张卡。256 个专家是打包的参数，LoRA 挂不上，只挂注意力层和共享专家：250 层，1,917 万参数（3B 是全部线性层，0.79%）。</p></div>
-    <div class="card"><div class="big" style="color:var(--c-a)">关思考</div><h3>先想后答要关掉</h3><p>它默认先写一段思考再回答。每题只给 8 到 32 个 token，不关的话回答全是空的。训练和评估都用关思考的模板，3B 本来就不思考，这样才可比。</p></div>
+    <div class="card"><div class="big" style="color:var(--c-base)">接口 API</div><h3>评估：走同一条路<span class="tr-h3">Evaluation: the same path</span></h3><p>写了一个 OpenAI 兼容的调用后端，四个评估脚本一行没改，设一个地址就切换。基座和所有训练后的模型，都经同一个 LMDeploy 服务、同一套提示词和打分代码评测。</p><p class="tr">An OpenAI-compatible client lets the four evaluation scripts run unchanged against a served model. The base and every fine-tuned model go through the same LMDeploy server, prompts and scoring code.</p></div>
+    <div class="card"><div class="big" style="color:var(--c-c1)">0.054%</div><h3>训练：自己写脚本<span class="tr-h3">Training: our own script</span></h3><p>LLaMA-Factory 不支持，改用 transformers + peft，模型按层切到 4 张卡。256 个专家是打包的参数，LoRA 挂不上，只挂注意力层和共享专家：250 层，1,917 万参数（3B 是全部线性层，0.79%）。</p><p class="tr">Written with transformers + peft, the model split layer-wise over four GPUs. The 256 experts are packed parameters LoRA cannot attach to, so LoRA goes on attention and the shared expert: 250 layers, 19.2M parameters (3B: all linear layers, 0.79%).</p></div>
+    <div class="card"><div class="big" style="color:var(--c-a)">关思考 · no thinking</div><h3>先想后答要关掉<span class="tr-h3">Thinking mode switched off</span></h3><p>它默认先写一段思考再回答。每题只给 8 到 32 个 token，不关的话回答全是空的。训练和评估都用关思考的模板，3B 本来就不思考，这样才可比。</p><p class="tr">By default it reasons before answering; with an 8-32 token budget the answer comes back empty. Training and evaluation both disable thinking, which also keeps it comparable with the 3B model.</p></div>
   </div>
   <div class="srcline"><span class="en">medvlm/remote.py</span> · <span class="en">train/interns2/train_lora.py</span> · <span class="en">train/interns2/merge_lora.py</span> · <span class="en">docs/INTERNS2.md</span></div>
 </section>
@@ -178,202 +204,217 @@ footer a{color:var(--ink-soft)}
 <!-- ============================ 03 基座 ============================ -->
 <section class="section deep" id="base">
   <div class="prose">
-    <div class="kicker">03 · 起点</div>
-    <h2>大模型天生更会分 yes 和 no，<br>但同样不敢说 maybe</h2>
+    <div class="kicker">03 · 起点 · Starting point</div>
+    <h2>大模型天生更会分 yes 和 no，<br>但同样不敢说 maybe<span class="tr-h">The larger model separates yes from no — and still avoids "maybe"</span></h2>
     <p class="lede">不训练，直接考四张表。</p>
+    <p class="lede tr">No training: the four tables, zero-shot.</p>
     <p>医学封闭题 84.4，<strong>已经追平 3B 训练后的水平</strong>。PubMedQA 上 yes 和 no 分得很准：该答 no 却答 yes 只有 20 次，3B 基座是 42 次；准确率 79%。但标准答案里有 55 个 maybe，它只答了 27 次、对 7 次——<strong>和 3B 基座一模一样</strong>。规模解决了是非判断，没有解决「承认不确定」。</p>
+    <p class="tr">Closed SLAKE accuracy is 84.4, <strong>already level with the fine-tuned 3B model</strong>. On PubMedQA it separates yes from no well: 20 "no"→"yes" errors against 42 for the 3B base, 79% accuracy. But of 55 gold "maybe" answers it predicts 27 and gets 7 right — <strong>exactly the 3B base's count</strong>. Scale fixes the binary judgement, not the willingness to abstain.</p>
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>不训练，直接考</th><th class="num">SLAKE 封闭</th><th class="num">开放 EM</th><th class="num">TextVQA</th><th class="num">MMBench</th><th class="num">PubMedQA 准确率</th><th class="num">maybe 答对</th><th class="num">no→yes</th></tr></thead>
+      <thead><tr><th>不训练，直接考<span class="tr-c">zero-shot</span></th><th class="num">SLAKE 封闭<span class="tr-c">closed</span></th><th class="num">开放 EM<span class="tr-c">open EM</span></th><th class="num">TextVQA</th><th class="num">MMBench</th><th class="num">PubMedQA 准确率<span class="tr-c">accuracy</span></th><th class="num">maybe 答对<span class="tr-c">correct</span></th><th class="num">no→yes</th></tr></thead>
       <tbody>
-        <tr><td>3B 基座</td><td class="num">66.35</td><td class="num">40.93</td><td class="num">84.22</td><td class="num">88.40</td><td class="num">64.00</td><td class="num">7 / 55</td><td class="num bad">42</td></tr>
-        <tr class="hl"><td>35B 基座</td><td class="num best">84.38</td><td class="num">67.13</td><td class="num best">88.78</td><td class="num best">93.60</td><td class="num best">79.00</td><td class="num bad">7 / 55</td><td class="num ok">20</td></tr>
-        <tr><td>3B 训练后（回放 0）</td><td class="num">85.34</td><td class="num">75.50</td><td class="num">83.56</td><td class="num">87.40</td><td class="num">68.80</td><td class="num">6 / 55</td><td class="num">63</td></tr>
+        <tr><td>3B 基座<span class="tr-c">3B base</span></td><td class="num">66.35</td><td class="num">40.93</td><td class="num">84.22</td><td class="num">88.40</td><td class="num">64.00</td><td class="num">7 / 55</td><td class="num bad">42</td></tr>
+        <tr class="hl"><td>35B 基座<span class="tr-c">35B base</span></td><td class="num best">84.38</td><td class="num">67.13</td><td class="num best">88.78</td><td class="num best">93.60</td><td class="num best">79.00</td><td class="num bad">7 / 55</td><td class="num ok">20</td></tr>
+        <tr><td>3B 训练后（回放 0）<span class="tr-c">3B fine-tuned (replay 0)</span></td><td class="num">85.34</td><td class="num">75.50</td><td class="num">83.56</td><td class="num">87.40</td><td class="num">68.80</td><td class="num">6 / 55</td><td class="num">63</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="srcline">PubMedQA 都只算考卷那一半 500 题，标准答案 276 yes / 169 no / 55 maybe。</div>
+  <div class="srcline">PubMedQA 都只算考卷那一半 500 题，标准答案 276 yes / 169 no / 55 maybe。<span class="tr-s">PubMedQA on the held-out 500 questions only; gold 276 yes / 169 no / 55 maybe.</span></div>
 </section>
 
 <!-- ============================ 04 主结果 · scrolly ============================ -->
 <section class="section" id="result">
   <div class="prose">
-    <div class="kicker">04 · 主结果</div>
-    <h2>答案分布怎么变</h2>
+    <div class="kicker">04 · 主结果 · Main result</div>
+    <h2>答案分布怎么变<span class="tr-h">How the answer distribution moves</span></h2>
     <p class="lede">灰色斜纹是标准答案。往下滚，看 35B 在三个条件下怎么答；两个训练条件各有两个种子，并排画出来。</p>
+    <p class="lede tr">Grey hatching is the gold distribution. Scroll to see how the 35B model answers under the three conditions; both seeds of each training condition are drawn side by side.</p>
   </div>
   <div class="scrolly" id="scrolly-dist">
     <div class="sticky-fig"><div class="card">
-      <div class="ttl" id="dist-ttl">PubMedQA 预测的 yes / no / maybe · 考卷半边 500 题</div>
-      <svg id="dist" viewBox="0 0 720 360" role="img" aria-label="35B 基座、回放 0 两个种子、回放 300 两个种子的预测分布"></svg>
+      <div class="ttl" id="dist-ttl">PubMedQA 预测的 yes / no / maybe · predicted answers</div>
+      <svg id="dist" viewBox="0 0 720 360" role="img" aria-label="Predicted yes/no/maybe for the 35B base, replay 0 (two seeds) and replay 300 (two seeds)"></svg>
       <div class="legend" id="dist-legend"></div>
     </div></div>
     <div class="steps">
-      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>35B 基座：几乎不说 maybe</h3><p><span class="en">302 / 171 / 27</span>。yes 和 no 已经很接近标准答案，maybe 只答了 27 次，是标准答案的一半。</p></div></div>
-      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>只做医学微调：两次不一样</h3><p>种子 42 答 <span class="en">313 / 169 / 18</span>，maybe 更少了；种子 43 答 <span class="en">300 / 166 / 34</span>，maybe 反而更多。macro-F1 59.5 和 63.2，基座是 61.8。<strong>在 35B 上，短答微调没有稳定地把它推向 yes</strong>——3B 上这一步是 42 次涨到 63 次。</p></div></div>
-      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>掺 300 道三选一：两次都修回来了</h3><p>种子 42 答 <span class="en">261 / 164 / 75</span>，种子 43 答 <span class="en">271 / 174 / 55</span>。maybe 答对 22 和 15 道，只做微调是 4 和 10 道。macro-F1 两次都高于只做微调的两次，平均高 <span class="en">5.0</span> 分。</p></div></div>
-      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>而且没有过冲</h3><p>yes 两次都停在 261 和 271，标准答案 276。同样 300 道题，3B 把 yes 压到了 228 和 234，推过了头。35B 的「该 yes 答 no」是 13 和 18 次，和不掺题时（16 次）一样；3B 是 32 和 30 次。<strong>大模型能吸收这 300 道题，而不被它带偏。</strong></p></div></div>
+      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>35B 基座：几乎不说 maybe<span class="tr-h3">35B base: almost never says "maybe"</span></h3><p><span class="en">302 / 171 / 27</span>。yes 和 no 已经很接近标准答案，maybe 只答了 27 次，是标准答案的一半。</p><p class="tr">Yes and no are already close to gold; "maybe" is predicted 27 times, half the gold count.</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>只做医学微调：两次不一样<span class="tr-h3">Fine-tuning only: the two seeds disagree</span></h3><p>种子 42 答 <span class="en">313 / 169 / 18</span>，maybe 更少了；种子 43 答 <span class="en">300 / 166 / 34</span>，maybe 反而更多。macro-F1 59.5 和 63.2，基座是 61.8。<strong>在 35B 上，短答微调没有稳定地把它推向 yes</strong>——3B 上这一步是 42 次涨到 63 次。</p><p class="tr">Seed 42 predicts fewer "maybe" (313 / 169 / 18), seed 43 more (300 / 166 / 34); macro-F1 59.5 and 63.2 against 61.8 for the base. <strong>At 35B, short-answer fine-tuning does not reliably push toward "yes"</strong> — at 3B this step took "no"→"yes" from 42 to 63.</p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>掺 300 道三选一：两次都修回来了<span class="tr-h3">Replay 300: both seeds recover</span></h3><p>种子 42 答 <span class="en">261 / 164 / 75</span>，种子 43 答 <span class="en">271 / 174 / 55</span>。maybe 答对 22 和 15 道，只做微调是 4 和 10 道。macro-F1 两次都高于只做微调的两次，平均高 <span class="en">5.0</span> 分。</p><p class="tr">261 / 164 / 75 and 271 / 174 / 55. Correct "maybe": 22 and 15, against 4 and 10 without replay. Both replay seeds beat both fine-tuning-only seeds on macro-F1, by 5.0 on average.</p></div></div>
+      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>而且没有过冲<span class="tr-h3">And no overshoot</span></h3><p>yes 两次都停在 261 和 271，标准答案 276。同样 300 道题，3B 把 yes 压到了 228 和 234，推过了头。35B 的「该 yes 答 no」是 13 和 18 次，和不掺题时（16 次）一样；3B 是 32 和 30 次。<strong>大模型能吸收这 300 道题，而不被它带偏。</strong></p><p class="tr">"Yes" stays at 261 and 271 against 276 gold; with the same 300 examples the 3B model fell to 228 and 234. 35B "yes"→"no" errors are 13 and 18, level with no replay (16); at 3B they were 32 and 30. <strong>The larger model absorbs the examples without being pushed past the target.</strong></p></div></div>
     </div>
   </div>
-  <div class="srcline">两个种子同时换了回放样本的抽样和训练种子，与 3B 的做法一致。所有 35B 模型都经同一个 LMDeploy 服务评测。</div>
+  <div class="srcline">两个种子同时换了回放样本的抽样和训练种子，与 3B 的做法一致。所有 35B 模型都经同一个 LMDeploy 服务评测。<span class="tr-s">Seed 43 changes both the replay sample and the training seed, as at 3B. All 35B models are scored through the same LMDeploy server.</span></div>
 </section>
 
 <!-- ============================ 05 两个规模 · scrolly ============================ -->
 <section class="section deep" id="scale-sec">
   <div class="prose">
-    <div class="kicker">05 · 对照</div>
-    <h2>两个规模：修法相同，病因不同</h2>
+    <div class="kicker">05 · 对照 · Two scales</div>
+    <h2>两个规模：修法相同，病因不同<span class="tr-h">Two scales: same fix, different cause</span></h2>
     <p class="lede">横轴是三个条件：基座、只做微调、掺 300 道。粉色是 3B，紫色是 35B，有两个种子的点画均值、空心小点是各次。往下滚，换四个指标看。</p>
+    <p class="lede tr">The x-axis is the three conditions: base, fine-tuning only, replay 300. Pink is 3B, purple 35B; points with two seeds show the mean, hollow dots the individual runs. Scroll through four metrics.</p>
   </div>
   <div class="scrolly" id="scrolly-scale">
     <div class="sticky-fig"><div class="card">
-      <div class="ttl" id="scale-ttl">3B 与 35B · 三个条件</div>
-      <svg id="scale" viewBox="0 0 720 360" role="img" aria-label="3B 与 35B 在基座、回放 0、回放 300 三个条件下的指标变化"></svg>
+      <div class="ttl" id="scale-ttl">3B 与 35B · 3B vs 35B</div>
+      <svg id="scale" viewBox="0 0 720 360" role="img" aria-label="3B and 35B across base, replay 0 and replay 300"></svg>
       <div class="legend" id="scale-legend"></div>
     </div></div>
     <div class="steps">
-      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>macro-F1：掺题都涨</h3><p>3B：48.7 → 51.5 → 60.1；35B：61.8 → 61.4 → 66.3。掺题后 3B 涨 8.7，35B 涨 5.0。35B 起点高，涨幅小一些。</p></div></div>
-      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>maybe 答对：修回来的幅度一样</h3><p>3B：7 → 6 → 19.5；35B：7 → 7 → 18.5。<strong>不敢说 maybe，大小模型起点一模一样；300 道题修回来的幅度也一样。</strong></p></div></div>
-      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>该 no 答 yes：病因不同</h3><p>3B：42 → 63 → 13；35B：20 → 23 → 11。<strong>3B 的偏置是短答微调制造的</strong>，微调一做就多了 21 次；35B 微调前后几乎不变，它的问题是自带的「不说 maybe」，不是微调带来的「爱说 yes」。</p></div></div>
-      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>该 yes 答 no：3B 修过头，35B 没有</h3><p>3B：14 → 18 → 31；35B：17 → 16 → 15.5。3B 修完以后把该答 yes 的也答成 no；35B 没有这个副作用。</p></div></div>
+      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>macro-F1：掺题都涨<span class="tr-h3">macro-F1: replay helps both</span></h3><p>3B：48.7 → 51.5 → 60.1；35B：61.8 → 61.4 → 66.3。掺题后 3B 涨 8.7，35B 涨 5.0。35B 起点高，涨幅小一些。</p><p class="tr">Replay adds 8.7 at 3B and 5.0 at 35B; the 35B model starts higher and gains less.</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>maybe 答对：修回来的幅度一样<span class="tr-h3">Correct "maybe": the same recovery</span></h3><p>3B：7 → 6 → 19.5；35B：7 → 7 → 18.5。<strong>不敢说 maybe，大小模型起点一模一样；300 道题修回来的幅度也一样。</strong></p><p class="tr"><strong>Both models start at 7 of 55, and 300 examples lift both to about 19.</strong></p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>该 no 答 yes：病因不同<span class="tr-h3">"No"→"yes": a different cause</span></h3><p>3B：42 → 63 → 13；35B：20 → 23 → 11。<strong>3B 的偏置是短答微调制造的</strong>，微调一做就多了 21 次；35B 微调前后几乎不变，它的问题是自带的「不说 maybe」，不是微调带来的「爱说 yes」。</p><p class="tr"><strong>At 3B the bias is created by short-answer fine-tuning</strong> (+21 errors); at 35B fine-tuning barely changes it. The 35B problem is a built-in reluctance to say "maybe", not a fine-tuning-induced "yes".</p></div></div>
+      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>该 yes 答 no：3B 修过头，35B 没有<span class="tr-h3">"Yes"→"no": 3B overshoots, 35B does not</span></h3><p>3B：14 → 18 → 31；35B：17 → 16 → 15.5。3B 修完以后把该答 yes 的也答成 no；35B 没有这个副作用。</p><p class="tr">After the fix the 3B model turns correct "yes" answers into "no"; the 35B model does not.</p></div></div>
     </div>
   </div>
-  <div class="srcline">两个种子取均值的点：35B 回放 0、35B 回放 300、3B 回放 300。3B「只做微调」是 A-server，一次运行。35B 换种子的 macro-F1 波动约 2 到 4 分，比 3B（约 0.7）大。</div>
+  <div class="srcline">两个种子取均值的点：35B 回放 0、35B 回放 300、3B 回放 300。3B「只做微调」是 A-server，一次运行。35B 换种子的 macro-F1 波动约 2 到 4 分，比 3B（约 0.7）大。<span class="tr-s">Two-seed means: 35B replay 0, 35B replay 300, 3B replay 300; 3B fine-tuning-only is a single run. Seed-to-seed macro-F1 spread is about 2-4 points at 35B, 0.7 at 3B.</span></div>
 </section>
 
 <!-- ============================ 06 代价 ============================ -->
 <section class="section" id="cost">
   <div class="prose">
-    <div class="kicker">06 · 代价</div>
-    <h2>主任务不掉，通用能力的代价在波动内</h2>
+    <div class="kicker">06 · 代价 · Cost</div>
+    <h2>主任务不掉，通用能力的代价在波动内<span class="tr-h">No main-task cost; the retention cost is within noise</span></h2>
     <p class="lede">35B 上，掺题对医学题和两个通用探针的影响都小到分不出来。</p>
+    <p class="lede tr">At 35B, replay's effect on the medical task and the two general probes is too small to separate from noise.</p>
     <p>掺题前后，35B 的 SLAKE 封闭题和开放题平均只差 0.1 到 0.2 分。TextVQA 从基座 88.8 降到 86.8 左右，但只做微调的两个种子本身就差 1.3 分，掺题多掉的 0.8 分落在这个范围里。MMBench 基本不动。3B 上「代价只在短答格式」那个结论，在 35B 上变成「代价小到测不出」。</p>
+    <p class="tr">SLAKE closed and open scores move by 0.1-0.2 on average. TextVQA falls from 88.8 at the base to about 86.8, but the two fine-tuning-only seeds already differ by 1.3, so replay's extra 0.8 is inside that range. MMBench is flat. The 3B finding "the cost is confined to short-answer format" becomes, at 35B, "the cost is too small to measure".</p>
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>两个种子的均值</th><th class="num">3B 回放 0</th><th class="num">3B 回放 300</th><th class="num">差</th><th class="num">35B 回放 0</th><th class="num">35B 回放 300</th><th class="num">差</th></tr></thead>
+      <thead><tr><th>两个种子的均值<span class="tr-c">two-seed means</span></th><th class="num">3B 回放 0<span class="tr-c">replay 0</span></th><th class="num">3B 回放 300<span class="tr-c">replay 300</span></th><th class="num">差<span class="tr-c">Δ</span></th><th class="num">35B 回放 0<span class="tr-c">replay 0</span></th><th class="num">35B 回放 300<span class="tr-c">replay 300</span></th><th class="num">差<span class="tr-c">Δ</span></th></tr></thead>
       <tbody>
-        <tr><td>SLAKE 封闭题</td><td class="num">85.34</td><td class="num">85.82</td><td class="num ok">+0.48</td><td class="num">94.11</td><td class="num">94.23</td><td class="num ok">+0.12</td></tr>
-        <tr><td>SLAKE 开放题 EM</td><td class="num">75.50</td><td class="num">76.67</td><td class="num ok">+1.17</td><td class="num">86.67</td><td class="num">86.90</td><td class="num ok">+0.23</td></tr>
-        <tr><td>TextVQA（短答）</td><td class="num">83.56</td><td class="num">82.45</td><td class="num bad">−1.11</td><td class="num">87.56</td><td class="num">86.78</td><td class="num">−0.78</td></tr>
-        <tr><td>MMBench（四选一）</td><td class="num">87.40</td><td class="num">87.20</td><td class="num">−0.20</td><td class="num">93.90</td><td class="num">94.00</td><td class="num">+0.10</td></tr>
+        <tr><td>SLAKE 封闭题<span class="tr-c">closed</span></td><td class="num">85.34</td><td class="num">85.82</td><td class="num ok">+0.48</td><td class="num">94.11</td><td class="num">94.23</td><td class="num ok">+0.12</td></tr>
+        <tr><td>SLAKE 开放题 EM<span class="tr-c">open exact match</span></td><td class="num">75.50</td><td class="num">76.67</td><td class="num ok">+1.17</td><td class="num">86.67</td><td class="num">86.90</td><td class="num ok">+0.23</td></tr>
+        <tr><td>TextVQA（短答）<span class="tr-c">short answer</span></td><td class="num">83.56</td><td class="num">82.45</td><td class="num bad">−1.11</td><td class="num">87.56</td><td class="num">86.78</td><td class="num">−0.78</td></tr>
+        <tr><td>MMBench（四选一）<span class="tr-c">multiple choice</span></td><td class="num">87.40</td><td class="num">87.20</td><td class="num">−0.20</td><td class="num">93.90</td><td class="num">94.00</td><td class="num">+0.10</td></tr>
         <tr class="hl"><td><strong>PubMedQA macro-F1</strong></td><td class="num">51.45</td><td class="num best2">60.14</td><td class="num ok">+8.69</td><td class="num">61.37</td><td class="num best">66.34</td><td class="num ok">+4.97</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="srcline">3B 回放 0 是一次运行，3B 回放 300 和 35B 两列都是两个种子的均值。</div>
+  <div class="srcline">3B 回放 0 是一次运行，3B 回放 300 和 35B 两列都是两个种子的均值。<span class="tr-s">3B replay 0 is a single run; 3B replay 300 and both 35B columns are two-seed means.</span></div>
 </section>
 
 <!-- ============================ 07 工程 ============================ -->
 <section class="section deep" id="eng">
   <div class="prose">
-    <div class="kicker">07 · 工程</div>
-    <h2>把 35B 跑起来花了什么</h2>
+    <div class="kicker">07 · 工程 · Engineering</div>
+    <h2>把 35B 跑起来花了什么<span class="tr-h">What it took to run the 35B model</span></h2>
     <p class="lede">从拿到账号到两个模型都评测完，大约一天；之后的消融和补种子全部无人值守。</p>
+    <p class="lede tr">About a day from receiving the account to the first two evaluated models; all later ablations and seeds ran unattended.</p>
   </div>
   <div class="tiles">
-    <div class="card"><div class="big" style="color:var(--c-c1)">1 h 58</div><h3>一轮训练</h3><p>回放 300 共 978 步，每步 5.75 秒；只做微调 921 步，1 小时 18 分。显存峰值每卡约 20 GB，32 GB 的卡还有余量。</p></div>
-    <div class="card"><div class="big" style="color:var(--c-a)">5.2</div><h3>版本要对齐</h3><p>模型代码是按 transformers 5.2 写的，新版改了内部函数签名，前向直接报错。时间序列模块不支持 sdpa 注意力，要让各部分自己选。</p></div>
-    <div class="card"><div class="big" style="color:var(--c-base)">全自动</div><h3>训练到评估一条龙</h3><p>训练、合并权重、起服务、四张表、开放式探针、清理，一轮接一轮。合并时 MTP 层和 32 位的输出层要从原模型补回，合并后和原模型大小完全一致。</p></div>
+    <div class="card"><div class="big" style="color:var(--c-c1)">1 h 58</div><h3>一轮训练<span class="tr-h3">One training run</span></h3><p>回放 300 共 978 步，每步 5.75 秒；只做微调 921 步，1 小时 18 分。显存峰值每卡约 20 GB，32 GB 的卡还有余量。</p><p class="tr">Replay 300: 978 steps at 5.75 s; fine-tuning only: 921 steps, 1 h 18 min. Peak memory about 20 GB per 32 GB card.</p></div>
+    <div class="card"><div class="big" style="color:var(--c-a)">5.2</div><h3>版本要对齐<span class="tr-h3">Pin the library version</span></h3><p>模型代码是按 transformers 5.2 写的，新版改了内部函数签名，前向直接报错。时间序列模块不支持 sdpa 注意力，要让各部分自己选。</p><p class="tr">The model code targets transformers 5.2; a newer release changed an internal signature and the forward pass failed. The time-series module lacks sdpa attention, so each part picks its own.</p></div>
+    <div class="card"><div class="big" style="color:var(--c-base)">全自动 · unattended</div><h3>训练到评估一条龙<span class="tr-h3">Training to evaluation, end to end</span></h3><p>训练、合并权重、起服务、四张表、开放式探针、清理，一轮接一轮。合并时 MTP 层和 32 位的输出层要从原模型补回，合并后和原模型大小完全一致。</p><p class="tr">Train, merge, serve, four tables, free-text probe, clean up — run after run. Merging copies the MTP layers and the 32-bit output layer from the base, so the merged model is exactly the size of the original.</p></div>
   </div>
-  <div class="srcline">显卡分配：训练和评估时暂停同学的推理服务，用 0-3 号卡；6、7 号卡上是别的账号的任务，不碰。</div>
+  <div class="srcline">显卡分配：训练和评估时暂停同学的推理服务，用 0-3 号卡；6、7 号卡上是别的账号的任务，不碰。<span class="tr-s">GPUs 0-3 were used with the classmate's inference service paused; GPUs 6-7 belong to another account and were left alone.</span></div>
 </section>
 
 <!-- ============================ 08 消融 ============================ -->
 <section class="section" id="abl">
   <div class="prose">
-    <div class="kicker">08 · 消融</div>
-    <h2>D 组消融：改数据比改超参管用</h2>
+    <div class="kicker">08 · 消融 · Ablations</div>
+    <h2>D 组消融：改数据比改超参管用<span class="tr-h">Group D: changing the data beats changing the settings</span></h2>
     <p class="lede">在 35B 回放 300 的设置上每次只改一样，一共 6 轮；对照、只挂注意力、只练 1 轮这三个又各补了一个种子。</p>
+    <p class="lede tr">One setting changed at a time on the 35B replay-300 condition, six runs; the control, attention-only and one-epoch runs each got a second seed.</p>
     <p><strong>先说一个意外：35B 换种子的波动比 3B 大。</strong>同一个设置跑两次，macro-F1 能差 2 到 4 分（3B 约 0.7）。所以 35B 上单次运行差 2 分以内的，都不下结论。</p>
+    <p class="tr"><strong>A surprise first: run-to-run spread is larger at 35B.</strong> Two runs of one setting differ by 2-4 macro-F1 (3B: about 0.7), so single-run differences under 2 points are not interpreted.</p>
     <p><strong>掺题的作用大于任何训练设置。</strong>掺不掺题平均差 5 分；改超参里只有「练得不够」可靠地差了 3 分，其余都在波动内。</p>
+    <p class="tr"><strong>The data mix matters more than any setting.</strong> Replay moves macro-F1 by 5 points on average; among the settings only under-training reliably costs about 3, and the rest are within noise.</p>
     <p><strong>唯一可靠变差的是「练得不够」。</strong>只练 1 轮，两个种子都比对照低，医学题也低。它是 maybe 说得太多还是太少，两个种子正好相反——只能说练得不够时这一类很不稳定。</p>
+    <p class="tr"><strong>Only under-training reliably hurts.</strong> Both one-epoch seeds score below both control seeds, on the medical task too. One seed over-predicts "maybe" and the other under-predicts it, so the class is simply unstable when training is short.</p>
     <p><strong>共享专家的 LoRA：看不出有用。</strong>两个种子平均只比对照低 0.6 分。去掉它，少四分之一参数，测不出损失。</p>
+    <p class="tr"><strong>LoRA on the shared expert: no detectable benefit.</strong> Attention-only averages 0.6 below the control over two seeds; dropping it saves a quarter of the parameters at no measurable cost.</p>
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>设置</th><th class="num">种子 42</th><th class="num">种子 43</th><th class="num">均值</th><th class="num">SLAKE 封闭（两次）</th><th>结论</th></tr></thead>
+      <thead><tr><th>设置<span class="tr-c">setting</span></th><th class="num">种子 42<span class="tr-c">seed 42</span></th><th class="num">种子 43<span class="tr-c">seed 43</span></th><th class="num">均值<span class="tr-c">mean</span></th><th class="num">SLAKE 封闭（两次）<span class="tr-c">closed (both)</span></th><th>结论<span class="tr-c">verdict</span></th></tr></thead>
       <tbody>
-        <tr class="hl"><td><strong>对照（回放 300）</strong></td><td class="num">67.29</td><td class="num">65.38</td><td class="num best">66.34</td><td class="num">94.47 / 93.99</td><td></td></tr>
-        <tr><td>只挂注意力</td><td class="num">67.29</td><td class="num">64.25</td><td class="num">65.77</td><td class="num">94.47 / 93.51</td><td>差 0.6，看不出损失</td></tr>
-        <tr><td>只练 1 轮</td><td class="num">64.14</td><td class="num">62.32</td><td class="num bad">63.23</td><td class="num bad">93.03 / 93.03</td><td><strong>两次都更差</strong></td></tr>
-        <tr><td>学习率减半</td><td class="num">64.56</td><td class="num">—</td><td class="num">—</td><td class="num">92.55</td><td>方向同上，单次</td></tr>
-        <tr><td>学习率加倍</td><td class="num">66.28</td><td class="num">—</td><td class="num">—</td><td class="num">95.19</td><td>在波动内，单次</td></tr>
-        <tr><td>rank 8 / 32</td><td class="num">66.28 / 66.31</td><td class="num">—</td><td class="num">—</td><td class="num">93.27 / 93.27</td><td>在波动内，单次</td></tr>
-        <tr><td>参考：回放 0</td><td class="num bad">59.51</td><td class="num bad">63.23</td><td class="num bad">61.37</td><td class="num">94.47 / 93.75</td><td>掺题的作用</td></tr>
+        <tr class="hl"><td><strong>对照（回放 300）</strong><span class="tr-c">control (replay 300)</span></td><td class="num">67.29</td><td class="num">65.38</td><td class="num best">66.34</td><td class="num">94.47 / 93.99</td><td></td></tr>
+        <tr><td>只挂注意力<span class="tr-c">attention only</span></td><td class="num">67.29</td><td class="num">64.25</td><td class="num">65.77</td><td class="num">94.47 / 93.51</td><td>差 0.6，看不出损失<span class="tr-c">−0.6, no detectable loss</span></td></tr>
+        <tr><td>只练 1 轮<span class="tr-c">1 epoch</span></td><td class="num">64.14</td><td class="num">62.32</td><td class="num bad">63.23</td><td class="num bad">93.03 / 93.03</td><td><strong>两次都更差</strong><span class="tr-c">worse in both seeds</span></td></tr>
+        <tr><td>学习率减半<span class="tr-c">lr halved</span></td><td class="num">64.56</td><td class="num">—</td><td class="num">—</td><td class="num">92.55</td><td>方向同上，单次<span class="tr-c">same direction, single run</span></td></tr>
+        <tr><td>学习率加倍<span class="tr-c">lr doubled</span></td><td class="num">66.28</td><td class="num">—</td><td class="num">—</td><td class="num">95.19</td><td>在波动内，单次<span class="tr-c">within noise, single run</span></td></tr>
+        <tr><td>rank 8 / 32</td><td class="num">66.28 / 66.31</td><td class="num">—</td><td class="num">—</td><td class="num">93.27 / 93.27</td><td>在波动内，单次<span class="tr-c">within noise, single runs</span></td></tr>
+        <tr><td>参考：回放 0<span class="tr-c">reference: replay 0</span></td><td class="num bad">59.51</td><td class="num bad">63.23</td><td class="num bad">61.37</td><td class="num">94.47 / 93.75</td><td>掺题的作用<span class="tr-c">effect of replay</span></td></tr>
       </tbody>
     </table>
   </div>
-  <div class="srcline">表中是 PubMedQA macro-F1（考卷半边 500 题）。种子 43 同时换了回放样本的抽样和训练种子，与 3B 的做法一致。</div>
+  <div class="srcline">表中是 PubMedQA macro-F1（考卷半边 500 题）。种子 43 同时换了回放样本的抽样和训练种子，与 3B 的做法一致。<span class="tr-s">PubMedQA macro-F1 on the held-out 500. Seed 43 changes the replay sample and the training seed together, as at 3B.</span></div>
 </section>
 
 <!-- ============================ 09 开放式 ============================ -->
 <section class="section deep" id="oe">
   <div class="prose">
-    <div class="kicker">09 · 新探针</div>
-    <h2>让它写一段话：<br>长段描述没有退化</h2>
+    <div class="kicker">09 · 新探针 · New probe</div>
+    <h2>让它写一段话：<br>长段描述没有退化<span class="tr-h">Asking for a paragraph: long-form description does not degrade</span></h2>
     <p class="lede">之前三个通用能力测试的答案都很短。这周加了第四个：让模型用两三句话描述一张图。13 个 35B 模型全部测过。</p>
+    <p class="lede tr">The three existing general probes all have short answers. This week adds a fourth: describe an image in two or three sentences. All thirteen 35B models were tested.</p>
     <p><strong>日常图片（COCO，300 张）：没有退化。</strong>训练后的 12 个模型都写 44 到 52 个词，基座 48 个；没有一条缩成几个字，没有一条拒答；和人工描述的相似度基本持平。短答式微调没有把「写一段话」的能力带坏。</p>
+    <p class="tr"><strong>Everyday images (COCO, 300): no degradation.</strong> All twelve fine-tuned models write 44-52 words (base 48); none collapses to a few words or refuses, and similarity to human captions is unchanged. Short-answer fine-tuning did not damage paragraph writing.</p>
     <p><strong>医学图片（SLAKE，96 张）：有一个初看很强、复查后撤回的发现。</strong>第一个种子上，只做微调的模型把 44 张异常图里的 13 张说成了「正常」（基座 4 张），掺题后降到 2 张。但补了种子以后，只做微调的第二次只有 3 张；12 个训练后的模型在 2 到 15 张之间乱跳，掺了题的 rank 8 反而是 15 张，和校准好坏没有关系。<strong>这个数主要是随机波动，那条发现撤回。</strong></p>
+    <p class="tr"><strong>Medical images (SLAKE, 96): a striking first result, withdrawn on replication.</strong> With the first seed, the fine-tuning-only model described 13 of 44 abnormal studies as "normal" (base 4), and replay brought it down to 2. The second seed of the same condition gave 3; the twelve fine-tuned models range from 2 to 15, a replay model at rank 8 scoring 15, with no relation to calibration. <strong>The count is mostly noise, and the finding is withdrawn.</strong></p>
     <p>它留下一个教训：44 张图的计数太粗，单次运行差 10 张也可能是噪声。要把「漏报异常」当成正式指标，需要更多图、多个种子，最好有人工判读。</p>
+    <p class="tr">The lesson: a count over 44 images is too coarse — a 10-image difference between single runs can be noise. Turning missed abnormalities into a real metric needs more images, several seeds and ideally human reading.</p>
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>35B 模型</th><th class="num">COCO 相似度</th><th class="num">平均词数</th><th class="num">缩成短答</th><th class="num">部位说对</th><th class="num">异常说成正常</th></tr></thead>
+      <thead><tr><th>35B 模型<span class="tr-c">35B model</span></th><th class="num">COCO 相似度<span class="tr-c">CIDEr</span></th><th class="num">平均词数<span class="tr-c">words</span></th><th class="num">缩成短答<span class="tr-c">&lt; 5 words</span></th><th class="num">部位说对<span class="tr-c">region correct</span></th><th class="num">异常说成正常<span class="tr-c">abnormal called normal</span></th></tr></thead>
       <tbody>
-        <tr><td>基座</td><td class="num">65.79</td><td class="num">48.2</td><td class="num">0%</td><td class="num">96.9%</td><td class="num">4 / 44</td></tr>
-        <tr><td>只做微调 · 种子 42 / 43</td><td class="num">68.18 / 66.52</td><td class="num">46.0 / 46.1</td><td class="num">0%</td><td class="num">94.8 / 95.8%</td><td class="num"><strong>13</strong> / <strong>3</strong></td></tr>
-        <tr class="hl"><td>回放 300 · 种子 42 / 43</td><td class="num">68.84 / 68.01</td><td class="num">44.5 / 45.3</td><td class="num">0%</td><td class="num">94.8 / 93.8%</td><td class="num">2 / 4</td></tr>
-        <tr><td>其余 8 个消融模型</td><td class="num">61.5 – 69.8</td><td class="num">43.8 – 52.3</td><td class="num">0%</td><td class="num">89.6 – 95.8%</td><td class="num">2 – 15</td></tr>
+        <tr><td>基座<span class="tr-c">base</span></td><td class="num">65.79</td><td class="num">48.2</td><td class="num">0%</td><td class="num">96.9%</td><td class="num">4 / 44</td></tr>
+        <tr><td>只做微调 · 种子 42 / 43<span class="tr-c">fine-tuning only · seeds 42 / 43</span></td><td class="num">68.18 / 66.52</td><td class="num">46.0 / 46.1</td><td class="num">0%</td><td class="num">94.8 / 95.8%</td><td class="num"><strong>13</strong> / <strong>3</strong></td></tr>
+        <tr class="hl"><td>回放 300 · 种子 42 / 43<span class="tr-c">replay 300 · seeds 42 / 43</span></td><td class="num">68.84 / 68.01</td><td class="num">44.5 / 45.3</td><td class="num">0%</td><td class="num">94.8 / 93.8%</td><td class="num">2 / 4</td></tr>
+        <tr><td>其余 8 个消融模型<span class="tr-c">the other 8 ablation models</span></td><td class="num">61.5 – 69.8</td><td class="num">43.8 – 52.3</td><td class="num">0%</td><td class="num">89.6 – 95.8%</td><td class="num">2 – 15</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="srcline">「异常」从同一张图的封闭题推出（44 张异常）；「说成正常」用关键词判定，去掉「no evidence of ...」这类否定说法后再看。COCO 相似度是不带长度惩罚的 CIDEr。</div>
+  <div class="srcline">「异常」从同一张图的封闭题推出（44 张异常）；「说成正常」用关键词判定，去掉「no evidence of ...」这类否定说法后再看。COCO 相似度是不带长度惩罚的 CIDEr。<span class="tr-s">"Abnormal" is derived from each image's own closed questions (44 images); "called normal" is a keyword judge applied after removing negated findings. CIDEr is computed without the length penalty.</span></div>
 </section>
 
 <!-- ============================ 10 总结 ============================ -->
 <section class="section" id="done">
   <div class="prose">
-    <div class="kicker">10 · 总结</div>
-    <h2>这周做了什么</h2>
+    <div class="kicker">10 · 总结 · Summary</div>
+    <h2>这周做了什么<span class="tr-h">What was done this week</span></h2>
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>做了什么</th><th>结果</th></tr></thead>
+      <thead><tr><th>做了什么<span class="tr-c">work</span></th><th>结果<span class="tr-c">result</span></th></tr></thead>
       <tbody>
-        <tr><td>① 远程调用接口</td><td>OpenAI 兼容后端，四个评估脚本不改就能测任何部署在别处的模型；附连通性检查和端到端演示脚本</td></tr>
-        <tr><td>② 35B 基座评测</td><td>封闭题 84.4 追平 3B 训练后；是非判断强，maybe 和 3B 一样弱</td></tr>
-        <tr><td>③ 35B 训练流程</td><td>自写 LoRA 训练、合并、服务、全自动消融脚本</td></tr>
-        <tr><td>④ 35B 回放 0 / 300，各两个种子</td><td><strong>修法有效</strong>（macro-F1 +5.0、maybe 答对 7 → 18.5，不过冲）；但短答微调在 35B 上没有稳定地制造偏置</td></tr>
-        <tr><td>⑤ 35B 上的 D 组消融</td><td>6 轮 + 3 个补种子：只有练得不够会变差；多练、改容量都在波动内；共享专家的 LoRA 看不出有用</td></tr>
-        <tr><td>⑥ 开放式探针</td><td>新的第四个通用探针：长段描述没有退化；「漏报异常」的初步发现经补种子后撤回</td></tr>
-        <tr><td>⑦ 报告 v1.0</td><td>新增 5.7 节「35B 复验」，含消融、补种子、开放式探针</td></tr>
+        <tr><td>① 远程调用接口<span class="tr-c">remote inference client</span></td><td>OpenAI 兼容后端，四个评估脚本不改就能测任何部署在别处的模型；附连通性检查和端到端演示脚本<span class="tr-c">OpenAI-compatible backend: the four evaluation scripts can test any served model unchanged; connectivity check and end-to-end demo included</span></td></tr>
+        <tr><td>② 35B 基座评测<span class="tr-c">35B base evaluation</span></td><td>封闭题 84.4 追平 3B 训练后；是非判断强，maybe 和 3B 一样弱<span class="tr-c">closed 84.4, level with fine-tuned 3B; strong yes/no judgement, "maybe" as weak as 3B</span></td></tr>
+        <tr><td>③ 35B 训练流程<span class="tr-c">35B training pipeline</span></td><td>自写 LoRA 训练、合并、服务、全自动消融脚本<span class="tr-c">own LoRA training, merging, serving and unattended ablation scripts</span></td></tr>
+        <tr><td>④ 35B 回放 0 / 300，各两个种子<span class="tr-c">35B replay 0 / 300, two seeds each</span></td><td><strong>修法有效</strong>（macro-F1 +5.0、maybe 答对 7 → 18.5，不过冲）；但短答微调在 35B 上没有稳定地制造偏置<span class="tr-c"><strong>the fix works</strong> (+5.0 macro-F1, correct "maybe" 7 → 18.5, no overshoot); short-answer fine-tuning does not reliably create the bias at 35B</span></td></tr>
+        <tr><td>⑤ 35B 上的 D 组消融<span class="tr-c">group-D ablations at 35B</span></td><td>6 轮 + 3 个补种子：只有练得不够会变差；多练、改容量都在波动内；共享专家的 LoRA 看不出有用<span class="tr-c">6 runs + 3 second seeds: only under-training hurts; more training or capacity is within noise; shared-expert LoRA shows no benefit</span></td></tr>
+        <tr><td>⑥ 开放式探针<span class="tr-c">free-text probe</span></td><td>新的第四个通用探针：长段描述没有退化；「漏报异常」的初步发现经补种子后撤回<span class="tr-c">a fourth general probe: no long-form degradation; a preliminary "missed abnormality" finding withdrawn after replication</span></td></tr>
+        <tr><td>⑦ 报告与卡片<span class="tr-c">report and cards</span></td><td>报告 v1.0 新增 5.7 节「35B 复验」；模型卡、数据卡更新到 1.2<span class="tr-c">report v1.0 adds section 5.7 on the 35B check; model and data cards updated to 1.2</span></td></tr>
       </tbody>
     </table>
   </div>
-  <div class="srcline"><span class="en">results/README.md</span> 最后几节 · <span class="en">docs/report.md</span> 第 5.7 节 · <span class="en">docs/INTERNS2.md</span></div>
+  <div class="srcline"><span class="en">results/README.md</span> · <span class="en">docs/report.md</span> §5.7 · <span class="en">docs/cards/</span> · <span class="en">docs/INTERNS2.md</span></div>
 </section>
 
 <!-- ============================ 11 计划 ============================ -->
 <section class="section deep" id="next">
   <div class="prose">
-    <div class="kicker">11 · 计划</div>
-    <h2>接下来的计划</h2>
+    <div class="kicker">11 · 计划 · Plan</div>
+    <h2>接下来的计划<span class="tr-h">Next steps</span></h2>
   </div>
   <div class="card next">
-    <h3>按优先级</h3>
+    <h3>按优先级<span class="tr-h3">In priority order</span></h3>
     <ol>
-      <li><strong>本周 · 更新模型卡和数据卡。</strong>加入 35B、开放式探针，以及「35B 换种子波动大」这条使用须知。</li>
-      <li><strong>之后 · 「漏报异常」做成正式指标。</strong>用更大的带标注影像集（例如 CheXpert Plus 的报告），多种子，再请懂影像的人抽查。</li>
-      <li><strong>有空 · 3B 上补同一组消融</strong>，和 35B 对照：哪些因素的影响随规模变化。</li>
-      <li><strong>第 5 周 · 实验 B3</strong>，等队友的 CheXpert Plus 子集。</li>
+      <li><strong>之后 · 「漏报异常」做成正式指标。</strong>用更大的带标注影像集（例如 CheXpert Plus 的报告），多种子，再请懂影像的人抽查。<span class="tr-li"><strong>Missed abnormalities as a real metric</strong> — a larger annotated set (e.g. CheXpert Plus reports), several seeds, and spot checks by someone who reads images.</span></li>
+      <li><strong>有空 · 3B 上补同一组消融</strong>，和 35B 对照：哪些因素的影响随规模变化。<span class="tr-li"><strong>If time allows, the same ablations at 3B</strong>, to see which factors change with scale.</span></li>
+      <li><strong>第 5 周 · 实验 B3</strong>，等队友的 CheXpert Plus 子集。<span class="tr-li"><strong>Week 5: experiment B3</strong>, once the teammate's CheXpert Plus subset arrives.</span></li>
     </ol>
   </div>
 </section>
 
 <footer>
-  MedLoRA · <a href="https://github.com/AugustLoo/MedLoRA">github.com/AugustLoo/MedLoRA</a> · 所有数字来自仓库 <span class="en">results/</span> 与 <span class="en">outputs/eval/</span>
+  MedLoRA · <a href="https://github.com/AugustLoo/MedLoRA">github.com/AugustLoo/MedLoRA</a> · 所有数字来自仓库 · every number comes from <span class="en">results/</span> and <span class="en">outputs/eval/</span>
 </footer>
 
 <script>
@@ -389,16 +430,16 @@ function swatch(c){return '<i style="display:inline-block;width:12px;height:12px
 
 /* ---------- scrolly 1: 35B 的答案分布 ---------- */
 var GOLD=[276,169,55];
-var DIST=[{k:"b",n:"35B 基座",c:C.base,v:[302,171,27]},
-          {k:"z1",n:"只做微调 · 种子 42",c:"#B8860B",v:[313,169,18]},
-          {k:"z2",n:"只做微调 · 种子 43",c:"#D9B45A",v:[300,166,34]},
-          {k:"r1",n:"回放 300 · 种子 42",c:C.c1,v:[261,164,75]},
-          {k:"r2",n:"回放 300 · 种子 43",c:"#B98BCF",v:[271,174,55]}];
+var DIST=[{k:"b",n:"35B 基座 · base",c:C.base,v:[302,171,27]},
+          {k:"z1",n:"只做微调 s42 · FT only",c:"#B8860B",v:[313,169,18]},
+          {k:"z2",n:"只做微调 s43 · FT only",c:"#D9B45A",v:[300,166,34]},
+          {k:"r1",n:"回放 300 s42 · replay",c:C.c1,v:[261,164,75]},
+          {k:"r2",n:"回放 300 s43 · replay",c:"#B98BCF",v:[271,174,55]}];
 var DIST_STEPS=[
-  {shown:["b"],focus:["b"],ttl:"35B 基座 vs 标准答案 · 考卷半边 500 题"},
-  {shown:["b","z1","z2"],focus:["z1","z2"],ttl:"只做医学微调 · 两个种子不一样"},
-  {shown:["b","z1","z2","r1","r2"],focus:["r1","r2"],ttl:"掺 300 道三选一 · 两次都修回来了"},
-  {shown:["b","z1","z2","r1","r2"],focus:["r1","r2"],ttl:"yes 停在标准答案附近 · 没有过冲"}];
+  {shown:["b"],focus:["b"],ttl:"35B 基座 vs 标准答案 · base vs gold"},
+  {shown:["b","z1","z2"],focus:["z1","z2"],ttl:"只做医学微调 · 两个种子不一样 · FT only: seeds disagree"},
+  {shown:["b","z1","z2","r1","r2"],focus:["r1","r2"],ttl:"掺 300 道 · 两次都修回来了 · replay 300 recovers"},
+  {shown:["b","z1","z2","r1","r2"],focus:["r1","r2"],ttl:"没有过冲 · no overshoot"}];
 var distState=DIST_STEPS[0];
 function drawDist(){
   var svg=document.getElementById("dist"); clear(svg);
@@ -423,22 +464,22 @@ function drawDist(){
       if(s.gold||focus) svg.appendChild(el("text",{x:x,y:y(v)-7,"text-anchor":"middle","font-family":MONO,"font-size":11.5,"font-weight":700,fill:s.gold?C.taupe:s.m.c},v));
     });
     svg.appendChild(el("text",{x:cx,y:H-B+26,"text-anchor":"middle","font-family":MONO,"font-size":16,"font-weight":700,fill:C.navy},lb));
-    svg.appendChild(el("text",{x:cx,y:H-B+45,"text-anchor":"middle","font-family":MONO,"font-size":11.5,fill:C.taupe},"标准 "+GOLD[i]));
+    svg.appendChild(el("text",{x:cx,y:H-B+45,"text-anchor":"middle","font-family":MONO,"font-size":11.5,fill:C.taupe},"标准 gold "+GOLD[i]));
   });
   svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(0),y2:y(0),stroke:C.navy,"stroke-width":1.6}));
   document.getElementById("dist-ttl").textContent=distState.ttl;
-  document.getElementById("dist-legend").innerHTML='<span>'+swatch(C.gold)+'标准答案</span>'+DIST.map(function(m){
+  document.getElementById("dist-legend").innerHTML='<span>'+swatch(C.gold)+'标准答案 · gold</span>'+DIST.map(function(m){
     var on=distState.shown.indexOf(m.k)>=0;
     return '<span style="opacity:'+(on?1:.35)+'">'+swatch(m.c)+m.n+'</span>';}).join("");
 }
 
 /* ---------- scrolly 2: 两个规模、三个条件 ---------- */
-var CONDS=["基座","只做微调","回放 300"];
+var CONDS=["基座","只做微调","回放 300"], CONDS_EN=["base","FT only","replay 300"];
 var METRICS=[
-  {ttl:"PubMedQA macro-F1（有两个种子的点为均值）",lo:40,hi:75,ticks:[40,50,60,70],s3:[48.66,51.45,60.14],k3:[null,null,[60.48,59.80]],s35:[61.83,61.37,66.34],k35:[null,[59.51,63.23],[67.29,65.38]]},
-  {ttl:"maybe 答对（共 55）",lo:0,hi:30,ticks:[0,10,20,30],s3:[7,6,19.5],k3:[null,null,[21,18]],s35:[7,7,18.5],k35:[null,[4,10],[22,15]]},
-  {ttl:"该 no 答 yes（越少越好）",lo:0,hi:70,ticks:[0,20,40,60],s3:[42,63,13],k3:[null,null,[14,12]],s35:[20,23,11],k35:[null,[24,22],[13,9]]},
-  {ttl:"该 yes 答 no（越少越好）",lo:0,hi:40,ticks:[0,10,20,30,40],s3:[14,18,31],k3:[null,null,[32,30]],s35:[17,16,15.5],k35:[null,[16,16],[13,18]]}];
+  {ttl:"PubMedQA macro-F1 · 均值 mean where two seeds",lo:40,hi:75,ticks:[40,50,60,70],s3:[48.66,51.45,60.14],k3:[null,null,[60.48,59.80]],s35:[61.83,61.37,66.34],k35:[null,[59.51,63.23],[67.29,65.38]]},
+  {ttl:"maybe 答对 · correct \"maybe\" (of 55)",lo:0,hi:30,ticks:[0,10,20,30],s3:[7,6,19.5],k3:[null,null,[21,18]],s35:[7,7,18.5],k35:[null,[4,10],[22,15]]},
+  {ttl:"该 no 答 yes · \"no\"→\"yes\" (lower is better)",lo:0,hi:70,ticks:[0,20,40,60],s3:[42,63,13],k3:[null,null,[14,12]],s35:[20,23,11],k35:[null,[24,22],[13,9]]},
+  {ttl:"该 yes 答 no · \"yes\"→\"no\" (lower is better)",lo:0,hi:40,ticks:[0,10,20,30,40],s3:[14,18,31],k3:[null,null,[32,30]],s35:[17,16,15.5],k35:[null,[16,16],[13,18]]}];
 var scaleState=METRICS[0];
 function drawScale(){
   var svg=document.getElementById("scale"); clear(svg);
@@ -450,7 +491,8 @@ function drawScale(){
   });
   CONDS.forEach(function(c,i){
     svg.appendChild(el("line",{x1:x(i),x2:x(i),y1:y(m.lo),y2:y(m.lo)+6,stroke:C.navy}));
-    svg.appendChild(el("text",{x:x(i),y:H-B+26,"text-anchor":"middle","font-size":13.5,"font-weight":700,fill:C.navy},c));
+    svg.appendChild(el("text",{x:x(i),y:H-B+24,"text-anchor":"middle","font-size":13.5,"font-weight":700,fill:C.navy},c));
+    svg.appendChild(el("text",{x:x(i),y:H-B+41,"text-anchor":"middle","font-family":MONO,"font-size":11,fill:C.taupe},CONDS_EN[i]));
   });
   svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(m.lo),y2:y(m.lo),stroke:C.navy,"stroke-width":1.6}));
   [["3B",m.s3,C.c2,m.k3],["35B",m.s35,C.c1,m.k35]].forEach(function(s,si){
@@ -468,7 +510,7 @@ function drawScale(){
     svg.appendChild(el("text",{x:W-R+14,y:ye+4,"font-family":MONO,"font-size":13,"font-weight":700,fill:col},s[0]));
   });
   document.getElementById("scale-ttl").textContent=m.ttl;
-  document.getElementById("scale-legend").innerHTML='<span>'+swatch(C.c2)+'3B（Qwen2.5-VL）</span><span>'+swatch(C.c1)+'35B（Intern-S2-Preview）</span><span style="color:#8C8577">空心小点 = 各种子</span>';
+  document.getElementById("scale-legend").innerHTML='<span>'+swatch(C.c2)+'3B（Qwen2.5-VL）</span><span>'+swatch(C.c1)+'35B（Intern-S2-Preview）</span><span style="color:#8C8577">空心小点 = 各种子 · hollow = individual seeds</span>';
 }
 
 /* ---------- 步进驱动 (与 week1 / week2 同一机制) ---------- */
