@@ -87,7 +87,7 @@ for NAME in "${ORDER[@]}"; do
   if [[ $NEED_OE == 1 ]]; then
     log "开放式探针开始"
     python eval/eval_openended.py --model $MERGED --tag $TAG >> $ROOT/logs/$TAG.openended.log 2>&1
-    log "开放式探针完成: $(python -c "import json;d=json.load(open('outputs/eval/openended_$TAG.json'));c,s=d['coco'],d['slake'];print('COCO CIDEr',c['cider'],'词数',c['mean_words'],'短答%',c['short_lt5_pct'],'| SLAKE 部位%',s['location_ok_pct'],'异常说成正常',s['abnormal_called_normal'],'/',s['n_abnormal'])")"
+    log "开放式探针完成: $(python -c "import json;d=json.load(open('outputs/eval/openended_$TAG.json'));c,s=d['coco'],d['slake'];print('COCO CIDEr',c['cider_no_lp'],'词数',c['mean_words'],'短答%',c['short_lt5_pct'],'| SLAKE 部位%',s['location_ok_pct'],'异常说成正常',s['abnormal_called_normal'],'/',s['n_abnormal'])")"
   fi
   bash train/interns2/serve.sh stop >> $ROOT/logs/$TAG.serve.log 2>&1
   rm -rf "$MERGED"

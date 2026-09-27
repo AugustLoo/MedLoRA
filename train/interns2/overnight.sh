@@ -27,7 +27,7 @@ for T in interns2_mix_0 interns2_mix_300; do
   bash train/interns2/serve.sh start $ROOT/merged/$T >> $ROOT/logs/$T.serve.log 2>&1
   python eval/eval_openended.py --model $ROOT/merged/$T --tag $T >> $ROOT/logs/$T.openended.log 2>&1
   bash train/interns2/serve.sh stop >> $ROOT/logs/$T.serve.log 2>&1
-  log "开放式探针完成 $T: $(python -c "import json;d=json.load(open('outputs/eval/openended_$T.json'));c,s=d['coco'],d['slake'];print('COCO CIDEr',c['cider'],'词数',c['mean_words'],'短答%',c['short_lt5_pct'],'| SLAKE 部位%',s['location_ok_pct'],'异常说成正常',s['abnormal_called_normal'],'/',s['n_abnormal'])")"
+  log "开放式探针完成 $T: $(python -c "import json;d=json.load(open('outputs/eval/openended_$T.json'));c,s=d['coco'],d['slake'];print('COCO CIDEr',c['cider_no_lp'],'词数',c['mean_words'],'短答%',c['short_lt5_pct'],'| SLAKE 部位%',s['location_ok_pct'],'异常说成正常',s['abnormal_called_normal'],'/',s['n_abnormal'])")"
 done
 
 OPENENDED=1 bash train/interns2/ablation.sh s43 attn_s43 ep1_s43
