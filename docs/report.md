@@ -2,13 +2,13 @@
 
 **Course project, Topic 6 (Task 1.3)** · Draft v1.0, 2026-09-26 · Author: Chunqian Loo
 
-> **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1, the A-server control and the full C2 replay curve (0 / 99 / 300 / 900, two seeds at 300 and 900) are complete, and the central replay experiment has been repeated on a 35B mixture-of-experts model, with six group-D ablations on that model (Section 5.7). Section 2 (Related Work) is written; every entry in `docs/refs.bib` was checked against arXiv or the publisher page on 2026-09-23 (record in the file header). Everything marked `[TODO]` still needs work. Repository: https://github.com/AugustLoo/MedLoRA
+> **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1, the A-server control and the full C2 replay curve (0 / 99 / 300 / 900, two seeds at 300 and 900) are complete, and the central replay experiment has been repeated on a 35B mixture-of-experts model with two seeds per condition, plus six group-D ablations and a free-text probe (Section 5.7). Section 2 (Related Work) is written; every entry in `docs/refs.bib` was checked against arXiv or the publisher page on 2026-09-23 (record in the file header). Everything marked `[TODO]` still needs work. Repository: https://github.com/AugustLoo/MedLoRA
 
 ---
 
 ## Abstract
 
-Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 85.1 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 84.1) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. Evaluating the CPT-stage adapters without SFT localises a persistent "yes" bias to the short-answer SFT data rather than to CPT or to the base model. Acting on that diagnosis, mixing 900 three-class text examples into the SFT set (experiment C1) raises PubMedQA macro-F1 from 51.5 to 61.1 and triples the number of correctly answered "maybe" questions, at a cost of 2.2 points of general VQA accuracy and roughly one net SLAKE question; a single-variable control run on the same GPU isolates that trade-off to the replay data itself. Varying the replay budget over 0 / 99 / 300 / 900 examples, with two seeds at 300 and 900, shows the calibration gain saturates early: 99 examples buy 63 % of the 900-example gain and 300 buy 92 %, the remainder being within seed spread, at a smaller retention cost and no main-task cost. The per-class balance of the fix, by contrast, improves monotonically with budget: every replay budget over-corrects toward "no" and "maybe", and 900 examples bring the predicted distribution closest to the truth. A second, broader retention probe (MMBench, 500 fixed multiple-choice questions) shows no replay cost at all, which localises the measured loss to short-answer output format rather than to visual ability. The alignment problem in this pipeline is therefore a data-mixture problem, addressable without a separate preference-optimisation stage. Repeating the zero- and 300-example conditions on Intern-S2-Preview, a 35B mixture-of-experts model roughly twelve times larger, reproduces all four findings: short-answer SFT suppresses "maybe" (more weakly than at 3B), 300 replay examples restore it (macro-F1 59.5 → 67.3) without the over-correction seen at 3B, the main task pays nothing, and the retention cost stays confined to short-answer format. Ablating the 35B training settings (with second seeds for the key runs) moves macro-F1 by about three points at most against six to eight for the data mix: only under-training reliably hurts, and LoRA on the shared expert shows no detectable contribution. A free-text probe shows that long-form description does not degrade, and that the replay examples also reduce abnormal medical images described as normal (13 of 44 without replay, 2 and 4 with it). All adapters, data-generation scripts, evaluation code and configurations are released for one-command reproduction.
+Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 85.1 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 84.1) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. Evaluating the CPT-stage adapters without SFT localises a persistent "yes" bias to the short-answer SFT data rather than to CPT or to the base model. Acting on that diagnosis, mixing 900 three-class text examples into the SFT set (experiment C1) raises PubMedQA macro-F1 from 51.5 to 61.1 and triples the number of correctly answered "maybe" questions, at a cost of 2.2 points of general VQA accuracy and roughly one net SLAKE question; a single-variable control run on the same GPU isolates that trade-off to the replay data itself. Varying the replay budget over 0 / 99 / 300 / 900 examples, with two seeds at 300 and 900, shows the calibration gain saturates early: 99 examples buy 63 % of the 900-example gain and 300 buy 92 %, the remainder being within seed spread, at a smaller retention cost and no main-task cost. The per-class balance of the fix, by contrast, improves monotonically with budget: every replay budget over-corrects toward "no" and "maybe", and 900 examples bring the predicted distribution closest to the truth. A second, broader retention probe (MMBench, 500 fixed multiple-choice questions) shows no replay cost at all, which localises the measured loss to short-answer output format rather than to visual ability. The alignment problem in this pipeline is therefore a data-mixture problem, addressable without a separate preference-optimisation stage. Repeating the zero- and 300-example conditions on Intern-S2-Preview, a 35B mixture-of-experts model roughly twelve times larger, with two seeds each, shows that the fix transfers but the cause does not: the 35B base model is as reluctant to answer "maybe" as the 3B base, short-answer SFT does not reliably make it worse, and 300 replay examples still raise macro-F1 by five points on average (61.4 → 66.3) without the over-correction seen at 3B and at no measurable cost to the main task. Ablating the 35B training settings shows that only under-training reliably hurts and that LoRA on the shared expert can be dropped; a free-text probe shows no degradation of long-form description. All adapters, data-generation scripts, evaluation code and configurations are released for one-command reproduction.
 
 ---
 
@@ -264,9 +264,9 @@ loss to four decimal places.
 | C1 | – | SLAKE SFT + 900 PubMedQA three-class examples | can the SFT data mix fix the "yes" bias, and what does it cost | done |
 | C2 | – | as C1 with 99 / 300 / 900 replay examples (0 = A-server) | how much replay is enough; shape of the trade-off | 0, 99, 300, 900 done; 1,800 deprioritised (§5.6) |
 | C2-s43 | – | C2-300 and C1 (900) each repeated with sampling and training seed 43 | run-to-run variance at both ends of the curve | done (§5.6) |
-| S2-0 / S2-300 | – | SLAKE SFT with 0 / 300 replay examples on Intern-S2-Preview (35B MoE) | do the 3B findings hold at 12× the parameters | done (§5.7) |
+| S2-0 / S2-300 | – | SLAKE SFT with 0 / 300 replay examples on Intern-S2-Preview (35B MoE), two seeds each | do the 3B findings hold at 12× the parameters | done (§5.7) |
 | D (35B) | – | S2-300 with one change each: 1 epoch; attention-only LoRA; rank 8 / 32; lr 5e-5 / 2e-4; seed 43 for control, attention-only and 1 epoch | which training factor matters | done (§5.7) |
-| OE | – | free-text probe: COCO descriptions and SLAKE free-text reports, six 35B models | does long-form generation drift | done (§5.7) |
+| OE | – | free-text probe: COCO descriptions and SLAKE free-text reports, all thirteen 35B models | does long-form generation drift | done (§5.7) |
 | D (3B) | ablations: rank 8/16/32, lr, epochs | | the same factors at 3B for comparison | planned, if time allows |
 | E (optional) | C + DPO | | reliability | deprioritised: C1 shows the data mix alone recovers calibration |
 
@@ -545,10 +545,11 @@ Every result so far comes from one 3B model. To test whether the mechanism is a 
 conditions that carry the argument — SFT with no replay and SFT with 300 replay examples — were repeated on
 **Intern-S2-Preview**, a 35B-parameter vision-language model continued-pretrained from Qwen3.5 (mixture of experts,
 256 routed experts with 8 active per token, about 3B active parameters; 40 layers of which one in four is full
-attention and the rest gated linear attention; a 27-layer vision encoder).
+attention and the rest gated linear attention; a 27-layer vision encoder). Both conditions were run with two seeds;
+as at 3B, the second seed changes the replay sample and the training seed together.
 
 **Setup, and what differs from 3B.** Training data files, prompts, learning rate, epochs, effective batch 16 (4 × 4),
-cutoff, image cap, LoRA rank 16 / alpha 32 / dropout 0.05 and seed are identical to the 3B runs. Three things differ,
+cutoff, image cap and LoRA rank 16 / alpha 32 / dropout 0.05 are identical to the 3B runs. Three things differ,
 all forced by the architecture:
 
 - *Training code.* LLaMA-Factory does not support the model, so training uses a short transformers + peft script
@@ -561,131 +562,104 @@ all forced by the architecture:
 - *Thinking mode.* The model reasons before answering by default; with the evaluation's 8-32 token budget the
   reasoning consumes the whole answer. Both training and evaluation use the chat template with thinking disabled.
   Evaluation goes through an OpenAI-compatible LMDeploy server (`medvlm/remote.py`) after the adapter is merged into
-  the weights, so the base and both fine-tuned models are scored through the same serving path.
+  the weights, so the base and every fine-tuned model are scored through the same serving path.
 
-| | 3B base | 3B replay 0 | 3B replay 300 | 35B base | 35B replay 0 | 35B replay 300 |
+| | 3B base | 3B replay 0 | 3B replay 300 (2 seeds) | 35B base | 35B replay 0 (2 seeds) | 35B replay 300 (2 seeds) |
 |---|---|---|---|---|---|---|
-| SLAKE closed | 66.35 | 85.34 | 85.82 | 84.38 | **94.47** | **94.47** |
-| SLAKE open EM / recall | 40.93 / 47.19 | 75.50 / 82.07 | 75.97 / 82.40 | 67.13 / 75.33 | 86.36 / 90.54 | 86.36 / 90.90 |
-| TextVQA | 84.22 | 83.56 | 82.33 | 88.78 | 88.22 | 86.67 |
-| MMBench | 88.40 | 87.40 | 87.40 | 93.60 | 94.40 | 94.00 |
-| PubMedQA macro-F1 | 48.66 | 51.45 | 60.48 | 61.83 | 59.51 | **67.29** |
-| PubMedQA acc | 64.00 | 68.80 | 69.40 | 79.00 | 79.00 | 77.60 |
-| predicted yes / no / maybe | 320 / 97 / 83 | 356 / 112 / 32 | 228 / 178 / 94 | 302 / 171 / 27 | 313 / 169 / 18 | 261 / 164 / 75 |
-| "maybe" correct / 55 | 7 | 6 | 21 | 7 | 4 | 22 |
-| "no"→"yes" / "yes"→"no" | 42 / 14 | 63 / 18 | 14 / 32 | 20 / 17 | 24 / 16 | **13 / 13** |
-| recall yes · no · maybe | 86.6 · 43.8 · 12.7 | 91.7 · 50.3 · 10.9 | 69.9 · 78.7 · 38.2 | 89.5 · 83.4 · 12.7 | 91.7 · 81.7 · 7.3 | 82.2 · 82.2 · 40.0 |
+| SLAKE closed | 66.35 | 85.34 | 85.82 / 85.82 | 84.38 | 94.47 / 93.75 | 94.47 / 93.99 |
+| SLAKE open EM | 40.93 | 75.50 | 75.97 / 77.36 | 67.13 | 86.36 / 86.98 | 86.36 / 87.44 |
+| TextVQA | 84.22 | 83.56 | 82.33 / 82.56 | 88.78 | 88.22 / 86.89 | 86.67 / 86.89 |
+| MMBench | 88.40 | 87.40 | 87.40 / 87.00 | 93.60 | 94.40 / 93.40 | 94.00 / 94.00 |
+| PubMedQA macro-F1 | 48.66 | 51.45 | 60.48 / 59.80 | 61.83 | 59.51 / 63.23 | **67.29 / 65.38** |
+| PubMedQA acc | 64.00 | 68.80 | 69.40 / 69.80 | 79.00 | 79.00 / 78.60 | 77.60 / 78.60 |
+| predicted "maybe" / 55 gold | 83 | 32 | 94 / 90 | 27 | 18 / 34 | 75 / 55 |
+| "maybe" correct / 55 | 7 | 6 | 21 / 18 | 7 | 4 / 10 | 22 / 15 |
+| "no"→"yes" | 42 | 63 | 14 / 12 | 20 | 24 / 22 | 13 / 9 |
+| "yes"→"no" | 14 | 18 | 32 / 30 | 17 | 16 / 16 | 13 / 18 |
 
-PubMedQA figures are on the held-out 500; the 3B "replay 0" column is the A-server run.
+PubMedQA figures are on the held-out 500; the 3B "replay 0" column is the single A-server run. At 35B the two seeds
+of one condition differ by up to 3.7 macro-F1 (zero replay) and 7 correct "maybe" answers (replay 300), against about
+0.7 macro-F1 at 3B, so single-run differences under about two points are not interpreted at 35B.
 
 *The zero-shot 35B model has the same blind spot.* It separates "yes" from "no" far better than the 3B base
 ("no"→"yes" 20 against 42, accuracy 79.0 against 64.0), and its closed SLAKE accuracy without any fine-tuning (84.4)
 is already level with the fine-tuned 3B model. But it predicts "maybe" 27 times against 55 gold and gets 7 right —
 exactly the 3B base's count. Scale fixes the binary judgement, not the willingness to abstain.
 
-*Short-answer SFT pushes the same way, more weakly.* Without replay, SFT on SLAKE lowers predicted "maybe" from 27 to
-18 and correct "maybe" from 7 to 4, raises "no"→"yes" from 20 to 24 and "yes" recall from 89.5 to 91.7, and costs
-2.3 points of macro-F1 at unchanged accuracy. The direction matches 3B; the size does not (3B: "no"→"yes" +21).
+*Short-answer SFT does not reliably push the 35B model toward "yes".* This is where the scales differ. At 3B, SFT
+raised "no"→"yes" errors from 42 to 63 and collapsed "maybe"; at 35B the two zero-replay seeds give "no"→"yes" 24 and
+22 against 20, predicted "maybe" 18 and 34 against 27, and macro-F1 59.5 and 63.2 against 61.8 — one seed below the
+base, one above. The first zero-replay seed alone suggested a weaker version of the 3B effect; the second does not
+support it. At 35B the calibration problem is the base model's own reluctance to answer "maybe", not a bias the SFT
+data introduces.
 
-*The same 300 examples repair it, without the 3B over-correction.* Relative to its own zero-replay run, replay raises
-35B macro-F1 by 7.8 (3B: 9.0) and correct "maybe" from 4 to 22 (3B: 6 to 21). The difference is in the side
-effects. At 3B the fix overshoots: "yes" recall falls to 69.9 and "yes"→"no" errors rise to 32. At 35B the three
-recalls are 82.2 / 82.2 / 40.0 and both dangerous error counts fall to 13, below the untuned base on each. Accuracy
-dips by 1.4 points because some of the additional "maybe" answers are wrong; macro-F1, which weights the three
-classes equally, rises. The larger model appears to learn *when* to abstain from the same few hundred examples,
-where the 3B model mostly learns *that* it may.
+*The same 300 examples still repair it, without the 3B over-correction.* Both replay seeds score above both
+zero-replay seeds (67.3 and 65.4 against 59.5 and 63.2; means 66.3 against 61.4, +5.0; 3B: +8.7), answer 22 and 15
+"maybe" questions correctly against 4 and 10, and cut "no"→"yes" from 23 to 11 on average. The difference from 3B is in
+the side effects. At 3B the fix overshoots — "yes"→"no" errors rise to 32 and 30 and the model predicts only 228 and
+234 "yes" against 276 gold. At 35B "yes"→"no" stays at 13 and 18, level with zero replay (16) and the base (17), and
+predicted "yes" is 261 and 271. The larger model absorbs the three-class examples without being pushed past the
+target. Plain accuracy stays level (77.6 and 78.6 against 79.0 at zero replay) because some of the added "maybe"
+answers are wrong; macro-F1, which weights the classes equally, is the better summary here.
 
-*The main task and the cost pattern replicate.* Replay leaves SLAKE unchanged to the question (closed 94.47 and open
-exact match 86.36 in both runs); SFT itself adds 10.1 closed and 19.2 open points, ending 9-11 points above the 3B
-fine-tuned model. On TextVQA, SFT alone costs 0.56 (3B: 0.66) and replay a further 1.55 (3B: 1.23); on MMBench
-replay moves −0.40 (3B: 0.00). The number of TextVQA questions answered "unanswerable" rises from 7 to 10 with SFT
-and stays at 10 with replay, so that tendency comes from SFT, not from the three-class examples.
+*The main task is unaffected and the retention cost is within noise.* Replay leaves SLAKE essentially unchanged
+(closed 94.23 against 94.11, open exact match 86.90 against 86.67, seed means); SFT itself adds about 10 closed and
+20 open points, ending 8-11 points above the fine-tuned 3B model. TextVQA falls from 88.78 at the base to 87.56 with
+SFT and 86.78 with replay (means), but the two zero-replay seeds alone differ by 1.3 points, so the 0.8-point replay
+cost cannot be separated from run-to-run spread; MMBench is flat (93.90 against 94.00). The 3B finding that the cost is
+confined to short-answer format becomes, at 35B, a cost too small to measure.
 
-Both 35B conditions are single runs. The differences discussed above (macro-F1 +7.8, "yes"→"no" 32 versus 13 across
-scales) are several times the 3B seed spread measured in Section 5.6; smaller ones, such as the 0.4-point MMBench
-movement, are not interpreted.
+*Group-D ablations on the 35B replay-300 condition.* Each run changes one training setting. The control, the
+attention-only run and the one-epoch run have two seeds; the others are single runs.
 
-*Group-D ablations on the 35B replay-300 condition.* Each run changes one training setting; all are single runs,
-scored on the held-out PubMedQA half and the same fixed probe samples.
+| Run | Change | macro-F1 (seed 42 / 43) | "maybe" correct | "no"→"yes" / "yes"→"no" | SLAKE closed | open EM | TextVQA |
+|---|---|---|---|---|---|---|---|
+| control | rank 16, lr 1e-4, 3 epochs, attention + shared expert | **67.29 / 65.38** | 22 / 15 | 13 / 13 · 9 / 18 | 94.47 / 93.99 | 86.36 / 87.44 | 86.67 / 86.89 |
+| attention only | no LoRA on the shared expert (130 layers, 0.040 %) | 67.29 / 64.25 | 25 / 16 | 10 / 19 · 13 / 23 | 94.47 / 93.51 | 85.74 / 86.67 | 86.00 / 87.00 |
+| 1 epoch | 3 → 1 epoch | 64.14 / 62.32 | 22 / 10 | 9 / 16 · 13 / 19 | 93.03 / 93.03 | 82.79 / 84.34 | 87.44 / 87.67 |
+| lr 5e-5 | learning rate halved | 64.56 | 21 | 13 / 18 | 92.55 | 85.89 | 86.67 |
+| lr 2e-4 | learning rate doubled | 66.28 | 22 | 14 / 12 | 95.19 | 86.20 | 86.11 |
+| rank 8 | rank 8, alpha 16 | 66.28 | 23 | 15 / 15 | 93.27 | 86.98 | 87.44 |
+| rank 32 | rank 32, alpha 64 | 66.31 | 24 | 17 / 12 | 93.27 | 86.51 | 87.11 |
+| *reference: replay 0* | no three-class examples | 59.51 / 63.23 | 4 / 10 | 24 / 16 · 22 / 16 | 94.47 / 93.75 | 86.36 / 86.98 | 88.22 / 86.89 |
 
-| Run | Change | macro-F1 | acc | "maybe" correct | "no"→"yes" / "yes"→"no" | SLAKE closed | open EM | TextVQA | MMBench |
-|---|---|---|---|---|---|---|---|---|---|
-| control | rank 16, lr 1e-4, 3 epochs, attention + shared expert | **67.29** | 77.6 | 22 | 13 / 13 | 94.47 | 86.36 | 86.67 | 94.0 |
-| 1 epoch | 3 → 1 epoch | 64.14 | 73.6 | 22 | 9 / 16 | 93.03 | 82.79 | 87.44 | 94.2 |
-| lr 5e-5 | learning rate halved | 64.56 | 74.6 | 21 | 13 / 18 | 92.55 | 85.89 | 86.67 | 94.4 |
-| lr 2e-4 | learning rate doubled | 66.28 | 76.6 | 22 | 14 / 12 | **95.19** | 86.20 | 86.11 | 94.2 |
-| rank 8 | rank 8, alpha 16 | 66.28 | 76.0 | 23 | 15 / 15 | 93.27 | 86.98 | 87.44 | 94.2 |
-| rank 32 | rank 32, alpha 64 | 66.31 | 75.6 | 24 | 17 / 12 | 93.27 | 86.51 | 87.11 | 94.0 |
-| attention only | no LoRA on the shared expert (130 layers, 0.040 %) | **67.29** | 76.6 | 25 | 10 / 19 | 94.47 | 85.74 | 86.00 | 93.8 |
-| *reference: replay 0* | no three-class examples | 59.51 | 79.0 | 4 | 24 / 16 | 94.47 | 86.36 | 88.22 | 94.4 |
-
-*Second seeds.* The control, the attention-only run and the one-epoch run were each repeated with the replay sample
-and the training seed both changed to 43, as for the 3B replication in Section 5.6.
-
-| Setting | Seed | macro-F1 | "maybe" correct | predicted yes / no / maybe | "no"→"yes" / "yes"→"no" | SLAKE closed | open EM | TextVQA |
-|---|---|---|---|---|---|---|---|---|
-| control (replay 300) | 42 | 67.29 | 22 | 261 / 164 / 75 | 13 / 13 | 94.47 | 86.36 | 86.67 |
-| | 43 | 65.38 | 15 | 271 / 174 / 55 | 9 / 18 | 93.99 | 87.44 | 86.89 |
-| attention only | 42 | 67.29 | 25 | 248 / 169 / 83 | 10 / 19 | 94.47 | 85.74 | 86.00 |
-| | 43 | 64.25 | 16 | 265 / 177 / 58 | 13 / 23 | 93.51 | 86.67 | 87.00 |
-| 1 epoch | 42 | 64.14 | 22 | 235 / 169 / 96 | 9 / 16 | 93.03 | 82.79 | 87.44 |
-| | 43 | 62.32 | 10 | 278 / 176 / 46 | 13 / 19 | 93.03 | 84.34 | 87.67 |
-
-Run-to-run spread is larger at 35B than at 3B: the two control runs differ by 1.9 macro-F1 (3B: 0.7), 7 correct
-"maybe" answers and 12.7 points of "maybe" recall, while SLAKE, TextVQA and MMBench stay within one point. Single-run
-macro-F1 differences under about two points are therefore not interpreted at 35B, and the ablation conclusions are
-restated against this yardstick.
-
-*The data mix outweighs every training setting.* All ten fine-tuned runs with replay lie between 62.3 and 67.3
-macro-F1; both control seeds are at least 5.9 points above zero replay (59.5), and their dangerous errors (26 and 27)
-stay well below zero replay's 40 without the 3B over-correction ("yes"→"no" 13 and 18, against 32 and 30 at 3B).
-No training setting moves macro-F1 by more than about three points.
-
-*Under-training is the only reliably harmful direction.* Both one-epoch seeds fall below both control seeds
-(mean 63.2 against 66.3), score 93.03 closed accuracy both times (control 94.47 / 93.99) and lose about 3.3 points of
-open exact match; they pay slightly less on TextVQA (+0.8). The single-seed description of the one-epoch run as
-predicting "maybe" too often does not survive replication — the second seed predicts it too rarely (46 against 55
-gold) — so the defensible statement is only that the "maybe" class is unstable when training is short. Halving the
-learning rate (single run, −2.7) points the same way.
-
-*More training and more capacity do not help.* Doubling the learning rate (−1.0) and ranks 8 and 32 (−1.0 each) are
-single runs within the 35B spread; rank 8 uses 0.027 % trainable parameters.
-
-*No detectable contribution from LoRA on the shared expert.* Attention-only LoRA averages 65.8 over two seeds against
-the control's 66.3, a difference of 0.6 that is a third of the seed spread; closed accuracy differs by one question on
-average and TextVQA by 0.3. The exact tie of the first seeds was a coincidence, but the conclusion stands in its
-weaker form: at this noise level the shared-expert adapters, a quarter of the trainable parameters, are not needed.
+*The data mix outweighs the training settings.* Replay moves macro-F1 by about five points on average; among the
+training settings only under-training moves it reliably, by about three, and the rest stay within the 35B spread.
+*Under-training is the only reliably harmful direction.* Both one-epoch seeds fall below both control seeds (mean
+63.2 against 66.3), score 93.03 closed accuracy both times and lose about 3.3 points of open exact match; the single
+halved-learning-rate run points the same way. The first one-epoch seed over-predicted "maybe" (96 times) and the
+second under-predicted it (46), so the only defensible description is that the class is unstable when training is
+short. *More training and more capacity do not help:* a doubled learning rate and ranks 8 and 32 land within a point
+of each other and of the control. *No detectable contribution from LoRA on the shared expert:* attention-only LoRA
+averages 65.8 over two seeds against the control's 66.3, a third of the seed spread, with closed accuracy one question
+apart on average; the exact tie of the first seeds was a coincidence. At this noise level the shared-expert adapters,
+a quarter of the trainable parameters, are not needed.
 
 *Open-ended generation.* The three short-output retention probes cannot see drift in longer text, so a fourth probe
 (`eval/eval_openended.py`) asks for free descriptions. General: 300 fixed COCO val images, "describe this image in two
 or three sentences", scored against five human captions (CIDEr without the CIDEr-D length penalty, which zeroes out
-multi-sentence answers against ten-word references; ROUGE-L; recall of reference content words) plus length, share
-of answers under five words and refusal rate. Medical: all 96 SLAKE test images, "describe the imaging modality, the
-body region and any abnormal findings", scored automatically against the annotated modality and region, and — for the
-44 images whose own closed questions mark them abnormal — whether the description declares the study normal once
-negated findings ("no evidence of consolidation or nodules") are removed.
+multi-sentence answers against ten-word references; ROUGE-L; recall of reference content words) plus length, share of
+answers under five words and refusal rate. Medical: all 96 SLAKE test images, "describe the imaging modality, the
+body region and any abnormal findings", scored against the annotated modality and region and, for the 44 images whose
+own closed questions mark them abnormal, whether the description declares the study normal once negated findings
+("no evidence of consolidation or nodules") are removed. All thirteen 35B models were evaluated.
 
-| Model | COCO CIDEr | ROUGE-L | content recall | words | < 5 words | modality / region correct | abnormal called normal |
-|---|---|---|---|---|---|---|---|
-| 35B base | 65.79 | 28.14 | 71.40 | 48.2 | 0 % | 99.0 / 96.9 | 4 / 44 |
-| replay 0 | 68.18 | 28.92 | 71.54 | 46.0 | 0 % | 100.0 / 94.8 | **13 / 44** |
-| replay 300, seed 42 | 68.84 | 29.61 | 72.54 | 44.5 | 0 % | 99.0 / 94.8 | **2 / 44** |
-| replay 300, seed 43 | 68.01 | 29.08 | 71.42 | 45.3 | 0 % | 99.0 / 93.8 | 4 / 44 |
-| attention only, seed 43 | 66.85 | 28.89 | 71.40 | 45.3 | 0 % | 96.9 / 92.7 | 10 / 44 |
-| 1 epoch, seed 43 | 65.55 | 27.96 | 72.28 | 49.0 | 0 % | 99.0 / 93.8 | 8 / 44 |
+| Model | COCO CIDEr | content recall | words | < 5 words | region correct | abnormal called normal |
+|---|---|---|---|---|---|---|
+| 35B base | 65.79 | 71.40 | 48.2 | 0 % | 96.9 | 4 / 44 |
+| replay 0, seeds 42 / 43 | 68.18 / 66.52 | 71.54 / 71.60 | 46.0 / 46.1 | 0 % | 94.8 / 95.8 | **13 / 3** |
+| replay 300, seeds 42 / 43 | 68.84 / 68.01 | 72.54 / 71.42 | 44.5 / 45.3 | 0 % | 94.8 / 93.8 | 2 / 4 |
+| eight other ablation runs | 61.5 – 69.8 | 71.4 – 73.0 | 43.8 – 52.3 | 0 % | 89.6 – 95.8 | 2 – 15 |
 
-Long-form general description does not degrade: every fine-tuned model still writes 44-49 words (base 48), none
-collapses to a short answer or refuses, and caption similarity is unchanged or slightly higher. The medical
-descriptions show something the short-output probes could not. Short-answer SFT without replay describes 13 of the 44
-abnormal studies as normal, against 4 for the base model — all 13 were checked by hand; in two chest films where the
-base model and the replay model both report an enlarged cardiac silhouette, the zero-replay model writes "the heart
-size appears normal, the lung fields are clear". With 300 replay examples the count returns to 2 and 4 across the two
-seeds, and the model does not simply over-call abnormality (it calls 5 of 12 normal studies normal, the base 3).
-Across the five fine-tuned models, the better calibrated the model is on PubMedQA, the fewer abnormal studies it
-calls normal (Spearman −0.9 over five points). The three-class text examples appear to transfer from yes/no/maybe
-answers to free-text reporting — to the clinically most dangerous error, and the same failure the image-text CPT
-adapter showed in Section 5.4. This rests on five models, one decoding each and a heuristic judge, and is reported as
-an association.
+Long-form general description does not degrade: all twelve fine-tuned models write 44-52 words (base 48), none
+collapses to a short answer or refuses, and caption similarity is unchanged. The medical false-normal count is a
+cautionary result. The first zero-replay seed described 13 of the 44 abnormal studies as normal against 4 for the
+base and 2 for replay 300 — all 13 were real misses on inspection, including two chest films where the base and replay
+models reported an enlarged cardiac silhouette and the zero-replay model wrote "the heart size appears normal". The
+second zero-replay seed produced 3. Across the twelve fine-tuned models the count ranges from 2 to 15 (a replay model
+at rank 8 has 15) and is unrelated to PubMedQA calibration (Spearman −0.27). A single decoding over 44 images is too
+coarse a measure: the earlier single-seed reading that replay reduces false-normal descriptions is withdrawn. Turning
+missed abnormalities into a usable metric needs a larger annotated set, several seeds and human reading.
 
 ---
 
@@ -749,7 +723,7 @@ seed reproduces (Section 5.6).
   extends the same trend. The zero point and the 99 point remain single runs.
 - The PubMedQA "maybe" class has only 55 unique training items, repeated about five times to reach 300 in C1's balanced sample. The calibration gain may therefore depend partly on memorising a small set; the held-out half shows the effect transfers, but a larger three-class source would test it properly. On the training half C1 scores 94.4 % accuracy and answers 54 of 55 "maybe" questions correctly, which confirms the memorisation is present and is exactly why the split protocol exists. The 99-example point bounds the concern: with each "maybe" item seen at most once, "maybe" recall is the highest of any run (41.8 %), so restoring the class does not depend on repetition; what the larger budgets add is discrimination (accuracy 64.6 → 69.6 → 73.0), not the class itself.
 - C1's general-ability cost on TextVQA is −2.23 points on 300 questions (about seven). A second probe (MMBench, 500 multiple-choice) shows no replay cost, so the TextVQA figure should be read as a short-answer-format effect, not as general forgetting. Neither probe covers open-ended description, where format-independent drift could still hide.
-- The 35B check (Section 5.7) differs from the 3B runs in three forced ways: custom training code instead of LLaMA-Factory, LoRA on attention and the shared expert only (the routed experts are packed parameters), and evaluation with thinking disabled. The replay-300, attention-only and one-epoch settings have two seeds each; the other 35B runs are single, and the 35B run-to-run spread (1.9 macro-F1) is larger than at 3B. The model's behaviour with thinking enabled is not measured. The open-ended probe judges medical descriptions with keyword heuristics; the zero-replay false-normal cases were checked by hand, the others were not.
+- The 35B check (Section 5.7) differs from the 3B runs in three forced ways: custom training code instead of LLaMA-Factory, LoRA on attention and the shared expert only (the routed experts are packed parameters), and evaluation with thinking disabled. Run-to-run spread is larger at 35B (up to 3.7 macro-F1 between seeds); the zero-replay, replay-300, attention-only and one-epoch settings have two seeds, the other ablations one. The model's behaviour with thinking enabled is not measured. The free-text probe's medical false-normal count proved too noisy over 44 images to support any conclusion.
 - Evaluation uses greedy decoding and string matching; open-ended recall rewards verbose answers. Exact match and F1 are reported alongside to bound this.
 - The vision tower is frozen throughout. Unfreezing it (or LoRA on the ViT) is a natural ablation for B2 but roughly doubles memory.
 - Image-text CPT is prototyped on IU X-Ray (3.3k frontal images). CheXpert Plus is registered but not yet downloaded; the 5k → 20k scale-up and alignment-score filtering (B3) depend on it and on the teammate's scoring interface (week 6).

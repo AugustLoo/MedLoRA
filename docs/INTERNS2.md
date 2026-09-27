@@ -142,3 +142,9 @@ cd /home/ubuntu/chunqian/MedLoRA && ln -sfn /home/ubuntu/chunqian/data/SLAKE dat
 (`lmms-lab___textvqa`、`qiaojin___pub_med_qa`、`lmms-lab___mm_bench`)。换机器评估前先用三行 `load_dataset` 测一遍再开跑。
 `ablation.log` 里的 PubMedQA F1 是全部 1000 题口径 (含训练半边), 比较时用 `scripts/eval_pubmedqa_split.py` 的考卷半边数字。
 
+## 补种子与开放式探针 (2026-09-27)
+
+回放 0、回放 300、只挂注意力、只练 1 轮各两个种子; 13 个 35B 模型都跑了开放式探针 (`eval/eval_openended.py`)。
+35B 种子间 macro-F1 差可达 3.7 (3B 约 0.7), 单次运行不可靠。结论见 `results/README.md` 最后一节与报告 5.7 节。
+开放式探针的「异常说成正常」在 44 张图上太不稳 (同一条件两个种子 13 与 3), 不作为指标使用。
+
