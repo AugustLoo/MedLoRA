@@ -171,3 +171,10 @@ bash train/interns2/ablation.sh r900 r100 r900_s43 r100_s43                   # 
 
 结果 (2026-09-28 上午跑完, 四轮每轮训练 1 小时 52 分到 2 小时 19 分): 99 到 900 条的 macro-F1 均值 65.1 / 66.3 / 64.7, 都在种子差以内, 全部高于不回放;
 99 条把 maybe 说成两倍、准确率掉约 5 分; 任何剂量都没有保持代价。详见 `results/README.md` 最后一节与报告 5.7 节、图 8。
+
+## 交付给同学部署 (2026-09-28)
+
+同学要求直接给合并好的完整模型 (他的推理环境加载不了 LoRA adapter)。`interns2_mix_300` 合并到
+`/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA` (新目录, 原模型未动; 73.2 GB 与基座相同,
+补 785 个 MTP 张量, lm_head 拷回 F32)。用他的推理环境按相同参数起服务, `scripts/check_api.py` 文字题与看图题都正常回答后停掉;
+他的服务由他自己换路径启动。提醒过他调用时关思考模式。
