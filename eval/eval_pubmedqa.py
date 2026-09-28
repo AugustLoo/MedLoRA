@@ -44,9 +44,14 @@ def main():
     ap.add_argument("--tag", default="baseline")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--load-4bit", action="store_true")
+    ap.add_argument("--half", default="all", choices=["all", "test"],
+                    help="test = 只测 data/pubmedqa_split.json 的考卷半边 (500 题), 省一半时间, 如开思考模式时")
     args = ap.parse_args()
 
     ds = load_dataset("qiaojin/PubMedQA", "pqa_labeled", split="train")
+    if args.half == "test":
+        keep = set(json.loads((REPO / "data" / "pubmedqa_split.json").read_text(encoding="utf-8"))["test"])
+        ds = ds.filter(lambda r: int(r["pubid"]) in keep)
     if args.limit:
         ds = ds.select(range(args.limit))
     model, processor = load_model(args.model, args.adapter, args.load_4bit)
@@ -63,14 +68,16 @@ def main():
                 unparsed += 1
             golds.append(r["final_decision"])
             preds.append(lab)
-            fout.write(json.dumps({"pubid": r["pubid"], "gold": r["final_decision"], "pred": lab, "raw": raw}) + "\n")
+            row = {"pubid": r["pubid"], "gold": r["final_decision"], "pred": lab, "raw": raw}
+            row.update(getattr(model, "last", None) or {})  # 远程模式: 推理段、结束原因、生成 token 数
+            fout.write(json.dumps(row, ensure_ascii=False) + "\n")
 
     summary = {
         "model": args.model, "adapter": args.adapter, "backend": backend_info(model), "n": len(golds),
         "accuracy": round(100 * accuracy_score(golds, preds), 2),
         "macro_f1": round(100 * f1_score(golds, preds, labels=LABELS, average="macro"), 2),
         "pred_dist": dict(Counter(preds)), "gold_dist": dict(Counter(golds)),
-        "unparsed": unparsed,
+        "unparsed": unparsed, "half": args.half,
     }
     (out_dir / f"pubmedqa_{args.tag}.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(json.dumps(summary, indent=2))

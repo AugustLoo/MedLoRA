@@ -12,6 +12,8 @@
     MEDVLM_API_TIMEOUT   单次请求超时秒数, 默认 180
     MEDVLM_API_EXTRA     JSON, 原样并入请求体。例如关闭思考模式:
                          '{"chat_template_kwargs": {"enable_thinking": false}}'
+    MEDVLM_MAX_TOKENS    生成长度下限。开思考模式时评估脚本给的 8-32 个 token 不够推理, 设成 4096 之类;
+                         不设就与评估脚本传入的值相同 (第 2 条)
 
 与本地推理保持一致的三件事:
     1. 贪心解码: temperature=0, top_p=1 (本地是 do_sample=False)
@@ -36,6 +38,7 @@ ENV_BASE = "MEDVLM_API_BASE"
 ENV_KEY = "MEDVLM_API_KEY"
 ENV_TIMEOUT = "MEDVLM_API_TIMEOUT"
 ENV_EXTRA = "MEDVLM_API_EXTRA"
+ENV_MAX_TOKENS = "MEDVLM_MAX_TOKENS"
 
 _THINK = re.compile(r"<think>.*?</think>", re.S | re.I)
 
@@ -67,8 +70,10 @@ def clean_output(text: str | None) -> str:
 
 class RemoteModel:
     def __init__(self, base: str, model: str, api_key: str | None = None, max_pixels: int = 512 * 28 * 28,
-                 timeout: float = 180, retries: int = 4, extra: dict | None = None):
+                 timeout: float = 180, retries: int = 4, extra: dict | None = None, min_tokens: int = 0):
         self.base = base.rstrip("/")
+        self.min_tokens = min_tokens
+        self.last = {}  # 最近一次回复的推理段与结束原因, 评估脚本可选记录
         self.model = model
         self.api_key = api_key
         self.max_pixels = max_pixels
@@ -84,7 +89,8 @@ class RemoteModel:
         extra = os.environ.get(ENV_EXTRA, "").strip()
         return cls(base, model, api_key=os.environ.get(ENV_KEY) or None, max_pixels=max_pixels,
                    timeout=float(os.environ.get(ENV_TIMEOUT, "180")),
-                   extra=json.loads(extra) if extra else None)
+                   extra=json.loads(extra) if extra else None,
+                   min_tokens=int(os.environ.get(ENV_MAX_TOKENS, "0") or 0))
 
     # ---------- HTTP ----------
     def _request(self, method: str, path: str, payload: dict | None = None) -> dict:
@@ -123,18 +129,22 @@ class RemoteModel:
         else:
             content = prompt
         payload = {"model": self.model, "messages": [{"role": "user", "content": content}],
-                   "max_tokens": max_new_tokens, "temperature": 0, "top_p": 1}
+                   "max_tokens": max(max_new_tokens, self.min_tokens), "temperature": 0, "top_p": 1}
         payload.update(self.extra)
         return payload
 
     def chat(self, prompt: str, image: Image.Image | None = None, max_new_tokens: int = 32) -> str:
         out = self._request("POST", "/chat/completions", self.build_payload(prompt, image, max_new_tokens))
-        msg = (out.get("choices") or [{}])[0].get("message") or {}
+        choice = (out.get("choices") or [{}])[0]
+        msg = choice.get("message") or {}
         text = msg.get("content")
+        self.last = {"reasoning": msg.get("reasoning_content") or "", "finish_reason": choice.get("finish_reason"),
+                     "completion_tokens": (out.get("usage") or {}).get("completion_tokens")}
         if isinstance(text, list):  # 少数服务端把 content 返回成分段列表
             text = "".join(p.get("text", "") for p in text if isinstance(p, dict))
         return clean_output(text)
 
     def describe(self) -> dict:
         return {"backend": "api", "api_base": self.base, "served_model": self.model,
-                "max_pixels": self.max_pixels, "extra": self.extra}
+                "max_pixels": self.max_pixels, "extra": self.extra,
+                **({"min_tokens": self.min_tokens} if self.min_tokens else {})}
