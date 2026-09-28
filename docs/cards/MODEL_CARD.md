@@ -1,6 +1,6 @@
 # Model Card — MedLoRA adapters for Qwen2.5-VL-3B-Instruct and Intern-S2-Preview (35B)
 
-**Version** 1.2 · 2026-09-27 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.3 · 2026-09-28 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 This card covers the LoRA adapters produced in this project: the main family on Qwen2.5-VL-3B-Instruct, and a
@@ -75,6 +75,8 @@ the training seed together, as for the 3B replications.
 |---|---|---|---|---|
 | `interns2_mix_0`, `interns2_abl_r0_s43` | 0 | — | 42, 43 | SFT alone at 35B |
 | `interns2_mix_300`, `interns2_abl_s43` | 300 | — | 42, 43 | the replay fix at 35B (control for the ablations) |
+| `interns2_abl_r100`, `…_r100_s43` | 99 | — | 42, 43 | replay budget curve |
+| `interns2_abl_r900`, `…_r900_s43` | 900 | — | 42, 43 | replay budget curve |
 | `interns2_abl_attn`, `…_attn_s43` | 300 | no LoRA on the shared expert (130 layers, 0.040 %) | 42, 43 | does the shared expert need adapting |
 | `interns2_abl_ep1`, `…_ep1_s43` | 300 | 1 epoch instead of 3 | 42, 43 | training length |
 | `interns2_abl_r8`, `…_r32` | 300 | rank 8 / 32 | 42 | capacity |
@@ -147,7 +149,9 @@ both are shown (seed 42 / seed 43). PubMedQA on the held-out half.
 |---|---|---|---|---|---|---|---|
 | 35B base | 84.38 | 67.13 | 88.78 | 93.60 | 61.83 | 7 / 55 | 20 / 17 |
 | replay 0 | 94.47 / 93.75 | 86.36 / 86.98 | 88.22 / 86.89 | 94.40 / 93.40 | 59.51 / 63.23 | 4 / 10 | 24 / 16 · 22 / 16 |
+| replay 99 | 93.99 / 93.99 | 85.74 / 87.13 | 87.67 / 87.56 | 93.60 / 93.60 | 65.58 / 64.64 | 27 / 28 | 13 / 17 · 8 / 13 |
 | **replay 300** | 94.47 / 93.99 | 86.36 / 87.44 | 86.67 / 86.89 | 94.00 / 94.00 | **67.29 / 65.38** | 22 / 15 | 13 / 13 · 9 / 18 |
+| replay 900 | 93.99 / 93.75 | 86.82 / 86.20 | 87.22 / 87.33 | 93.20 / 93.80 | 64.17 / 65.30 | 15 / 18 | 21 / 14 · 15 / 12 |
 | attention only | 94.47 / 93.51 | 85.74 / 86.67 | 86.00 / 87.00 | 93.80 / 93.40 | 67.29 / 64.25 | 25 / 16 | 10 / 19 · 13 / 23 |
 | 1 epoch | 93.03 / 93.03 | 82.79 / 84.34 | 87.44 / 87.67 | 94.20 / 94.20 | 64.14 / 62.32 | 22 / 10 | 9 / 16 · 13 / 19 |
 | rank 8 · rank 32 | 93.27 · 93.27 | 86.98 · 86.51 | 87.44 · 87.11 | 94.20 · 94.00 | 66.28 · 66.31 | 23 · 24 | 15 / 15 · 17 / 12 |
@@ -158,6 +162,9 @@ fine-tuned 3B model. The base is as reluctant to answer "maybe" as the 3B base (
 reliably make it worse (the two zero-replay seeds fall either side of the base). Replay 300 raises macro-F1 by 5.0 on
 average (61.4 → 66.3) and correct "maybe" from 7 to 18.5, without the 3B over-correction ("yes"→"no" stays at 13-18).
 Among training settings only under-training reliably hurts; LoRA on the shared expert shows no detectable benefit.
+Every replay budget from 99 to 900 lands within seed spread of the others (means 65.1 / 66.3 / 64.7); 99 examples
+over-predict "maybe" (99 and 118 times against 55 gold) and lose about five points of accuracy, so 300 is the
+recommended budget. No budget costs SLAKE, TextVQA or MMBench.
 
 **Free-text probe (35B only).** Long-form description does not degrade: every fine-tuned model writes 44-52 words
 (base 48) on 300 COCO images, none collapses to a short answer or refuses, and caption similarity is unchanged. See §5
