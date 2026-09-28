@@ -246,7 +246,10 @@ can be said to be safer than another on this measure — but the failure itself 
 dangerous one. The 3B adapters were not given this probe.
 
 **Thinking mode is off for the 35B model.** It was disabled to make the answers comparable with 3B and to fit the
-short-answer budget. The model's behaviour with reasoning enabled is unmeasured.
+short-answer budget. One held-out PubMedQA run of the *base* model with thinking on (4,096-token budget) left 21 % of
+answers unfinished — a third of the "maybe" questions — and on the questions it finished answered 5 of 37 "maybe"
+questions correctly against 3 without thinking and 9-12 for the replay-300 adapters. Thinking is not a substitute for
+the replay fix; whether the adapters behave well with thinking on is unmeasured.
 
 **English only, three modalities.** SLAKE covers X-Ray, CT and MRI. Nothing here says anything about
 ultrasound, pathology, dermatology, or non-English clinical text.
