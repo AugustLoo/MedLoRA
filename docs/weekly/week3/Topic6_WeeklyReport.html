@@ -297,26 +297,10 @@ thead th .tr-c{font-size:10.5px}
   <div class="srcline">3B 回放 0 是一次运行，3B 回放 300 和 35B 两列都是两个种子的均值。<span class="tr-s">3B replay 0 is a single run; 3B replay 300 and both 35B columns are two-seed means.</span></div>
 </section>
 
-<!-- ============================ 07 工程 ============================ -->
-<section class="section deep" id="eng">
-  <div class="prose">
-    <div class="kicker">07 · 工程 · Engineering</div>
-    <h2>把 35B 跑起来花了什么<span class="tr-h">What it took to run the 35B model</span></h2>
-    <p class="lede">从拿到账号到两个模型都评测完，大约一天；之后的消融和补种子全部无人值守。</p>
-    <p class="lede tr">About a day from receiving the account to the first two evaluated models; all later ablations and seeds ran unattended.</p>
-  </div>
-  <div class="tiles">
-    <div class="card"><div class="big" style="color:var(--c-c1)">1 h 58</div><h3>一轮训练<span class="tr-h3">One training run</span></h3><p>回放 300 共 978 步，每步 5.75 秒；只做微调 921 步，1 小时 18 分。显存峰值每卡约 20 GB，32 GB 的卡还有余量。</p><p class="tr">Replay 300: 978 steps at 5.75 s; fine-tuning only: 921 steps, 1 h 18 min. Peak memory about 20 GB per 32 GB card.</p></div>
-    <div class="card"><div class="big" style="color:var(--c-a)">5.2</div><h3>版本要对齐<span class="tr-h3">Pin the library version</span></h3><p>模型代码是按 transformers 5.2 写的，新版改了内部函数签名，前向直接报错。时间序列模块不支持 sdpa 注意力，要让各部分自己选。</p><p class="tr">The model code targets transformers 5.2; a newer release changed an internal signature and the forward pass failed. The time-series module lacks sdpa attention, so each part picks its own.</p></div>
-    <div class="card"><div class="big" style="color:var(--c-base)">全自动 · unattended</div><h3>训练到评估一条龙<span class="tr-h3">Training to evaluation, end to end</span></h3><p>训练、合并权重、起服务、四张表、开放式探针、清理，一轮接一轮。合并时 MTP 层和 32 位的输出层要从原模型补回，合并后和原模型大小完全一致。</p><p class="tr">Train, merge, serve, four tables, free-text probe, clean up — run after run. Merging copies the MTP layers and the 32-bit output layer from the base, so the merged model is exactly the size of the original.</p></div>
-  </div>
-  <div class="srcline">显卡分配：训练和评估时暂停同学的推理服务，用 0-3 号卡；6、7 号卡上是别的账号的任务，不碰。<span class="tr-s">GPUs 0-3 were used with the classmate's inference service paused; GPUs 6-7 belong to another account and were left alone.</span></div>
-</section>
-
-<!-- ============================ 08 消融 ============================ -->
+<!-- ============================ 07 消融 ============================ -->
 <section class="section" id="abl">
   <div class="prose">
-    <div class="kicker">08 · 消融 · Ablations</div>
+    <div class="kicker">07 · 消融 · Ablations</div>
     <h2>D 组消融：改数据比改超参管用<span class="tr-h">Group D: changing the data beats changing the settings</span></h2>
     <p class="lede">在 35B 回放 300 的设置上每次只改一样，一共 6 轮；对照、只挂注意力、只练 1 轮这三个又各补了一个种子。</p>
     <p class="lede tr">One setting changed at a time on the 35B replay-300 condition, six runs; the control, attention-only and one-epoch runs each got a second seed.</p>
@@ -346,10 +330,10 @@ thead th .tr-c{font-size:10.5px}
   <div class="srcline">表中是 PubMedQA macro-F1（考卷半边 500 题）。种子 43 同时换了回放样本的抽样和训练种子，与 3B 的做法一致。<span class="tr-s">PubMedQA macro-F1 on the held-out 500. Seed 43 changes the replay sample and the training seed together, as at 3B.</span></div>
 </section>
 
-<!-- ============================ 09 开放式 ============================ -->
+<!-- ============================ 08 开放式 ============================ -->
 <section class="section deep" id="oe">
   <div class="prose">
-    <div class="kicker">09 · 新探针 · New probe</div>
+    <div class="kicker">08 · 新探针 · New probe</div>
     <h2>让它写一段话：<br>长段描述没有退化<span class="tr-h">Asking for a paragraph: long-form description does not degrade</span></h2>
     <p class="lede">之前三个通用能力测试的答案都很短。这周加了第四个：让模型用两三句话描述一张图。13 个 35B 模型全部测过。</p>
     <p class="lede tr">The three existing general probes all have short answers. This week adds a fourth: describe an image in two or three sentences. All thirteen 35B models were tested.</p>
@@ -374,20 +358,20 @@ thead th .tr-c{font-size:10.5px}
   <div class="srcline">「异常」从同一张图的封闭题推出（44 张异常）；「说成正常」用关键词判定，去掉「no evidence of ...」这类否定说法后再看。COCO 相似度是不带长度惩罚的 CIDEr。<span class="tr-s">"Abnormal" is derived from each image's own closed questions (44 images); "called normal" is a keyword judge applied after removing negated findings. CIDEr is computed without the length penalty.</span></div>
 </section>
 
-<!-- ============================ 10 剂量 ============================ -->
+<!-- ============================ 09 剂量 ============================ -->
 <section class="section" id="dose-sec">
   <div class="prose">
-    <div class="kicker">10 · 掺多少 · How much replay</div>
+    <div class="kicker">09 · 掺多少 · How much replay</div>
     <h2>掺多少题：<br>多少都行，只要别太少<span class="tr-h">How much replay: almost any amount, as long as it is not too little</span></h2>
     <p class="lede">3B 上画过的剂量曲线（0 / 99 / 300 / 900 道），这次在 35B 上补齐，每一档两个种子。数据文件和 3B 完全相同。</p>
     <p class="lede tr">The replay budget curve drawn at 3B (0 / 99 / 300 / 900 examples) is now complete at 35B, two seeds per point, from exactly the same data files.</p>
   </div>
   <div class="scrolly" id="scrolly-dose">
-    <div class="chart">
+    <div class="sticky-fig"><div class="card">
       <div class="ttl" id="dose-ttl">回放剂量曲线 · replay budget curve</div>
       <svg id="dose" viewBox="0 0 720 360" role="img" aria-label="3B and 35B at replay budgets 0, 99, 300 and 900"></svg>
       <div class="legend" id="dose-legend"></div>
-    </div>
+    </div></div>
     <div class="steps">
       <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>macro-F1：只要掺就有效<span class="tr-h3">macro-F1: any replay helps</span></h3><p>3B 一路涨到 300 条才饱和。35B 掺 99 条就拿到四分之三的收益，99、300、900 三档之间的差（+1.2、−1.6）比同一档两个种子的差还小。六次掺题的运行全部高于两次不掺。</p><p class="tr">At 3B the gain keeps growing until 300. At 35B, 99 examples already give three-quarters of the gain, and the gaps between 99, 300 and 900 (+1.2, −1.6) are smaller than the gap between two seeds of one point. All six replay runs beat both zero-replay runs.</p></div></div>
       <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>99 条：两个规模都把 maybe 说过头<span class="tr-h3">99 examples: both scales over-say "maybe"</span></h3><p>真实答案里 maybe 只有 55 道。掺 99 条时，3B 说了 120 次，35B 说了 99 次和 118 次，都是两倍左右。掺到 300 条以后，35B 回到 55 到 75 次，接近真实。</p><p class="tr">Only 55 answers are truly "maybe". With 99 examples, 3B says it 120 times and 35B 99 and 118 times — about double. From 300 on, 35B comes back to 55-75.</p></div></div>
@@ -398,10 +382,10 @@ thead th .tr-c{font-size:10.5px}
   <div class="srcline">PubMedQA 考卷半边 500 题。实线是种子均值，空心小点是每一次运行；3B 的 0 和 99 两档只有一次。横轴按档位等距，不按数量比例。<span class="tr-s">Held-out PubMedQA, 500 questions. Lines join seed means, hollow dots are individual runs; at 3B the 0 and 99 points are single runs. The budget axis is evenly spaced, not proportional.</span></div>
 </section>
 
-<!-- ============================ 11 思考 ============================ -->
+<!-- ============================ 10 思考 ============================ -->
 <section class="section deep" id="think">
   <div class="prose">
-    <div class="kicker">11 · 思考模式 · Thinking mode</div>
+    <div class="kicker">10 · 思考模式 · Thinking mode</div>
     <h2>让它先想再答：<br>想得出不确定，说不出 maybe<span class="tr-h">Thinking first: it senses the uncertainty, but still won't say "maybe"</span></h2>
     <p class="lede">前面所有 35B 结果都是关掉思考测的。一个自然的问题：让模型先推理再作答，它会不会自己就肯说 maybe？如果会，回放就不是必需的。</p>
     <p class="lede tr">Every 35B result so far had thinking switched off. The natural question: if the model reasons before answering, does it say "maybe" on its own? If so, replay would not be needed.</p>
@@ -433,10 +417,10 @@ thead th .tr-c{font-size:10.5px}
   <div class="srcline">只测了基座一次、一个 token 上限。上限更大会多答完一些题，但就算没答完的 18 道 maybe 题全部答对，也只有 23 / 55，与回放 300 最好的一次（22）持平。回放后的模型开思考没有测。只看答完的题这个比较对思考有利，因为去掉的正是它最难的题。<span class="tr-s">One run of the base model at one token budget. A larger budget would finish more questions, but even if all 18 unfinished "maybe" questions were then right, thinking would reach 23 of 55 — level with the best replay-300 run (22). Replay models with thinking on were not tested. Comparing only finished questions favours thinking, since it drops the questions it found hardest.</span></div>
 </section>
 
-<!-- ============================ 12 总结 ============================ -->
+<!-- ============================ 11 总结 ============================ -->
 <section class="section" id="done">
   <div class="prose">
-    <div class="kicker">12 · 总结 · Summary</div>
+    <div class="kicker">11 · 总结 · Summary</div>
     <h2>这周做了什么<span class="tr-h">What was done this week</span></h2>
   </div>
   <div class="tbl">
@@ -459,10 +443,10 @@ thead th .tr-c{font-size:10.5px}
   <div class="srcline"><span class="en">results/README.md</span> · <span class="en">docs/report.md</span> §5.7 · <span class="en">docs/cards/</span> · <span class="en">docs/INTERNS2.md</span></div>
 </section>
 
-<!-- ============================ 13 计划 ============================ -->
+<!-- ============================ 12 计划 ============================ -->
 <section class="section deep" id="next">
   <div class="prose">
-    <div class="kicker">13 · 计划 · Plan</div>
+    <div class="kicker">12 · 计划 · Plan</div>
     <h2>接下来的计划<span class="tr-h">Next steps</span></h2>
   </div>
   <div class="card next">
