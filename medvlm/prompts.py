@@ -20,6 +20,14 @@ MMBENCH = (
 )
 
 
+# 外部医学知识测试 (MedQA 四选一, 纯文字), 措辞与 MMBench 一致, 见 eval/eval_medqa.py。
+MEDQA = (
+    "{question}\n"
+    "{options}\n"
+    "Answer with the option's letter from the given choices directly."
+)
+
+
 def slake_prompt(question: str, answer_type: str) -> str:
     tpl = SLAKE_CLOSED if str(answer_type).upper() == "CLOSED" else SLAKE_OPEN
     return tpl.format(question=question.strip())

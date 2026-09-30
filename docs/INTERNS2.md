@@ -178,3 +178,23 @@ bash train/interns2/ablation.sh r900 r100 r900_s43 r100_s43                   # 
 `/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA` (新目录, 原模型未动; 73.2 GB 与基座相同,
 补 785 个 MTP 张量, lm_head 拷回 F32)。用他的推理环境按相同参数起服务, `scripts/check_api.py` 文字题与看图题都正常回答后停掉;
 他的服务由他自己换路径启动。提醒过他调用时关思考模式。
+
+## 外部测试集: VQA-RAD / PathVQA / MedQA (2026-09-30 起)
+
+老师同意加入三个英文公开测试集, 只测不训: VQA-RAD (放射科问答, 测试 451 题, 检验是否只学熟了 SLAKE)、
+PathVQA (病理问答, 测试 6,719 题, 一半 yes/no, 检验「爱答 yes」在看图题上是否也存在)、MedQA (USMLE 四选一,
+测试 1,273 题, 检验纯文字医学知识)。脚本 `eval/eval_medvqa.py` 与 `eval/eval_medqa.py`, 只下测试分片 (约 170 MB)。
+35B 上评三个模型: 基座、最终版 (同学目录里已合并好的 `Intern-S2-Preview-MedLoRA`, 只读使用)、回放 0 (临时合并, 评完删)。
+
+「漏报异常」探针 PneumoniaMNIST (`eval/eval_pneumonia.py`, 624 张儿童胸片, 是非题 + 自由描述) 一起跑。它的测试集在本机从
+同学给的 data.zip 里抽出 (`data/raw/medmnist/pneumoniamnist_224_test.npz`, 23 MB, 不进 git), 用 scp 传到主机同一路径。
+
+```bash
+# 本机 Git Bash
+cd "/c/Users/Y4/other projects/Topic 6/MedLoRA" && ssh 5090 "mkdir -p /home/ubuntu/chunqian/MedLoRA/data/raw/medmnist" && scp data/raw/medmnist/pneumoniamnist_224_test.npz 5090:/home/ubuntu/chunqian/MedLoRA/data/raw/medmnist/
+# 主机
+cd /home/ubuntu/chunqian/MedLoRA
+bash train/interns2/external.sh prefetch            # 走镜像下数据, 不占卡, 不用停服务
+# 与同学约好时间, 停他的服务后在 tmux 里:
+bash train/interns2/external.sh base final r0        # 进度: tail -5 /home/ubuntu/chunqian/logs/external.log
+```
