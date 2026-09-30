@@ -452,7 +452,7 @@ thead th .tr-c{font-size:10.5px}
   <div class="card next">
     <h3>按优先级<span class="tr-h3">In priority order</span></h3>
     <ol>
-      <li><strong>下周 · 把 35B 的 adapter 整理并公开。</strong>它们目前只在服务器上有一份，先备份，再附上加载说明发布，方便别人下载复现报告里的结果。<span class="tr-li"><strong>Next week: package and release the 35B adapters.</strong> They exist only on the server; back them up first, then publish them with loading instructions so others can reproduce the reported results.</span></li>
+      <li><strong>下周 · 备份 35B 的 adapter。</strong>它们目前只在服务器上有一份，先拷一份回来备份。<span class="tr-li"><strong>Next week: back up the 35B adapters.</strong> They currently exist only on the server; copy them back as a backup.</span></li>
       <li><strong>之后 · 「漏报异常」做成正式指标。</strong>用更大的带标注影像集（例如 CheXpert Plus 的报告），多种子，再请懂影像的人抽查。<span class="tr-li"><strong>Missed abnormalities as a real metric</strong> — a larger annotated set (e.g. CheXpert Plus reports), several seeds, and spot checks by someone who reads images.</span></li>
       <li><strong>下周 · 实验 B3。</strong>队友的 CheXpert Plus 子集已经到了（1.5 万对胸片和报告，按病人划分）。先把数据接进来跑通；等他补好效果更好的打分模型的加载，就用图文对齐分数筛选 CPT 数据，看筛过的数据会不会更好。<span class="tr-li"><strong>Next week: experiment B3.</strong> The teammate's CheXpert Plus subset has arrived (15k image–report pairs, patient-level split). I will wire the data in first; once the stronger scoring checkpoint can be loaded, filter the CPT data by image–report alignment score and test whether filtered data helps.</span></li>
     </ol>

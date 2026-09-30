@@ -23,7 +23,7 @@ in `outputs/eval/`.
 | **Artefact size** | ≈ 120 MB per adapter (`adapter_model.safetensors`) |
 | **Framework** | LLaMA-Factory (training), `transformers` + `peft` (inference) |
 | **Language** | English only |
-| **Licence** | Adapters released under the base model's licence terms; training data licences in `DATA_CARD.md` |
+| **Licence / availability** | Adapters are not publicly released; they are archived by the author under the base model's licence terms. Training data licences in `DATA_CARD.md` |
 
 ### Two hardware / precision regimes
 
@@ -263,7 +263,7 @@ ultrasound, pathology, dermatology, or non-English clinical text.
   script that refuses to regenerate it. The held-out half has never been trained on.
 - Controlled-access data (MIMIC-CXR, CheXpert Plus) and any patient-level derived files never enter
   git or public Kaggle datasets. IU X-Ray is used from its public mirror.
-- No patient identifiers are present in any released artefact. The adapters contain weights only.
+- No patient identifiers are present in any artefact. The adapters contain weights only.
 - The Intern-S2-Preview base weights were provided by the course instructor for this study, referenced in place on
   the host and never copied, redistributed or modified; merged evaluation copies live only in the project's own
   directory on that host and are deleted once evaluated.
