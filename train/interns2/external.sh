@@ -32,7 +32,7 @@ from datasets import load_dataset
 for repo, files in [("flaviagiammarino/vqa-rad", "data/test-*.parquet"),
                     ("flaviagiammarino/path-vqa", "data/test-*.parquet"),
                     ("GBaker/MedQA-USMLE-4-options", "phrases_no_exclude_test.jsonl")]:
-    ds = load_dataset(repo, data_files={"test": files}, split="test")
+    ds = load_dataset(repo, data_files={"test": files}, split="test", verification_mode="no_checks")
     print(repo, len(ds), "题 OK")
 PY
   exit 0

@@ -56,7 +56,7 @@ def main():
     ap.add_argument("--load-4bit", action="store_true")
     args = ap.parse_args()
 
-    ds = load_dataset(DATASET, data_files={"test": TEST_FILE}, split="test")
+    ds = load_dataset(DATASET, data_files={"test": TEST_FILE}, split="test", verification_mode="no_checks")
     if args.limit:
         ds = ds.select(range(args.limit))
     model, processor = load_model(args.model, args.adapter, args.load_4bit)

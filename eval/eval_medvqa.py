@@ -62,7 +62,8 @@ def main():
     args = ap.parse_args()
 
     repo_id, short = DATASETS[args.dataset]
-    ds = load_dataset(repo_id, data_files={"test": TEST_FILES}, split="test")
+    # 只下了测试分片, 仓库说明里登记的 train 切分不在 → 关掉切分校验 (否则报 ExpectedMoreSplitsError)
+    ds = load_dataset(repo_id, data_files={"test": TEST_FILES}, split="test", verification_mode="no_checks")
     if args.n and args.n < len(ds):
         ds = ds.shuffle(seed=args.seed).select(range(args.n))
     print(f"{repo_id} test: {len(ds)} 题")
