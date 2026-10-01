@@ -1,0 +1,805 @@
+{
+ "note": "35B external test sets (instructor-approved 2026-09-30), evaluation only. Pneumonia free-text metrics recomputed with the validated 2026-10-01 rule (scripts/rescore_pneumonia.py); 'freetext' in the raw pneumonia summary of the first three models still holds the superseded says_normal counts.",
+ "models": {
+  "base": {
+   "tag": "interns2_base",
+   "vqarad": {
+    "dataset": "flaviagiammarino/vqa-rad/test",
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 451,
+    "n_closed": 251,
+    "n_open": 200,
+    "sample_seed": null,
+    "seconds": 185.2,
+    "metrics": {
+     "closed_acc": 80.48,
+     "open_em": 33.0,
+     "open_recall": 46.73,
+     "open_f1": 45.18
+    },
+    "closed_yes_no": {
+     "gold_yes": 118,
+     "gold_no": 133,
+     "pred_yes": 113,
+     "pred_no": 137,
+     "pred_other": 1,
+     "no_to_yes": 22,
+     "yes_to_no": 26,
+     "gold_yes_pct": 47.01,
+     "pred_yes_pct": 45.02
+    }
+   },
+   "pathvqa": {
+    "dataset": "flaviagiammarino/path-vqa/test",
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 6719,
+    "n_closed": 3362,
+    "n_open": 3357,
+    "sample_seed": null,
+    "seconds": 3448.0,
+    "metrics": {
+     "closed_acc": 80.13,
+     "open_em": 24.19,
+     "open_recall": 28.52,
+     "open_f1": 28.8
+    },
+    "closed_yes_no": {
+     "gold_yes": 1816,
+     "gold_no": 1546,
+     "pred_yes": 1907,
+     "pred_no": 1454,
+     "pred_other": 1,
+     "no_to_yes": 379,
+     "yes_to_no": 288,
+     "gold_yes_pct": 54.02,
+     "pred_yes_pct": 56.72
+    }
+   },
+   "medqa": {
+    "dataset": "GBaker/MedQA-USMLE-4-options/test",
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 1273,
+    "seconds": 242.9,
+    "medqa_acc": 85.0,
+    "unparsed": 0,
+    "by_step": {
+     "step1": {
+      "n": 679,
+      "acc": 84.98
+     },
+     "step2&3": {
+      "n": 594,
+      "acc": 85.02
+     }
+    }
+   },
+   "pneumonia": {
+    "dataset": "PneumoniaMNIST 224 test",
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 624,
+    "n_pneumonia": 390,
+    "n_normal": 234,
+    "seconds": 665.4,
+    "closed": {
+     "tp": 314,
+     "fn": 76,
+     "tn": 216,
+     "fp": 18,
+     "unparsed": 0,
+     "accuracy": 84.94,
+     "sensitivity": 80.51,
+     "specificity": 92.31,
+     "missed_pneumonia": 76,
+     "pred_yes_pct": 53.21
+    },
+    "freetext": {
+     "pneu_called_normal": 198,
+     "normal_called_normal": 191,
+     "pneu_called_normal_pct": 50.77,
+     "normal_called_normal_pct": 81.62
+    }
+   },
+   "pneumonia_freetext_rescored": {
+    "pneu_no_lung_abnormality": 262,
+    "pneu_no_lung_abnormality_pct": 67.18,
+    "normal_no_lung_abnormality": 229,
+    "normal_no_lung_abnormality_pct": 97.86,
+    "lung_discrimination_pts": 30.68,
+    "pneu_no_any_abnormality": 235,
+    "pneu_no_any_abnormality_pct": 60.26,
+    "closed_yes_but_desc_no_lung": 187,
+    "closed_yes_pneu": 314,
+    "closed_yes_but_desc_no_lung_pct": 59.55,
+    "legacy_says_normal_pneu": 198
+   }
+  },
+  "replay0_s42": {
+   "tag": "interns2_mix_0",
+   "vqarad": {
+    "dataset": "flaviagiammarino/vqa-rad/test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 451,
+    "n_closed": 251,
+    "n_open": 200,
+    "sample_seed": null,
+    "seconds": 179.4,
+    "metrics": {
+     "closed_acc": 85.26,
+     "open_em": 34.5,
+     "open_recall": 45.04,
+     "open_f1": 45.4
+    },
+    "closed_yes_no": {
+     "gold_yes": 118,
+     "gold_no": 133,
+     "pred_yes": 113,
+     "pred_no": 137,
+     "pred_other": 1,
+     "no_to_yes": 16,
+     "yes_to_no": 20,
+     "gold_yes_pct": 47.01,
+     "pred_yes_pct": 45.02
+    }
+   },
+   "pathvqa": {
+    "dataset": "flaviagiammarino/path-vqa/test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 6719,
+    "n_closed": 3362,
+    "n_open": 3357,
+    "sample_seed": null,
+    "seconds": 3221.5,
+    "metrics": {
+     "closed_acc": 76.23,
+     "open_em": 26.75,
+     "open_recall": 30.63,
+     "open_f1": 30.81
+    },
+    "closed_yes_no": {
+     "gold_yes": 1816,
+     "gold_no": 1546,
+     "pred_yes": 1559,
+     "pred_no": 1797,
+     "pred_other": 6,
+     "no_to_yes": 269,
+     "yes_to_no": 524,
+     "gold_yes_pct": 54.02,
+     "pred_yes_pct": 46.37
+    }
+   },
+   "medqa": {
+    "dataset": "GBaker/MedQA-USMLE-4-options/test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 1273,
+    "seconds": 243.2,
+    "medqa_acc": 83.97,
+    "unparsed": 1,
+    "by_step": {
+     "step1": {
+      "n": 679,
+      "acc": 85.13
+     },
+     "step2&3": {
+      "n": 594,
+      "acc": 82.66
+     }
+    }
+   },
+   "pneumonia": {
+    "dataset": "PneumoniaMNIST 224 test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 624,
+    "n_pneumonia": 390,
+    "n_normal": 234,
+    "seconds": 688.5,
+    "closed": {
+     "tp": 306,
+     "fn": 84,
+     "tn": 212,
+     "fp": 22,
+     "unparsed": 0,
+     "accuracy": 83.01,
+     "sensitivity": 78.46,
+     "specificity": 90.6,
+     "missed_pneumonia": 84,
+     "pred_yes_pct": 52.56
+    },
+    "freetext": {
+     "pneu_called_normal": 130,
+     "normal_called_normal": 183,
+     "pneu_called_normal_pct": 33.33,
+     "normal_called_normal_pct": 78.21
+    }
+   },
+   "pneumonia_freetext_rescored": {
+    "pneu_no_lung_abnormality": 292,
+    "pneu_no_lung_abnormality_pct": 74.87,
+    "normal_no_lung_abnormality": 231,
+    "normal_no_lung_abnormality_pct": 98.72,
+    "lung_discrimination_pts": 23.85,
+    "pneu_no_any_abnormality": 175,
+    "pneu_no_any_abnormality_pct": 44.87,
+    "closed_yes_but_desc_no_lung": 208,
+    "closed_yes_pneu": 306,
+    "closed_yes_but_desc_no_lung_pct": 67.97,
+    "legacy_says_normal_pneu": 130
+   }
+  },
+  "replay0_s43": {
+   "tag": "interns2_abl_r0_s43",
+   "vqarad": {
+    "dataset": "flaviagiammarino/vqa-rad/test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_abl_r0_s43",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r0_s43",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 451,
+    "n_closed": 251,
+    "n_open": 200,
+    "sample_seed": null,
+    "seconds": 181.8,
+    "metrics": {
+     "closed_acc": 84.06,
+     "open_em": 35.5,
+     "open_recall": 47.43,
+     "open_f1": 47.65
+    },
+    "closed_yes_no": {
+     "gold_yes": 118,
+     "gold_no": 133,
+     "pred_yes": 118,
+     "pred_no": 132,
+     "pred_other": 1,
+     "no_to_yes": 20,
+     "yes_to_no": 19,
+     "gold_yes_pct": 47.01,
+     "pred_yes_pct": 47.01
+    }
+   },
+   "pathvqa": {
+    "dataset": "flaviagiammarino/path-vqa/test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_abl_r0_s43",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r0_s43",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 6719,
+    "n_closed": 3362,
+    "n_open": 3357,
+    "sample_seed": null,
+    "seconds": 3493.1,
+    "metrics": {
+     "closed_acc": 77.57,
+     "open_em": 25.86,
+     "open_recall": 30.12,
+     "open_f1": 30.32
+    },
+    "closed_yes_no": {
+     "gold_yes": 1816,
+     "gold_no": 1546,
+     "pred_yes": 1695,
+     "pred_no": 1661,
+     "pred_other": 6,
+     "no_to_yes": 315,
+     "yes_to_no": 433,
+     "gold_yes_pct": 54.02,
+     "pred_yes_pct": 50.42
+    }
+   },
+   "medqa": {
+    "dataset": "GBaker/MedQA-USMLE-4-options/test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_abl_r0_s43",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r0_s43",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 1273,
+    "seconds": 241.9,
+    "medqa_acc": 83.42,
+    "unparsed": 1,
+    "by_step": {
+     "step1": {
+      "n": 679,
+      "acc": 84.39
+     },
+     "step2&3": {
+      "n": 594,
+      "acc": 82.32
+     }
+    }
+   },
+   "pneumonia": {
+    "dataset": "PneumoniaMNIST 224 test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_abl_r0_s43",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r0_s43",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 624,
+    "n_pneumonia": 390,
+    "n_normal": 234,
+    "seconds": 663.5,
+    "closed": {
+     "tp": 355,
+     "fn": 35,
+     "tn": 174,
+     "fp": 60,
+     "unparsed": 0,
+     "accuracy": 84.78,
+     "sensitivity": 91.03,
+     "specificity": 74.36,
+     "missed_pneumonia": 35,
+     "pred_yes_pct": 66.51
+    },
+    "freetext": {
+     "pneu_called_normal": 89,
+     "normal_called_normal": 135,
+     "pneu_called_normal_pct": 22.82,
+     "normal_called_normal_pct": 57.69
+    }
+   },
+   "pneumonia_freetext_rescored": {
+    "pneu_no_lung_abnormality": 162,
+    "pneu_no_lung_abnormality_pct": 41.54,
+    "normal_no_lung_abnormality": 219,
+    "normal_no_lung_abnormality_pct": 93.59,
+    "lung_discrimination_pts": 52.05,
+    "pneu_no_any_abnormality": 131,
+    "pneu_no_any_abnormality_pct": 33.59,
+    "closed_yes_but_desc_no_lung": 127,
+    "closed_yes_pneu": 355,
+    "closed_yes_but_desc_no_lung_pct": 35.77,
+    "legacy_says_normal_pneu": 89
+   }
+  },
+  "replay300_s42": {
+   "tag": "interns2_mix_300",
+   "vqarad": {
+    "dataset": "flaviagiammarino/vqa-rad/test",
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 451,
+    "n_closed": 251,
+    "n_open": 200,
+    "sample_seed": null,
+    "seconds": 182.7,
+    "metrics": {
+     "closed_acc": 85.26,
+     "open_em": 35.0,
+     "open_recall": 46.92,
+     "open_f1": 46.89
+    },
+    "closed_yes_no": {
+     "gold_yes": 118,
+     "gold_no": 133,
+     "pred_yes": 111,
+     "pred_no": 139,
+     "pred_other": 1,
+     "no_to_yes": 15,
+     "yes_to_no": 21,
+     "gold_yes_pct": 47.01,
+     "pred_yes_pct": 44.22
+    }
+   },
+   "pathvqa": {
+    "dataset": "flaviagiammarino/path-vqa/test",
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 6719,
+    "n_closed": 3362,
+    "n_open": 3357,
+    "sample_seed": null,
+    "seconds": 3379.0,
+    "metrics": {
+     "closed_acc": 76.83,
+     "open_em": 26.33,
+     "open_recall": 30.27,
+     "open_f1": 30.39
+    },
+    "closed_yes_no": {
+     "gold_yes": 1816,
+     "gold_no": 1546,
+     "pred_yes": 1666,
+     "pred_no": 1687,
+     "pred_other": 9,
+     "no_to_yes": 312,
+     "yes_to_no": 458,
+     "gold_yes_pct": 54.02,
+     "pred_yes_pct": 49.55
+    }
+   },
+   "medqa": {
+    "dataset": "GBaker/MedQA-USMLE-4-options/test",
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 1273,
+    "seconds": 242.1,
+    "medqa_acc": 83.58,
+    "unparsed": 1,
+    "by_step": {
+     "step1": {
+      "n": 679,
+      "acc": 84.54
+     },
+     "step2&3": {
+      "n": 594,
+      "acc": 82.49
+     }
+    }
+   },
+   "pneumonia": {
+    "dataset": "PneumoniaMNIST 224 test",
+    "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 624,
+    "n_pneumonia": 390,
+    "n_normal": 234,
+    "seconds": 664.6,
+    "closed": {
+     "tp": 321,
+     "fn": 69,
+     "tn": 205,
+     "fp": 29,
+     "unparsed": 0,
+     "accuracy": 84.29,
+     "sensitivity": 82.31,
+     "specificity": 87.61,
+     "missed_pneumonia": 69,
+     "pred_yes_pct": 56.09
+    },
+    "freetext": {
+     "pneu_called_normal": 114,
+     "normal_called_normal": 166,
+     "pneu_called_normal_pct": 29.23,
+     "normal_called_normal_pct": 70.94
+    }
+   },
+   "pneumonia_freetext_rescored": {
+    "pneu_no_lung_abnormality": 303,
+    "pneu_no_lung_abnormality_pct": 77.69,
+    "normal_no_lung_abnormality": 232,
+    "normal_no_lung_abnormality_pct": 99.15,
+    "lung_discrimination_pts": 21.46,
+    "pneu_no_any_abnormality": 208,
+    "pneu_no_any_abnormality_pct": 53.33,
+    "closed_yes_but_desc_no_lung": 235,
+    "closed_yes_pneu": 321,
+    "closed_yes_but_desc_no_lung_pct": 73.21,
+    "legacy_says_normal_pneu": 114
+   }
+  },
+  "replay300_s43": {
+   "tag": "interns2_abl_s43",
+   "vqarad": {
+    "dataset": "flaviagiammarino/vqa-rad/test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 451,
+    "n_closed": 251,
+    "n_open": 200,
+    "sample_seed": null,
+    "seconds": 179.8,
+    "metrics": {
+     "closed_acc": 83.27,
+     "open_em": 34.5,
+     "open_recall": 44.55,
+     "open_f1": 44.84
+    },
+    "closed_yes_no": {
+     "gold_yes": 118,
+     "gold_no": 133,
+     "pred_yes": 112,
+     "pred_no": 138,
+     "pred_other": 1,
+     "no_to_yes": 18,
+     "yes_to_no": 23,
+     "gold_yes_pct": 47.01,
+     "pred_yes_pct": 44.62
+    }
+   },
+   "pathvqa": {
+    "dataset": "flaviagiammarino/path-vqa/test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 6719,
+    "n_closed": 3362,
+    "n_open": 3357,
+    "sample_seed": null,
+    "seconds": 3355.7,
+    "metrics": {
+     "closed_acc": 77.84,
+     "open_em": 25.59,
+     "open_recall": 29.68,
+     "open_f1": 29.83
+    },
+    "closed_yes_no": {
+     "gold_yes": 1816,
+     "gold_no": 1546,
+     "pred_yes": 1724,
+     "pred_no": 1629,
+     "pred_other": 9,
+     "no_to_yes": 324,
+     "yes_to_no": 412,
+     "gold_yes_pct": 54.02,
+     "pred_yes_pct": 51.28
+    }
+   },
+   "medqa": {
+    "dataset": "GBaker/MedQA-USMLE-4-options/test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 1273,
+    "seconds": 242.6,
+    "medqa_acc": 83.9,
+    "unparsed": 1,
+    "by_step": {
+     "step1": {
+      "n": 679,
+      "acc": 84.24
+     },
+     "step2&3": {
+      "n": 594,
+      "acc": 83.5
+     }
+    }
+   },
+   "pneumonia": {
+    "dataset": "PneumoniaMNIST 224 test",
+    "model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+    "adapter": null,
+    "backend": {
+     "backend": "api",
+     "api_base": "http://127.0.0.1:23334/v1",
+     "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+     "max_pixels": 401408,
+     "extra": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    "n": 624,
+    "n_pneumonia": 390,
+    "n_normal": 234,
+    "seconds": 678.3,
+    "closed": {
+     "tp": 303,
+     "fn": 87,
+     "tn": 205,
+     "fp": 29,
+     "unparsed": 0,
+     "accuracy": 81.41,
+     "sensitivity": 77.69,
+     "specificity": 87.61,
+     "missed_pneumonia": 87,
+     "pred_yes_pct": 53.21
+    },
+    "freetext": {
+     "pneu_called_normal": 184,
+     "normal_called_normal": 202,
+     "pneu_called_normal_pct": 47.18,
+     "normal_called_normal_pct": 86.32
+    }
+   },
+   "pneumonia_freetext_rescored": {
+    "pneu_no_lung_abnormality": 273,
+    "pneu_no_lung_abnormality_pct": 70.0,
+    "normal_no_lung_abnormality": 228,
+    "normal_no_lung_abnormality_pct": 97.44,
+    "lung_discrimination_pts": 27.44,
+    "pneu_no_any_abnormality": 232,
+    "pneu_no_any_abnormality_pct": 59.49,
+    "closed_yes_but_desc_no_lung": 186,
+    "closed_yes_pneu": 303,
+    "closed_yes_but_desc_no_lung_pct": 61.39,
+    "legacy_says_normal_pneu": 184
+   }
+  }
+ }
+}

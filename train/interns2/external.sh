@@ -87,7 +87,7 @@ for NAME in "$@"; do
   if [[ ! -f outputs/eval/pneumonia_$TAG.json ]]; then
     log "PneumoniaMNIST 开始 (是非题 + 自由描述)"
     python eval/eval_pneumonia.py --model "$DIR" --tag $TAG --freetext >> $ROOT/logs/$TAG.external.log 2>&1
-    log "PneumoniaMNIST 完成: $(python -c "import json;m=json.load(open('outputs/eval/pneumonia_$TAG.json'));c,f=m['closed'],m['freetext'];print('灵敏度',c['sensitivity'],'特异度',c['specificity'],'漏报',c['missed_pneumonia'],'| 描述里肺炎说成正常',f['pneu_called_normal'],'/',m['n_pneumonia'])")"
+    log "PneumoniaMNIST 完成: $(python -c "import json;m=json.load(open('outputs/eval/pneumonia_$TAG.json'));c,f=m['closed'],m['freetext'];print('灵敏度',c['sensitivity'],'特异度',c['specificity'],'漏报',c['missed_pneumonia'],'| 描述里肺炎片没报肺部异常',f['pneu_no_lung_abnormality'],'/',m['n_pneumonia'],'| 是非题答yes但描述没报',f['closed_yes_but_desc_no_lung_pct'],'%')")"
   fi
   bash train/interns2/serve.sh stop >> $ROOT/logs/$TAG.serve.log 2>&1
   if [[ -n $TMP_MERGED ]]; then rm -rf "$TMP_MERGED"; log "已删除临时合并模型"; fi

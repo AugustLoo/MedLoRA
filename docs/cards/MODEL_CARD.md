@@ -1,6 +1,6 @@
 # Model Card — MedLoRA adapters for Qwen2.5-VL-3B-Instruct and Intern-S2-Preview (35B)
 
-**Version** 1.3 · 2026-09-28 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.4 · 2026-10-01 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 This card covers the LoRA adapters produced in this project: the main family on Qwen2.5-VL-3B-Instruct, and a
@@ -165,6 +165,13 @@ Among training settings only under-training reliably hurts; LoRA on the shared e
 Every replay budget from 99 to 900 lands within seed spread of the others (means 65.1 / 66.3 / 64.7); 99 examples
 over-predict "maybe" (99 and 118 times against 55 gold) and lose about five points of accuracy, so 300 is the
 recommended budget. No budget costs SLAKE, TextVQA or MMBench.
+
+**External test sets (evaluation only; report Section 5.8).** Across replay 0 and replay 300, two seeds each, the
+fine-tuned adapters gain 2.8-4.8 points on VQA-RAD closed questions, lose 2.3-3.9 points on PathVQA closed questions
+while answering "no" more often than the base (predicted "yes" 46-51 % against 54 % gold; base 57 %), and lose
+1.0-1.6 points on MedQA. Replay makes no measurable difference on these sets. On PneumoniaMNIST the yes/no accuracy
+is unchanged (81-85) but the decision threshold varies by seed, and every model, the base included, often describes
+a film it has just called pneumonia without any lung abnormality (36-73 % of such films).
 
 **Free-text probe (35B only).** Long-form description does not degrade: every fine-tuned model writes 44-52 words
 (base 48) on 300 COCO images, none collapses to a short answer or refuses, and caption similarity is unchanged. See §5

@@ -1,6 +1,6 @@
 # Data Card — MedLoRA
 
-**Version** 1.2 · 2026-09-27 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.3 · 2026-10-01 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 Every dataset used for training or evaluation in this project, how it was obtained, what was done to
@@ -19,13 +19,18 @@ it, and the rules that govern it. Each row of the pipeline is reproducible from 
 | MMBench (en, dev) | **general-ability retention probe** (multiple-choice) | fixed 500-question sample | see dataset card |
 | COCO Caption 2017 (val) | **free-text probe** (35B models) | fixed 300-image sample | CC BY 4.0 annotations |
 | SLAKE test images | **free-text medical probe** (35B models) | all 96 test images | CC BY 4.0 |
+| VQA-RAD (test) | **external medical VQA test** (added 2026-09-30) | 451 questions | CC0 1.0 |
+| PathVQA (test) | **external pathology VQA test** (added 2026-09-30) | 6,719 questions | MIT |
+| MedQA-USMLE, 4 options (test) | **external medical-knowledge test** (added 2026-09-30) | 1,273 questions | CC BY 4.0 |
+| PneumoniaMNIST 224 (test) | **missed-abnormality probe** (added 2026-09-30) | 624 images (390 pneumonia / 234 normal) | CC BY 4.0 |
 | IU X-Ray (OpenI, Kaggle mirror) | image-text CPT prototype | ≈3,483 frontal image-report pairs | public |
 | CheXpert Plus | image-text CPT at scale (planned, B3) | 5k → 20k studies | registered; download pending |
 
 **Two hard rules, enforced in code and reviewed before every run:**
 
 1. **SLAKE test and the PubMedQA held-out half are never trained on.** The PubMedQA split is a
-   committed file with a regeneration guard; the SLAKE test split is the dataset's own.
+   committed file with a regeneration guard; the SLAKE test split is the dataset's own. The four external
+   test sets added on 2026-09-30 (Section 4d) are evaluation-only as well; only their test shards are downloaded.
 2. **Controlled-access data and patient-level derived files never enter git or a public Kaggle
    dataset.** This governs MIMIC-CXR and CheXpert Plus. Only aggregate metrics leave the machine.
 
@@ -183,7 +188,44 @@ phrases ("no evidence of consolidation or nodules") are removed, mentions no abn
 unstable to compare models: the same zero-replay condition gave 13 and 3 across two seeds, and twelve fine-tuned
 models spread from 2 to 15 without relation to calibration. The measure documents that the failure exists; comparing
 models on it would need a larger annotated set (for example CheXpert Plus reports), several seeds and human reading.
-The keyword judge was checked by hand only on one model's 13 flagged cases.
+The keyword judge was checked by hand only on one model's 13 flagged cases. **A later hand check (2026-10-01,
+Section 4d) found that this "claims normality" judge misses phrasings such as "no apparent abnormalities" and that the
+miss rate differs between models**, so the SLAKE counts above are also undercounts of unknown size.
+
+## 4d. External test sets (added 2026-09-30, approved by the instructor; evaluation only)
+
+Added to answer three questions the in-domain tables cannot: does medical fine-tuning transfer to another
+dataset, does the yes/no bias appear on image questions in another domain, and is text-only medical knowledge
+kept. All are fetched from the Hugging Face Hub (through the mirror on the server) with **only the test shards
+downloaded** (`data_files` pattern plus `verification_mode="no_checks"`); nothing from them is trained on.
+
+| Set | Source | Test size | Format and scoring |
+|---|---|---|---|
+| VQA-RAD | `flaviagiammarino/vqa-rad` | 451 (251 yes/no, 200 open) | radiology VQA; yes/no gold → closed, same prompt and scoring as SLAKE; open → exact match / token recall / F1 |
+| PathVQA | `flaviagiammarino/path-vqa` | 6,719 (3,362 yes/no, 3,357 open) | pathology VQA; as VQA-RAD; closed questions also report predicted-yes rate and yes→no / no→yes counts |
+| MedQA-USMLE | `GBaker/MedQA-USMLE-4-options`, file `phrases_no_exclude_test.jsonl` | 1,273 | four-option text questions; first A–D letter in the output, as MMBench |
+| PneumoniaMNIST | MedMNIST v2, 224×224 test split | 624 (390 pneumonia / 234 normal) | (1) "Does this chest X-ray show pneumonia? Answer with yes or no only." → sensitivity, specificity, missed pneumonia; (2) free description → does it report an abnormality |
+
+VQA-RAD and PathVQA carry no answer-type field in these Hub versions, so yes/no gold answers define the closed
+subset (the LLaVA-Med convention). PneumoniaMNIST images are paediatric and low-resolution; scores are compared
+only before versus after fine-tuning, never against other datasets.
+
+**PneumoniaMNIST provenance.** The test split was first extracted from the official `pneumoniamnist_224.npz`
+(received from a classmate). Because uploading to the server ran at a few KB/s and Zenodo was equally slow from
+the server, the server copy was taken from the Hub mirror `danjacobellis/pneumoniamnist_224` and checked against the
+official file: identical image array md5 (`5dbcb024d33649403ec6a610cb0fcc02`) and label md5. Stored as
+`data/raw/medmnist/pneumoniamnist_224_test.npz` (not in git).
+
+**Free-text judge, corrected on 2026-10-01.** The first version counted "pneumonia described as normal" with the
+`says_normal` judge from Section 4c. A hand check found it misses phrasings such as "no apparent abnormalities" and
+"absence of major pulmonary abnormalities", and that the number of misses differs between models (21–99 of 624),
+which distorts comparisons. The judge now asks the opposite question — after negated phrases are removed, does the
+description still report an abnormality — in two forms (any abnormality; lung abnormality, the primary one because
+some descriptions report only an enlarged heart). A hand check of 50 descriptions (25 per verdict, across five
+models) found all 50 judged correctly. `scripts/rescore_pneumonia.py` recomputes the metric from stored descriptions.
+
+**Licences / access** (checked on the Hub dataset cards, 2026-10-01). VQA-RAD CC0 1.0; PathVQA MIT; MedQA CC BY 4.0;
+MedMNIST CC BY 4.0 (the Hub mirror used on the server states no licence; the official MedMNIST terms apply). Only per-question predictions and scores are stored; no data is redistributed.
 
 ---
 
