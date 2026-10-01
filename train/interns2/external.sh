@@ -4,6 +4,7 @@
 #   base   : 基座               /home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview
 #   final  : 最终版 (回放 300) /home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA (已合并好, 只读使用)
 #   r0     : 只做微调 (回放 0)  outputs/interns2_mix_0 临时合并到 $ROOT/merged/, 评完就删
+#   r0_s43 / s43 : 回放 0 与回放 300 的第二个种子 (outputs/interns2_abl_r0_s43 / interns2_abl_s43), 同样临时合并, 用来复核新发现
 # 标签与之前的评估一致 (interns2_base / interns2_mix_300 / interns2_mix_0), 结果可以和 SLAKE / PubMedQA 直接放一起看。
 #
 # 用法 (ubuntu 主机):
@@ -47,7 +48,7 @@ export MEDVLM_API_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}'
 cleanup() { bash "$REPO/train/interns2/serve.sh" stop >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 
-[[ $# -gt 0 ]] || { echo "用法: $0 prefetch | base final r0"; exit 1; }
+[[ $# -gt 0 ]] || { echo "用法: $0 prefetch | base final r0 r0_s43 s43"; exit 1; }
 [[ -f data/raw/medmnist/pneumoniamnist_224_test.npz ]] || { echo "缺 data/raw/medmnist/pneumoniamnist_224_test.npz, 先从本机上传"; exit 1; }
 for NAME in "$@"; do
   TMP_MERGED=""
@@ -55,7 +56,9 @@ for NAME in "$@"; do
     base)  TAG=interns2_base;    DIR=$MODELS/Intern-S2-Preview ;;
     final) TAG=interns2_mix_300; DIR=$MODELS/Intern-S2-Preview-MedLoRA ;;
     r0)    TAG=interns2_mix_0;   DIR=$ROOT/merged/interns2_mix_0; TMP_MERGED=$DIR ;;
-    *) echo "未知模型 $NAME (可选 base / final / r0)"; exit 1 ;;
+    r0_s43) TAG=interns2_abl_r0_s43; DIR=$ROOT/merged/$TAG; TMP_MERGED=$DIR ;;
+    s43)   TAG=interns2_abl_s43;  DIR=$ROOT/merged/$TAG; TMP_MERGED=$DIR ;;
+    *) echo "未知模型 $NAME (可选 base / final / r0 / r0_s43 / s43)"; exit 1 ;;
   esac
   if [[ -f outputs/eval/vqarad_$TAG.json && -f outputs/eval/pathvqa_$TAG.json && -f outputs/eval/medqa_$TAG.json && -f outputs/eval/pneumonia_$TAG.json ]]; then
     log "$NAME ($TAG): 四个测试都已有结果, 跳过"; continue
