@@ -38,7 +38,9 @@ PY
   exit 0
 fi
 
-export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_DATASETS_OFFLINE=1
+# 评测阶段也保持联网走镜像: 用 data_files 只下测试分片时, 离线模式下 datasets 算出的缓存配置编号与下载时不同,
+# 会报 Couldn't find cache (datasets 的已知问题, 2026-10-01 踩到)。文件都已缓存, 联网只发元数据请求, 不会重新下载。
+export HF_ENDPOINT=https://hf-mirror.com HF_HUB_DISABLE_XET=1
 export CUDA_VISIBLE_DEVICES="${GPUS:-0,1,2,3}"
 export MEDVLM_API_BASE=http://127.0.0.1:23334/v1
 export MEDVLM_API_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}'
