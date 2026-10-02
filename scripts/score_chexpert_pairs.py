@@ -45,6 +45,7 @@ def main():
     ap.add_argument("--max-text-length", type=int, default=256)
     ap.add_argument("--device", default=None)
     ap.add_argument("--threads", type=int, default=16, help="CPU 线程数; 开太多反而慢")
+    ap.add_argument("--workers", type=int, default=8, help="并行读图的进程数 (队友训练时也是 8); 0 = 主进程读")
     ap.add_argument("--out", default=None, help="分数 CSV 路径, 默认 /workspace/chunqian/runs/b3_scores/<split>_scores.csv")
     args = ap.parse_args()
 
@@ -69,18 +70,26 @@ def main():
     tfm = image_transform()
     cache_root = Path(args.image_cache_root)
 
+    # 读图 + 缩放是瓶颈 (单进程约 2.5 秒一张), 交给 DataLoader 多进程做; 每张图的处理与原来完全相同, 顺序也不变
+    class Imgs(torch.utils.data.Dataset):
+        def __len__(self):
+            return len(rows)
+
+        def __getitem__(self, i):
+            return tfm(Image.open(chambon_cache_jpg_path(cache_root, rows[i]["path_to_dcm"])).convert("RGB"))
+
+    loader = torch.utils.data.DataLoader(Imgs(), batch_size=args.batch, shuffle=False, num_workers=args.workers)
     img_embs, txt_embs = [], []
     t0 = time.time()
-    for s in range(0, len(rows), args.batch):
-        chunk = rows[s:s + args.batch]
-        pix = torch.stack([tfm(Image.open(chambon_cache_jpg_path(cache_root, r["path_to_dcm"])).convert("RGB"))
-                           for r in chunk]).to(device)
+    for b, pix in enumerate(loader):
+        s = b * args.batch
+        chunk = rows[s:s + len(pix)]
         enc = tok([r["report_text"] for r in chunk], max_length=args.max_text_length, padding="max_length",
                   truncation=True, return_tensors="pt")
-        img_embs.append(embed_image(model, pix).float().cpu())
+        img_embs.append(embed_image(model, pix.to(device)).float().cpu())
         txt_embs.append(embed_text(model, enc["input_ids"].to(device), enc["attention_mask"].to(device)).float().cpu())
-        if (s // args.batch) % 10 == 0:
-            print(f"  {min(s + args.batch, len(rows))}/{len(rows)}  {time.time() - t0:.0f}s", flush=True)
+        if b % 10 == 0:
+            print(f"  {s + len(pix)}/{len(rows)}  {time.time() - t0:.0f}s", flush=True)
     I, T = torch.cat(img_embs), torch.cat(txt_embs)
     scores = (I * T).sum(-1)
 
