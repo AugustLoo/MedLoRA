@@ -1,0 +1,46 @@
+# 实验 B3-top: CheXpert Plus 图文 CPT, 数据 = 候选池 (打分模型没见过的 10,000 对) 里对齐分数最高的 5,000 对。
+# 由 configs/bf16/cpt_iu_qlora.yaml (B2) 复制, 只改 dataset 与 output_dir; B3-top 与 B3-rand 只差数据怎么挑。
+# 前置: python data/convert_chexpert_b3.py   运行: llamafactory-cli train configs/bf16/cpt_b3_top.yaml
+model_name_or_path: Qwen/Qwen2.5-VL-3B-Instruct
+trust_remote_code: true
+
+### method
+stage: sft                 # 图文 caption 对齐, 见 data/convert_iu_xray.py 说明
+do_train: true
+finetuning_type: lora
+lora_target: all
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+freeze_vision_tower: true
+freeze_multi_modal_projector: true
+
+### dataset
+dataset: b3_cpt_top
+dataset_dir: data/processed
+template: qwen2_vl
+cutoff_len: 1024
+image_max_pixels: 262144
+overwrite_cache: true
+preprocessing_num_workers: 8
+preprocessing_batch_size: 64   # 进度条每 64 条跳一次, 否则一批 1000 条前一直显示 0%
+
+### output
+output_dir: outputs/cpt_b3_top_r16
+logging_steps: 10
+save_steps: 400
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: none
+
+### train
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 4   # 有效 batch 16
+learning_rate: 5.0e-5            # CPT 学习率取 SFT 的一半
+num_train_epochs: 1.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+bf16: true
+gradient_checkpointing: true
+seed: 42
