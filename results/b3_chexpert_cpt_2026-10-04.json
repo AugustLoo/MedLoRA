@@ -1,0 +1,598 @@
+{
+ "note": "Experiment B3 (2026-10-02 to 10-04, user0 container, Qwen2.5-VL-3B bf16, one seed per arm). Aggregate statistics only; per-pair score files and manifests with patient IDs stay on the server.",
+ "scorer_validation_val": {
+  "n": 1518,
+  "split": "val",
+  "ckpt": "experiments/plus_g_peft_001/checkpoint.pt",
+  "device": "cuda:0",
+  "seconds": 267.7,
+  "score_mean": 0.3039,
+  "score_std": 0.1397,
+  "score_min": -0.2936,
+  "score_max": 0.7253,
+  "score_quartiles": [
+   0.2181,
+   0.3105,
+   0.4
+  ],
+  "i2t_R@1": 0.0191,
+  "t2i_R@1": 0.0191,
+  "i2t_R@5": 0.0626,
+  "t2i_R@5": 0.0613,
+  "i2t_R@10": 0.1014,
+  "t2i_R@10": 0.1166,
+  "chance_R@1": 0.000659,
+  "mismatched_score_mean": 0.0536,
+  "teammate_reported": {
+   "i2t_R@1": 0.0191,
+   "i2t_R@5": 0.0619,
+   "i2t_R@10": 0.1001,
+   "t2i_R@1": 0.0191,
+   "t2i_R@5": 0.0613,
+   "t2i_R@10": 0.1166
+  }
+ },
+ "pool_scores": {
+  "n": 10000,
+  "split": "b3pool",
+  "ckpt": "experiments/plus_g_peft_001/checkpoint.pt",
+  "device": "cuda:0",
+  "seconds": 1575.0,
+  "score_mean": 0.3133,
+  "score_std": 0.1357,
+  "score_min": -0.3121,
+  "score_max": 0.7649,
+  "score_quartiles": [
+   0.2283,
+   0.3239,
+   0.4115
+  ]
+ },
+ "cpt_sets": {
+  "pool": 10000,
+  "top": {
+   "n": 5000,
+   "mean": 0.421,
+   "min": 0.3239,
+   "median": 0.4116,
+   "max": 0.7649,
+   "findings_present_pct": 27.1,
+   "mean_report_words": 55.3
+  },
+  "rand": {
+   "n": 5000,
+   "mean": 0.3116,
+   "min": -0.2739,
+   "median": 0.3229,
+   "max": 0.7215,
+   "findings_present_pct": 29.5,
+   "mean_report_words": 56.8
+  },
+  "overlap_top_rand": 2481,
+  "seed": 42,
+  "image_long_side": 1024
+ },
+ "eval": {
+  "b3_top": {
+   "slake": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_after_cpt_b3_top_r16",
+    "split": "test",
+    "n": 1061,
+    "load_4bit": false,
+    "max_pixels": 401408,
+    "backend": {
+     "backend": "local"
+    },
+    "seconds": 3484.0,
+    "metrics": {
+     "open_em": 76.74,
+     "open_recall": 83.2,
+     "open_f1": 82.22,
+     "closed_acc": 85.58
+    },
+    "n_closed": 416,
+    "n_open": 645,
+    "by_modality": {
+     "CT": {
+      "open_recall": 86.14,
+      "closed_acc": 83.64
+     },
+     "X-Ray": {
+      "open_recall": 81.29,
+      "closed_acc": 85.96
+     },
+     "MRI": {
+      "open_recall": 81.16,
+      "closed_acc": 89.77
+     }
+    }
+   },
+   "textvqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_after_cpt_b3_top_r16",
+    "backend": {
+     "backend": "local"
+    },
+    "n": 300,
+    "seed": 42,
+    "textvqa_acc": 82.0
+   },
+   "pubmedqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_after_cpt_b3_top_r16",
+    "backend": {
+     "backend": "local"
+    },
+    "n": 1000,
+    "accuracy": 70.1,
+    "macro_f1": 50.87,
+    "pred_dist": {
+     "yes": 691,
+     "no": 258,
+     "maybe": 51
+    },
+    "gold_dist": {
+     "yes": 552,
+     "no": 338,
+     "maybe": 110
+    },
+    "unparsed": 0
+   },
+   "mmbench": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_after_cpt_b3_top_r16",
+    "backend": {
+     "backend": "local"
+    },
+    "n": 500,
+    "seed": 42,
+    "dataset": "lmms-lab/MMBench/en/dev",
+    "mmbench_acc": 88.0,
+    "unparsed": 0,
+    "by_category": {
+     "action_recognition": {
+      "n": 23,
+      "acc": 100.0
+     },
+     "attribute_comparison": {
+      "n": 17,
+      "acc": 70.59
+     },
+     "attribute_recognition": {
+      "n": 38,
+      "acc": 94.74
+     },
+     "celebrity_recognition": {
+      "n": 40,
+      "acc": 100.0
+     },
+     "function_reasoning": {
+      "n": 44,
+      "acc": 95.45
+     },
+     "future_prediction": {
+      "n": 13,
+      "acc": 84.62
+     },
+     "identity_reasoning": {
+      "n": 17,
+      "acc": 100.0
+     },
+     "image_emotion": {
+      "n": 19,
+      "acc": 89.47
+     },
+     "image_quality": {
+      "n": 25,
+      "acc": 36.0
+     },
+     "image_scene": {
+      "n": 56,
+      "acc": 100.0
+     },
+     "image_style": {
+      "n": 29,
+      "acc": 93.1
+     },
+     "image_topic": {
+      "n": 14,
+      "acc": 92.86
+     },
+     "nature_relation": {
+      "n": 23,
+      "acc": 78.26
+     },
+     "object_localization": {
+      "n": 35,
+      "acc": 74.29
+     },
+     "ocr": {
+      "n": 15,
+      "acc": 93.33
+     },
+     "physical_property_reasoning": {
+      "n": 19,
+      "acc": 89.47
+     },
+     "physical_relation": {
+      "n": 9,
+      "acc": 66.67
+     },
+     "social_relation": {
+      "n": 13,
+      "acc": 100.0
+     },
+     "spatial_relationship": {
+      "n": 22,
+      "acc": 72.73
+     },
+     "structuralized_imagetext_understanding": {
+      "n": 29,
+      "acc": 93.1
+     }
+    }
+   }
+  },
+  "b3_rand": {
+   "slake": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_after_cpt_b3_rand_r16",
+    "split": "test",
+    "n": 1061,
+    "load_4bit": false,
+    "max_pixels": 401408,
+    "backend": {
+     "backend": "local"
+    },
+    "seconds": 3810.0,
+    "metrics": {
+     "open_em": 75.81,
+     "open_recall": 82.53,
+     "open_f1": 81.54,
+     "closed_acc": 85.58
+    },
+    "n_closed": 416,
+    "n_open": 645,
+    "by_modality": {
+     "CT": {
+      "open_recall": 84.65,
+      "closed_acc": 82.24
+     },
+     "X-Ray": {
+      "open_recall": 80.76,
+      "closed_acc": 87.72
+     },
+     "MRI": {
+      "open_recall": 81.75,
+      "closed_acc": 90.91
+     }
+    }
+   },
+   "textvqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_after_cpt_b3_rand_r16",
+    "backend": {
+     "backend": "local"
+    },
+    "n": 300,
+    "seed": 42,
+    "textvqa_acc": 82.33
+   },
+   "pubmedqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_after_cpt_b3_rand_r16",
+    "backend": {
+     "backend": "local"
+    },
+    "n": 1000,
+    "accuracy": 70.2,
+    "macro_f1": 52.39,
+    "pred_dist": {
+     "yes": 687,
+     "no": 249,
+     "maybe": 64
+    },
+    "gold_dist": {
+     "yes": 552,
+     "no": 338,
+     "maybe": 110
+    },
+    "unparsed": 0
+   },
+   "mmbench": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_after_cpt_b3_rand_r16",
+    "backend": {
+     "backend": "local"
+    },
+    "n": 500,
+    "seed": 42,
+    "dataset": "lmms-lab/MMBench/en/dev",
+    "mmbench_acc": 87.4,
+    "unparsed": 0,
+    "by_category": {
+     "action_recognition": {
+      "n": 23,
+      "acc": 100.0
+     },
+     "attribute_comparison": {
+      "n": 17,
+      "acc": 70.59
+     },
+     "attribute_recognition": {
+      "n": 38,
+      "acc": 92.11
+     },
+     "celebrity_recognition": {
+      "n": 40,
+      "acc": 100.0
+     },
+     "function_reasoning": {
+      "n": 44,
+      "acc": 93.18
+     },
+     "future_prediction": {
+      "n": 13,
+      "acc": 84.62
+     },
+     "identity_reasoning": {
+      "n": 17,
+      "acc": 100.0
+     },
+     "image_emotion": {
+      "n": 19,
+      "acc": 89.47
+     },
+     "image_quality": {
+      "n": 25,
+      "acc": 36.0
+     },
+     "image_scene": {
+      "n": 56,
+      "acc": 100.0
+     },
+     "image_style": {
+      "n": 29,
+      "acc": 93.1
+     },
+     "image_topic": {
+      "n": 14,
+      "acc": 92.86
+     },
+     "nature_relation": {
+      "n": 23,
+      "acc": 78.26
+     },
+     "object_localization": {
+      "n": 35,
+      "acc": 74.29
+     },
+     "ocr": {
+      "n": 15,
+      "acc": 93.33
+     },
+     "physical_property_reasoning": {
+      "n": 19,
+      "acc": 89.47
+     },
+     "physical_relation": {
+      "n": 9,
+      "acc": 55.56
+     },
+     "social_relation": {
+      "n": 13,
+      "acc": 100.0
+     },
+     "spatial_relationship": {
+      "n": 22,
+      "acc": 72.73
+     },
+     "structuralized_imagetext_understanding": {
+      "n": 29,
+      "acc": 93.1
+     }
+    }
+   }
+  },
+  "sft_a_server": {
+   "slake": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_slake_qlora_r16",
+    "split": "test",
+    "n": 1061,
+    "load_4bit": false,
+    "max_pixels": 401408,
+    "seconds": 3552.1,
+    "metrics": {
+     "open_em": 75.5,
+     "open_recall": 82.07,
+     "open_f1": 81.19,
+     "closed_acc": 85.34
+    },
+    "n_closed": 416,
+    "n_open": 645,
+    "by_modality": {
+     "CT": {
+      "open_recall": 85.43,
+      "closed_acc": 83.18
+     },
+     "X-Ray": {
+      "open_recall": 80.56,
+      "closed_acc": 84.21
+     },
+     "MRI": {
+      "open_recall": 78.54,
+      "closed_acc": 92.05
+     }
+    }
+   },
+   "textvqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_slake_qlora_r16",
+    "n": 300,
+    "seed": 42,
+    "textvqa_acc": 83.56
+   },
+   "pubmedqa": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_slake_qlora_r16",
+    "n": 1000,
+    "accuracy": 69.8,
+    "macro_f1": 52.19,
+    "pred_dist": {
+     "yes": 691,
+     "no": 242,
+     "maybe": 67
+    },
+    "gold_dist": {
+     "yes": 552,
+     "no": 338,
+     "maybe": 110
+    },
+    "unparsed": 0
+   },
+   "mmbench": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "adapter": "outputs/sft_slake_qlora_r16",
+    "n": 500,
+    "seed": 42,
+    "dataset": "lmms-lab/MMBench/en/dev",
+    "mmbench_acc": 87.4,
+    "unparsed": 0,
+    "by_category": {
+     "action_recognition": {
+      "n": 23,
+      "acc": 100.0
+     },
+     "attribute_comparison": {
+      "n": 17,
+      "acc": 70.59
+     },
+     "attribute_recognition": {
+      "n": 38,
+      "acc": 94.74
+     },
+     "celebrity_recognition": {
+      "n": 40,
+      "acc": 100.0
+     },
+     "function_reasoning": {
+      "n": 44,
+      "acc": 93.18
+     },
+     "future_prediction": {
+      "n": 13,
+      "acc": 84.62
+     },
+     "identity_reasoning": {
+      "n": 17,
+      "acc": 100.0
+     },
+     "image_emotion": {
+      "n": 19,
+      "acc": 89.47
+     },
+     "image_quality": {
+      "n": 25,
+      "acc": 36.0
+     },
+     "image_scene": {
+      "n": 56,
+      "acc": 100.0
+     },
+     "image_style": {
+      "n": 29,
+      "acc": 93.1
+     },
+     "image_topic": {
+      "n": 14,
+      "acc": 92.86
+     },
+     "nature_relation": {
+      "n": 23,
+      "acc": 78.26
+     },
+     "object_localization": {
+      "n": 35,
+      "acc": 71.43
+     },
+     "ocr": {
+      "n": 15,
+      "acc": 93.33
+     },
+     "physical_property_reasoning": {
+      "n": 19,
+      "acc": 89.47
+     },
+     "physical_relation": {
+      "n": 9,
+      "acc": 66.67
+     },
+     "social_relation": {
+      "n": 13,
+      "acc": 100.0
+     },
+     "spatial_relationship": {
+      "n": 22,
+      "acc": 68.18
+     },
+     "structuralized_imagetext_understanding": {
+      "n": 29,
+      "acc": 93.1
+     }
+    }
+   }
+  }
+ },
+ "train": {
+  "cpt_b3_top_r16": {
+   "final": {
+    "current_steps": 313,
+    "total_steps": 313,
+    "epoch": 1.0,
+    "percentage": 100.0,
+    "elapsed_time": "3:38:30",
+    "remaining_time": "0:00:00"
+   },
+   "first_loss": 2.1497,
+   "last10_loss_mean": 1.1758
+  },
+  "cpt_b3_rand_r16": {
+   "final": {
+    "current_steps": 313,
+    "total_steps": 313,
+    "epoch": 1.0,
+    "percentage": 100.0,
+    "elapsed_time": "3:41:59",
+    "remaining_time": "0:00:00"
+   },
+   "first_loss": 2.2033,
+   "last10_loss_mean": 1.2002
+  },
+  "sft_after_cpt_b3_top_r16": {
+   "final": {
+    "current_steps": 924,
+    "total_steps": 924,
+    "epoch": 3.0,
+    "percentage": 100.0,
+    "elapsed_time": "10:06:58",
+    "remaining_time": "0:00:00"
+   },
+   "first_loss": 0.8067,
+   "last10_loss_mean": 0.0887
+  },
+  "sft_after_cpt_b3_rand_r16": {
+   "final": {
+    "current_steps": 924,
+    "total_steps": 924,
+    "epoch": 3.0,
+    "percentage": 100.0,
+    "elapsed_time": "10:48:51",
+    "remaining_time": "0:00:00"
+   },
+   "first_loss": 0.8041,
+   "last10_loss_mean": 0.0878
+  }
+ }
+}

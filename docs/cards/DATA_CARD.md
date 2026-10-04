@@ -1,6 +1,6 @@
 # Data Card — MedLoRA
 
-**Version** 1.3 · 2026-10-01 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.4 · 2026-10-05 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 Every dataset used for training or evaluation in this project, how it was obtained, what was done to
@@ -24,7 +24,7 @@ it, and the rules that govern it. Each row of the pipeline is reproducible from 
 | MedQA-USMLE, 4 options (test) | **external medical-knowledge test** (added 2026-09-30) | 1,273 questions | CC BY 4.0 |
 | PneumoniaMNIST 224 (test) | **missed-abnormality probe** (added 2026-09-30) | 624 images (390 pneumonia / 234 normal) | CC BY 4.0 |
 | IU X-Ray (OpenI, Kaggle mirror) | image-text CPT prototype | ≈3,483 frontal image-report pairs | public |
-| CheXpert Plus | image-text CPT at scale (planned, B3) | 5k → 20k studies | registered; download pending |
+| CheXpert Plus | image-text CPT (B3) | 10,000-study pool, 5,000 per arm | registered; college server only |
 
 **Two hard rules, enforced in code and reviewed before every run:**
 
@@ -303,15 +303,25 @@ on both hosts is scored on byte-identical samples.
 
 ---
 
-## 8. Planned: CheXpert Plus (experiment B3)
+## 8. CheXpert Plus (experiment B3, used from 2026-10-02)
 
-Registered but not yet downloaded. It replaces MIMIC-CXR from the original task description because
-it offers the same image-report structure with a lighter access process (registration rather than
-PhysioNet credentialing), and because it is the dataset shared with the Topic 1 teammate whose
-image-text alignment model will supply the data-quality filtering scores for B3.
+Used only on the college GPU server (user0 container). It replaces MIMIC-CXR from the original task description:
+same image-report structure, lighter access (registration rather than PhysioNet credentialing), and it is the
+dataset shared with the Topic 1 teammate whose image-text alignment model supplies the B3 quality scores.
 
-**Compliance, decided in advance.** CheXpert Plus is controlled-access. It will be downloaded only
-to the college GPU server, never to a laptop or a Kaggle dataset; no image, report, or patient-level
-derived file will enter git; only aggregate metrics and trained adapter weights leave the machine.
-The 36 %-normal composition problem found in IU X-Ray (§5) is the reason B3 is specified as
-*sampled by finding* rather than taken as-is.
+**Source.** `/home/share/chexpert_plus/` (DICOM plus `df_chexpert_plus_240401.csv`, 223,462 rows). The teammate's
+15,000-pair subset (`/workspace/rafi/chexpert_plus_subset`, patient-level 10,293 / 1,518 / 3,189) and his code and
+checkpoint are used **read-only**; nothing is written under his folder or under `/home/share`.
+
+**B3 candidate pool.** 10,000 studies from 10,000 patients outside the teammate's subset (so none of his test
+patients): frontal images only, report = `section_findings` + newline + `section_impression` (his rule), first frontal
+image per study, one study per patient, seed 42 (`scripts/build_b3_pool.py`). DICOMs converted with his Chambon
+Appendix A pre-processing (his `load_dicom_rgb`, JPEG quality 95, opencv-python-headless 5.0.0.93, pydicom 3.0.2 —
+the versions in his environment); 20 of his cached images re-converted this way were pixel-identical. Scored with his
+`plus_g_peft_001` model (`scripts/score_chexpert_pairs.py`); B3-top = 5,000 highest-scoring pairs, B3-rand = 5,000 at
+random (`data/convert_chexpert_b3.py`), images downscaled to a 1,024-pixel long side for training.
+
+**Compliance.** Manifests, per-pair score files, training JSONs and images contain patient identifiers or report text
+and stay on the server, outside git. Only aggregate statistics (`results/b3_chexpert_cpt_2026-10-04.json`), evaluation
+results on the public test sets, and adapter weights leave it. Demographic columns of the source table (age, sex,
+race, insurance, …) are never read into any derived file.

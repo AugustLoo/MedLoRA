@@ -1,6 +1,6 @@
 # Model Card — MedLoRA adapters for Qwen2.5-VL-3B-Instruct and Intern-S2-Preview (35B)
 
-**Version** 1.4 · 2026-10-01 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.5 · 2026-10-05 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 This card covers the LoRA adapters produced in this project: the main family on Qwen2.5-VL-3B-Instruct, and a
@@ -65,6 +65,8 @@ repeated on a model roughly twelve times larger, provided by the course instruct
 | `sft_mix_300_s43` (**C2-300-s43**) | SFT | same, sampling and training seed 43 | 5090, bf16 | run-to-run variance of the 300 point |
 | `sft_mix_100` (**C2-100**) | SFT | SLAKE 4,919 + PubMedQA replay 99 (33 per class) | 5090, bf16 | the point between 0 and 300 where the gain occurs; each "maybe" item seen at most once |
 | `sft_mix_900_s43` (**C1-s43**) | SFT | as C1, sampling and training seed 43 | 5090, bf16 | run-to-run variance of the 900 point |
+| `cpt_b3_top_r16` → `sft_after_cpt_b3_top_r16` (**B3-top**) | CPT (caption-style) → SFT | 5,000 CheXpert Plus pairs with the highest Topic 1 alignment scores (from 10,000 unseen pairs), then SLAKE train | 5090, bf16 | does alignment-score filtering of CPT data help (result: no measurable effect) |
+| `cpt_b3_rand_r16` → `sft_after_cpt_b3_rand_r16` (**B3-rand**) | CPT (caption-style) → SFT | 5,000 random pairs from the same pool, then SLAKE train | 5090, bf16 | control for B3-top |
 
 ### 35B adapters (Intern-S2-Preview)
 
