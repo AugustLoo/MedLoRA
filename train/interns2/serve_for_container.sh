@@ -4,6 +4,7 @@
 #   base  : 基座                 /home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview
 #   final : 最终版 (回放 300)    /home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA (只读使用)
 #   r0    : 只做微调 (回放 0)    outputs/interns2_mix_0 临时合并到 /home/ubuntu/chunqian/merged/
+#   r0_s43 / s43 : 回放 0 与回放 300 的第二个种子 (outputs/interns2_abl_r0_s43 / interns2_abl_s43), 同样临时合并
 # 用法 (ubuntu 主机, tmux 里; 先停同学的服务):  bash train/interns2/serve_for_container.sh base
 set -Eeuo pipefail
 ROOT=/home/ubuntu/chunqian
@@ -19,7 +20,9 @@ case "${1:-}" in
   base)  TAG=interns2_base;    DIR=$MODELS/Intern-S2-Preview ;;
   final) TAG=interns2_mix_300; DIR=$MODELS/Intern-S2-Preview-MedLoRA ;;
   r0)    TAG=interns2_mix_0;   DIR=$ROOT/merged/interns2_mix_0; TMP=$DIR ;;
-  *) echo "用法: $0 base | final | r0"; exit 1 ;;
+  r0_s43) TAG=interns2_abl_r0_s43; DIR=$ROOT/merged/$TAG; TMP=$DIR ;;
+  s43)   TAG=interns2_abl_s43;  DIR=$ROOT/merged/$TAG; TMP=$DIR ;;
+  *) echo "用法: $0 base | final | r0 | r0_s43 | s43"; exit 1 ;;
 esac
 cleanup() { bash "$REPO/train/interns2/serve.sh" stop >/dev/null 2>&1 || true; [[ -n $TMP ]] && rm -rf "$TMP"; }
 trap cleanup EXIT
