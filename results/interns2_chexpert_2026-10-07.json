@@ -1,0 +1,565 @@
+{
+ "note": "Direction A on the CheXpert Plus test split of the Topic 1 subset (3,189 adult frontal films; CheXbert labels automatically extracted from reports), five 35B models, evaluated 2026-10-06/07 in the user0 container against models served on the host. Aggregates only; per-image predictions with report-derived labels stay on the server. Free-text judge re-checked by hand on 30 descriptions of the replay-300 model (15 per verdict): 30/30 correct.",
+ "models": {
+  "base": {
+   "tag": "interns2_base",
+   "dataset": "CheXpert Plus test split of the Topic 1 subset (our_split=test)",
+   "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+   "backend": {
+    "backend": "api",
+    "api_base": "http://172.17.0.1:23334/v1",
+    "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview",
+    "max_pixels": 401408,
+    "extra": {
+     "chat_template_kwargs": {
+      "enable_thinking": false
+     }
+    }
+   },
+   "n": 3189,
+   "groups": {
+    "abnormal": 2733,
+    "normal": 231,
+    "uncertain_only": 225
+   },
+   "seconds": 2766.1,
+   "closed": {
+    "sensitivity": 87.12,
+    "specificity": 81.82,
+    "missed_abnormal": 352,
+    "missed_abnormal_pct": 12.88,
+    "unparsed": 0,
+    "uncertain_only_yes_pct": 38.22
+   },
+   "freetext": {
+    "abnormal_no_abnormality_reported_pct": 29.2,
+    "abnormal_no_lung_abnormality_pct": 31.14,
+    "normal_no_abnormality_reported_pct": 81.39,
+    "discrimination_pts": 52.19,
+    "abnormal_closed_yes_but_desc_none_pct": 21.59
+   },
+   "per_finding": {
+    "Enlarged Cardiomediastinum": {
+     "n": 122,
+     "closed_yes_pct": 77.05,
+     "desc_reports_any_pct": 63.93,
+     "desc_mentions_finding_pct": 2.46
+    },
+    "Cardiomegaly": {
+     "n": 405,
+     "closed_yes_pct": 89.14,
+     "desc_reports_any_pct": 67.9,
+     "desc_mentions_finding_pct": 25.43
+    },
+    "Lung Opacity": {
+     "n": 1586,
+     "closed_yes_pct": 92.12,
+     "desc_reports_any_pct": 74.72,
+     "desc_mentions_finding_pct": 70.43
+    },
+    "Lung Lesion": {
+     "n": 96,
+     "closed_yes_pct": 75.0,
+     "desc_reports_any_pct": 61.46,
+     "desc_mentions_finding_pct": 31.25
+    },
+    "Edema": {
+     "n": 900,
+     "closed_yes_pct": 94.22,
+     "desc_reports_any_pct": 74.22,
+     "desc_mentions_finding_pct": 14.11
+    },
+    "Consolidation": {
+     "n": 222,
+     "closed_yes_pct": 95.95,
+     "desc_reports_any_pct": 87.39,
+     "desc_mentions_finding_pct": 15.77
+    },
+    "Pneumonia": {
+     "n": 67,
+     "closed_yes_pct": 86.57,
+     "desc_reports_any_pct": 80.6,
+     "desc_mentions_finding_pct": 68.66
+    },
+    "Atelectasis": {
+     "n": 531,
+     "closed_yes_pct": 87.01,
+     "desc_reports_any_pct": 70.24,
+     "desc_mentions_finding_pct": 2.26
+    },
+    "Pneumothorax": {
+     "n": 278,
+     "closed_yes_pct": 87.77,
+     "desc_reports_any_pct": 73.38,
+     "desc_mentions_finding_pct": 9.71
+    },
+    "Pleural Effusion": {
+     "n": 1445,
+     "closed_yes_pct": 95.99,
+     "desc_reports_any_pct": 80.62,
+     "desc_mentions_finding_pct": 33.84
+    },
+    "Pleural Other": {
+     "n": 39,
+     "closed_yes_pct": 71.79,
+     "desc_reports_any_pct": 58.97,
+     "desc_mentions_finding_pct": 0.0
+    },
+    "Fracture": {
+     "n": 108,
+     "closed_yes_pct": 61.11,
+     "desc_reports_any_pct": 54.63,
+     "desc_mentions_finding_pct": 0.93
+    }
+   }
+  },
+  "r0_s42": {
+   "tag": "interns2_mix_0",
+   "dataset": "CheXpert Plus test split of the Topic 1 subset (our_split=test)",
+   "model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+   "backend": {
+    "backend": "api",
+    "api_base": "http://172.17.0.1:23334/v1",
+    "served_model": "/home/ubuntu/chunqian/merged/interns2_mix_0",
+    "max_pixels": 401408,
+    "extra": {
+     "chat_template_kwargs": {
+      "enable_thinking": false
+     }
+    }
+   },
+   "n": 3189,
+   "groups": {
+    "abnormal": 2733,
+    "normal": 231,
+    "uncertain_only": 225
+   },
+   "seconds": 2453.8,
+   "closed": {
+    "sensitivity": 96.34,
+    "specificity": 54.11,
+    "missed_abnormal": 100,
+    "missed_abnormal_pct": 3.66,
+    "unparsed": 0,
+    "uncertain_only_yes_pct": 69.78
+   },
+   "freetext": {
+    "abnormal_no_abnormality_reported_pct": 52.51,
+    "abnormal_no_lung_abnormality_pct": 54.77,
+    "normal_no_abnormality_reported_pct": 91.77,
+    "discrimination_pts": 39.26,
+    "abnormal_closed_yes_but_desc_none_pct": 50.74
+   },
+   "per_finding": {
+    "Enlarged Cardiomediastinum": {
+     "n": 122,
+     "closed_yes_pct": 94.26,
+     "desc_reports_any_pct": 42.62,
+     "desc_mentions_finding_pct": 4.92
+    },
+    "Cardiomegaly": {
+     "n": 405,
+     "closed_yes_pct": 98.77,
+     "desc_reports_any_pct": 52.1,
+     "desc_mentions_finding_pct": 25.43
+    },
+    "Lung Opacity": {
+     "n": 1586,
+     "closed_yes_pct": 97.92,
+     "desc_reports_any_pct": 52.65,
+     "desc_mentions_finding_pct": 49.5
+    },
+    "Lung Lesion": {
+     "n": 96,
+     "closed_yes_pct": 90.62,
+     "desc_reports_any_pct": 52.08,
+     "desc_mentions_finding_pct": 32.29
+    },
+    "Edema": {
+     "n": 900,
+     "closed_yes_pct": 99.0,
+     "desc_reports_any_pct": 54.56,
+     "desc_mentions_finding_pct": 12.67
+    },
+    "Consolidation": {
+     "n": 222,
+     "closed_yes_pct": 99.1,
+     "desc_reports_any_pct": 70.27,
+     "desc_mentions_finding_pct": 11.71
+    },
+    "Pneumonia": {
+     "n": 67,
+     "closed_yes_pct": 92.54,
+     "desc_reports_any_pct": 64.18,
+     "desc_mentions_finding_pct": 56.72
+    },
+    "Atelectasis": {
+     "n": 531,
+     "closed_yes_pct": 96.61,
+     "desc_reports_any_pct": 40.49,
+     "desc_mentions_finding_pct": 0.94
+    },
+    "Pneumothorax": {
+     "n": 278,
+     "closed_yes_pct": 98.2,
+     "desc_reports_any_pct": 43.53,
+     "desc_mentions_finding_pct": 8.27
+    },
+    "Pleural Effusion": {
+     "n": 1445,
+     "closed_yes_pct": 99.17,
+     "desc_reports_any_pct": 53.01,
+     "desc_mentions_finding_pct": 20.48
+    },
+    "Pleural Other": {
+     "n": 39,
+     "closed_yes_pct": 87.18,
+     "desc_reports_any_pct": 30.77,
+     "desc_mentions_finding_pct": 0.0
+    },
+    "Fracture": {
+     "n": 108,
+     "closed_yes_pct": 81.48,
+     "desc_reports_any_pct": 28.7,
+     "desc_mentions_finding_pct": 0.0
+    }
+   }
+  },
+  "r0_s43": {
+   "tag": "interns2_abl_r0_s43",
+   "dataset": "CheXpert Plus test split of the Topic 1 subset (our_split=test)",
+   "model": "/home/ubuntu/chunqian/merged/interns2_abl_r0_s43",
+   "backend": {
+    "backend": "api",
+    "api_base": "http://172.17.0.1:23334/v1",
+    "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_r0_s43",
+    "max_pixels": 401408,
+    "extra": {
+     "chat_template_kwargs": {
+      "enable_thinking": false
+     }
+    }
+   },
+   "n": 3189,
+   "groups": {
+    "abnormal": 2733,
+    "normal": 231,
+    "uncertain_only": 225
+   },
+   "seconds": 2717.8,
+   "closed": {
+    "sensitivity": 97.99,
+    "specificity": 38.1,
+    "missed_abnormal": 55,
+    "missed_abnormal_pct": 2.01,
+    "unparsed": 0,
+    "uncertain_only_yes_pct": 80.0
+   },
+   "freetext": {
+    "abnormal_no_abnormality_reported_pct": 14.64,
+    "abnormal_no_lung_abnormality_pct": 17.82,
+    "normal_no_abnormality_reported_pct": 66.67,
+    "discrimination_pts": 52.03,
+    "abnormal_closed_yes_but_desc_none_pct": 12.92
+   },
+   "per_finding": {
+    "Enlarged Cardiomediastinum": {
+     "n": 122,
+     "closed_yes_pct": 98.36,
+     "desc_reports_any_pct": 86.07,
+     "desc_mentions_finding_pct": 5.74
+    },
+    "Cardiomegaly": {
+     "n": 405,
+     "closed_yes_pct": 99.51,
+     "desc_reports_any_pct": 84.2,
+     "desc_mentions_finding_pct": 38.52
+    },
+    "Lung Opacity": {
+     "n": 1586,
+     "closed_yes_pct": 99.24,
+     "desc_reports_any_pct": 88.71,
+     "desc_mentions_finding_pct": 84.74
+    },
+    "Lung Lesion": {
+     "n": 96,
+     "closed_yes_pct": 91.67,
+     "desc_reports_any_pct": 83.33,
+     "desc_mentions_finding_pct": 66.67
+    },
+    "Edema": {
+     "n": 900,
+     "closed_yes_pct": 99.67,
+     "desc_reports_any_pct": 89.89,
+     "desc_mentions_finding_pct": 16.11
+    },
+    "Consolidation": {
+     "n": 222,
+     "closed_yes_pct": 99.55,
+     "desc_reports_any_pct": 95.5,
+     "desc_mentions_finding_pct": 13.96
+    },
+    "Pneumonia": {
+     "n": 67,
+     "closed_yes_pct": 97.01,
+     "desc_reports_any_pct": 86.57,
+     "desc_mentions_finding_pct": 76.12
+    },
+    "Atelectasis": {
+     "n": 531,
+     "closed_yes_pct": 97.93,
+     "desc_reports_any_pct": 83.99,
+     "desc_mentions_finding_pct": 0.75
+    },
+    "Pneumothorax": {
+     "n": 278,
+     "closed_yes_pct": 99.28,
+     "desc_reports_any_pct": 82.01,
+     "desc_mentions_finding_pct": 10.43
+    },
+    "Pleural Effusion": {
+     "n": 1445,
+     "closed_yes_pct": 99.52,
+     "desc_reports_any_pct": 90.8,
+     "desc_mentions_finding_pct": 28.44
+    },
+    "Pleural Other": {
+     "n": 39,
+     "closed_yes_pct": 89.74,
+     "desc_reports_any_pct": 71.79,
+     "desc_mentions_finding_pct": 0.0
+    },
+    "Fracture": {
+     "n": 108,
+     "closed_yes_pct": 88.89,
+     "desc_reports_any_pct": 64.81,
+     "desc_mentions_finding_pct": 1.85
+    }
+   }
+  },
+  "r300_s42": {
+   "tag": "interns2_mix_300",
+   "dataset": "CheXpert Plus test split of the Topic 1 subset (our_split=test)",
+   "model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA",
+   "backend": {
+    "backend": "api",
+    "api_base": "http://172.17.0.1:23334/v1",
+    "served_model": "/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA",
+    "max_pixels": 401408,
+    "extra": {
+     "chat_template_kwargs": {
+      "enable_thinking": false
+     }
+    }
+   },
+   "n": 3189,
+   "groups": {
+    "abnormal": 2733,
+    "normal": 231,
+    "uncertain_only": 225
+   },
+   "seconds": 2831.1,
+   "closed": {
+    "sensitivity": 95.24,
+    "specificity": 58.87,
+    "missed_abnormal": 130,
+    "missed_abnormal_pct": 4.76,
+    "unparsed": 0,
+    "uncertain_only_yes_pct": 62.67
+   },
+   "freetext": {
+    "abnormal_no_abnormality_reported_pct": 68.46,
+    "abnormal_no_lung_abnormality_pct": 71.53,
+    "normal_no_abnormality_reported_pct": 94.81,
+    "discrimination_pts": 26.35,
+    "abnormal_closed_yes_but_desc_none_pct": 66.88
+   },
+   "per_finding": {
+    "Enlarged Cardiomediastinum": {
+     "n": 122,
+     "closed_yes_pct": 93.44,
+     "desc_reports_any_pct": 25.41,
+     "desc_mentions_finding_pct": 9.02
+    },
+    "Cardiomegaly": {
+     "n": 405,
+     "closed_yes_pct": 98.02,
+     "desc_reports_any_pct": 35.06,
+     "desc_mentions_finding_pct": 20.99
+    },
+    "Lung Opacity": {
+     "n": 1586,
+     "closed_yes_pct": 97.54,
+     "desc_reports_any_pct": 33.04,
+     "desc_mentions_finding_pct": 30.39
+    },
+    "Lung Lesion": {
+     "n": 96,
+     "closed_yes_pct": 88.54,
+     "desc_reports_any_pct": 43.75,
+     "desc_mentions_finding_pct": 25.0
+    },
+    "Edema": {
+     "n": 900,
+     "closed_yes_pct": 98.67,
+     "desc_reports_any_pct": 33.89,
+     "desc_mentions_finding_pct": 3.22
+    },
+    "Consolidation": {
+     "n": 222,
+     "closed_yes_pct": 99.1,
+     "desc_reports_any_pct": 46.85,
+     "desc_mentions_finding_pct": 5.86
+    },
+    "Pneumonia": {
+     "n": 67,
+     "closed_yes_pct": 92.54,
+     "desc_reports_any_pct": 46.27,
+     "desc_mentions_finding_pct": 32.84
+    },
+    "Atelectasis": {
+     "n": 531,
+     "closed_yes_pct": 95.29,
+     "desc_reports_any_pct": 26.74,
+     "desc_mentions_finding_pct": 0.0
+    },
+    "Pneumothorax": {
+     "n": 278,
+     "closed_yes_pct": 95.32,
+     "desc_reports_any_pct": 28.78,
+     "desc_mentions_finding_pct": 2.88
+    },
+    "Pleural Effusion": {
+     "n": 1445,
+     "closed_yes_pct": 98.62,
+     "desc_reports_any_pct": 35.78,
+     "desc_mentions_finding_pct": 14.53
+    },
+    "Pleural Other": {
+     "n": 39,
+     "closed_yes_pct": 82.05,
+     "desc_reports_any_pct": 20.51,
+     "desc_mentions_finding_pct": 0.0
+    },
+    "Fracture": {
+     "n": 108,
+     "closed_yes_pct": 80.56,
+     "desc_reports_any_pct": 12.96,
+     "desc_mentions_finding_pct": 0.0
+    }
+   }
+  },
+  "r300_s43": {
+   "tag": "interns2_abl_s43",
+   "dataset": "CheXpert Plus test split of the Topic 1 subset (our_split=test)",
+   "model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+   "backend": {
+    "backend": "api",
+    "api_base": "http://172.17.0.1:23334/v1",
+    "served_model": "/home/ubuntu/chunqian/merged/interns2_abl_s43",
+    "max_pixels": 401408,
+    "extra": {
+     "chat_template_kwargs": {
+      "enable_thinking": false
+     }
+    }
+   },
+   "n": 3189,
+   "groups": {
+    "abnormal": 2733,
+    "normal": 231,
+    "uncertain_only": 225
+   },
+   "seconds": 2694.2,
+   "closed": {
+    "sensitivity": 97.59,
+    "specificity": 41.56,
+    "missed_abnormal": 66,
+    "missed_abnormal_pct": 2.41,
+    "unparsed": 0,
+    "uncertain_only_yes_pct": 76.89
+   },
+   "freetext": {
+    "abnormal_no_abnormality_reported_pct": 56.6,
+    "abnormal_no_lung_abnormality_pct": 58.1,
+    "normal_no_abnormality_reported_pct": 91.77,
+    "discrimination_pts": 35.17,
+    "abnormal_closed_yes_but_desc_none_pct": 55.53
+   },
+   "per_finding": {
+    "Enlarged Cardiomediastinum": {
+     "n": 122,
+     "closed_yes_pct": 96.72,
+     "desc_reports_any_pct": 35.25,
+     "desc_mentions_finding_pct": 0.82
+    },
+    "Cardiomegaly": {
+     "n": 405,
+     "closed_yes_pct": 99.01,
+     "desc_reports_any_pct": 44.69,
+     "desc_mentions_finding_pct": 19.75
+    },
+    "Lung Opacity": {
+     "n": 1586,
+     "closed_yes_pct": 98.99,
+     "desc_reports_any_pct": 48.42,
+     "desc_mentions_finding_pct": 46.28
+    },
+    "Lung Lesion": {
+     "n": 96,
+     "closed_yes_pct": 92.71,
+     "desc_reports_any_pct": 44.79,
+     "desc_mentions_finding_pct": 27.08
+    },
+    "Edema": {
+     "n": 900,
+     "closed_yes_pct": 99.11,
+     "desc_reports_any_pct": 49.89,
+     "desc_mentions_finding_pct": 5.33
+    },
+    "Consolidation": {
+     "n": 222,
+     "closed_yes_pct": 99.55,
+     "desc_reports_any_pct": 59.01,
+     "desc_mentions_finding_pct": 8.56
+    },
+    "Pneumonia": {
+     "n": 67,
+     "closed_yes_pct": 95.52,
+     "desc_reports_any_pct": 59.7,
+     "desc_mentions_finding_pct": 50.75
+    },
+    "Atelectasis": {
+     "n": 531,
+     "closed_yes_pct": 97.74,
+     "desc_reports_any_pct": 37.85,
+     "desc_mentions_finding_pct": 1.13
+    },
+    "Pneumothorax": {
+     "n": 278,
+     "closed_yes_pct": 98.92,
+     "desc_reports_any_pct": 41.73,
+     "desc_mentions_finding_pct": 4.68
+    },
+    "Pleural Effusion": {
+     "n": 1445,
+     "closed_yes_pct": 99.31,
+     "desc_reports_any_pct": 48.65,
+     "desc_mentions_finding_pct": 26.16
+    },
+    "Pleural Other": {
+     "n": 39,
+     "closed_yes_pct": 92.31,
+     "desc_reports_any_pct": 25.64,
+     "desc_mentions_finding_pct": 0.0
+    },
+    "Fracture": {
+     "n": 108,
+     "closed_yes_pct": 87.04,
+     "desc_reports_any_pct": 16.67,
+     "desc_mentions_finding_pct": 0.0
+    }
+   }
+  }
+ }
+}

@@ -1,14 +1,14 @@
 # Parameter-Efficient Continued Pre-training and Instruction Tuning of a Medical Vision-Language Model
 
-**Course project, Topic 6 (Task 1.3)** · Draft v1.3, 2026-10-01 · Author: Chunqian Loo
+**Course project, Topic 6 (Task 1.3)** · Draft v1.4, 2026-10-07 · Author: Chunqian Loo
 
-> **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1, the A-server control and the full C2 replay curve (0 / 99 / 300 / 900, two seeds at 300 and 900) are complete, and the central replay experiment has been repeated on a 35B mixture-of-experts model at four replay budgets (0 / 99 / 300 / 900) with two seeds each, plus six group-D ablations and a free-text probe (Section 5.7), and evaluated on four external test sets approved by the instructor (Section 5.8). Experiment B3 (Section 5.9) has run: image-text CPT on CheXpert Plus with and without alignment-score filtering. Section 2 (Related Work) is written; the 29 original entries in `docs/refs.bib` were checked against arXiv or the publisher page on 2026-09-23 and the nine added for Section 5.7 on 2026-09-27 (record in the file header). No `[TODO]` markers remain; open items are listed as limitations in Section 7. Repository: https://github.com/AugustLoo/MedLoRA
+> **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1, the A-server control and the full C2 replay curve (0 / 99 / 300 / 900, two seeds at 300 and 900) are complete, and the central replay experiment has been repeated on a 35B mixture-of-experts model at four replay budgets (0 / 99 / 300 / 900) with two seeds each, plus six group-D ablations and a free-text probe (Section 5.7), and evaluated on four external test sets approved by the instructor (Section 5.8). Experiment B3 (Section 5.9) has run: image-text CPT on CheXpert Plus with and without alignment-score filtering. Missed abnormalities are measured on 3,189 adult CheXpert Plus films (Section 5.10). Section 2 (Related Work) is written; the 29 original entries in `docs/refs.bib` were checked against arXiv or the publisher page on 2026-09-23 and the nine added for Section 5.7 on 2026-09-27 (record in the file header). No `[TODO]` markers remain; open items are listed as limitations in Section 7. Repository: https://github.com/AugustLoo/MedLoRA
 
 ---
 
 ## Abstract
 
-Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 85.1 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 84.1) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. Evaluating the CPT-stage adapters without SFT localises a persistent "yes" bias to the short-answer SFT data rather than to CPT or to the base model. Acting on that diagnosis, mixing 900 three-class text examples into the SFT set (experiment C1) raises PubMedQA macro-F1 from 51.5 to 61.1 and triples the number of correctly answered "maybe" questions, at a cost of 2.2 points of general VQA accuracy and roughly one net SLAKE question; a single-variable control run on the same GPU isolates that trade-off to the replay data itself. Varying the replay budget over 0 / 99 / 300 / 900 examples, with two seeds at 300 and 900, shows the calibration gain saturates early: 99 examples buy 63 % of the 900-example gain and 300 buy 92 %, the remainder being within seed spread, at a smaller retention cost and no main-task cost. The per-class balance of the fix, by contrast, improves monotonically with budget: every replay budget over-corrects toward "no" and "maybe", and 900 examples bring the predicted distribution closest to the truth. A second, broader retention probe (MMBench, 500 fixed multiple-choice questions) shows no replay cost at all, which localises the measured loss to short-answer output format rather than to visual ability. The alignment problem in this pipeline is therefore a data-mixture problem, addressable without a separate preference-optimisation stage. Repeating the zero- and 300-example conditions on Intern-S2-Preview, a 35B mixture-of-experts model roughly twelve times larger, with two seeds each, shows that the fix transfers but the cause does not: the 35B base model is as reluctant to answer "maybe" as the 3B base, short-answer SFT does not reliably make it worse, and 300 replay examples still raise macro-F1 by five points on average (61.4 → 66.3) without the over-correction seen at 3B and at no measurable cost to the main task. Extending the 35B budget to 99 and 900 examples reproduces the shape of the 3B curve — the smallest budget over-predicts "maybe" at both scales — but flattens it: every budget from 99 to 900 lies within seed spread of the others (macro-F1 64.7–66.3), and none costs retention. Letting the 35B base model reason before answering does not substitute for replay: on the questions it finishes within 4,096 tokens it answers 5 of 37 "maybe" questions correctly against 9-12 for the 300-example replay models, and it fails to finish on a third of the "maybe" questions. Ablating the 35B training settings shows that only under-training reliably hurts and that LoRA on the shared expert can be dropped; a free-text probe shows no degradation of long-form description. On four external test sets the fine-tuned 35B models gain 2.8–4.8 points on VQA-RAD, lose 2.3–3.9 points on PathVQA while shifting toward "no", and lose 1.0–1.6 points on MedQA, consistently across four runs; replay makes no measurable difference there, and on chest X-rays every model often describes a film it has just called pneumonia as free of lung abnormality. Image-text CPT on 5,000 CheXpert Plus pairs, chosen either by a Topic 1 alignment score or at random, changes neither the main task nor the comparison between the two (B3). Data-generation scripts, evaluation code and configurations are released for one-command reproduction; the trained adapters are archived by the author rather than published.
+Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 85.1 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 84.1) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. Evaluating the CPT-stage adapters without SFT localises a persistent "yes" bias to the short-answer SFT data rather than to CPT or to the base model. Acting on that diagnosis, mixing 900 three-class text examples into the SFT set (experiment C1) raises PubMedQA macro-F1 from 51.5 to 61.1 and triples the number of correctly answered "maybe" questions, at a cost of 2.2 points of general VQA accuracy and roughly one net SLAKE question; a single-variable control run on the same GPU isolates that trade-off to the replay data itself. Varying the replay budget over 0 / 99 / 300 / 900 examples, with two seeds at 300 and 900, shows the calibration gain saturates early: 99 examples buy 63 % of the 900-example gain and 300 buy 92 %, the remainder being within seed spread, at a smaller retention cost and no main-task cost. The per-class balance of the fix, by contrast, improves monotonically with budget: every replay budget over-corrects toward "no" and "maybe", and 900 examples bring the predicted distribution closest to the truth. A second, broader retention probe (MMBench, 500 fixed multiple-choice questions) shows no replay cost at all, which localises the measured loss to short-answer output format rather than to visual ability. The alignment problem in this pipeline is therefore a data-mixture problem, addressable without a separate preference-optimisation stage. Repeating the zero- and 300-example conditions on Intern-S2-Preview, a 35B mixture-of-experts model roughly twelve times larger, with two seeds each, shows that the fix transfers but the cause does not: the 35B base model is as reluctant to answer "maybe" as the 3B base, short-answer SFT does not reliably make it worse, and 300 replay examples still raise macro-F1 by five points on average (61.4 → 66.3) without the over-correction seen at 3B and at no measurable cost to the main task. Extending the 35B budget to 99 and 900 examples reproduces the shape of the 3B curve — the smallest budget over-predicts "maybe" at both scales — but flattens it: every budget from 99 to 900 lies within seed spread of the others (macro-F1 64.7–66.3), and none costs retention. Letting the 35B base model reason before answering does not substitute for replay: on the questions it finishes within 4,096 tokens it answers 5 of 37 "maybe" questions correctly against 9-12 for the 300-example replay models, and it fails to finish on a third of the "maybe" questions. Ablating the 35B training settings shows that only under-training reliably hurts and that LoRA on the shared expert can be dropped; a free-text probe shows no degradation of long-form description. On four external test sets the fine-tuned 35B models gain 2.8–4.8 points on VQA-RAD, lose 2.3–3.9 points on PathVQA while shifting toward "no", and lose 1.0–1.6 points on MedQA, consistently across four runs; replay makes no measurable difference there, and on chest X-rays every model often describes a film it has just called pneumonia as free of lung abnormality. Image-text CPT on 5,000 CheXpert Plus pairs, chosen either by a Topic 1 alignment score or at random, changes neither the main task nor the comparison between the two (B3). On 3,189 adult chest X-rays every fine-tuned 35B model answers "abnormal" more readily when asked (missed abnormal films 12.9 % → 2–5 %, specificity 82 % → 38–59 %), while three of four runs describe more abnormal films as normal (29 % → 53–69 %), so the two question formats increasingly contradict each other. Data-generation scripts, evaluation code and configurations are released for one-command reproduction; the trained adapters are archived by the author rather than published.
 
 ---
 
@@ -262,6 +262,7 @@ loss to four decimal places.
 | B2 | image-text CPT (IU X-Ray) | SLAKE SFT | does image-report CPT transfer | done |
 | B1/B2 CPT-only | stage-1 adapters, no SFT | – | what CPT itself changes | done |
 | B3 | image-text CPT on CheXpert Plus: top-5k by alignment score vs random-5k from 10k unseen pairs | SLAKE SFT | value of data-quality filtering | done (§5.9) |
+| MISS | – | missed-abnormality metric on the CheXpert Plus test split (3,189 adult films, CheXbert labels), yes/no and free description, five 35B models | does fine-tuning hide abnormalities | done (§5.10) |
 | A-server | – | SLAKE SFT, bf16 on the 5090 | single-variable control for C1; does A survive the platform change | done |
 | C1 | – | SLAKE SFT + 900 PubMedQA three-class examples | can the SFT data mix fix the "yes" bias, and what does it cost | done |
 | C2 | – | as C1 with 99 / 300 / 900 replay examples (0 = A-server) | how much replay is enough; shape of the trade-off | 0, 99, 300, 900 done; 1,800 deprioritised (§5.6) |
@@ -848,6 +849,67 @@ candidates); and the downstream SLAKE tables barely respond to CPT at all, so ev
 little room to show. A more sensitive test would compare the two CPT adapters directly on report generation for the
 teammate's held-out CheXpert Plus test split, before any SFT.
 
+
+### 5.10 Missed abnormalities on adult chest X-rays (direction A)
+
+Sections 5.7 and 5.8 could not turn missed abnormalities into a usable measure: 44 abnormal SLAKE images were too few,
+and PneumoniaMNIST is paediatric and low-resolution. The test split of the Topic 1 teammate's CheXpert Plus subset
+\citep{chambon2024chexpertplus} provides 3,189 adult frontal films whose CheXbert labels \citep{irvin2019chexpert},
+extracted automatically from the reports, mark 2,733 as abnormal (any positive finding other than support devices), 231 as
+"No Finding" and 225 as carrying only uncertain labels. It was used read-only, for evaluation only, with the teammate's
+agreement. Each film was asked "Are there any abnormal findings in this chest X-ray? Answer with yes or no only." and for a
+free description; the description judge is the negation-aware rule validated in Section 5.8, re-checked here by hand on
+30 descriptions of the replay-300 model (15 per verdict, all correct). The data never left the server: the evaluation ran
+in the container that holds it, calling models served on the GPU host of the same machine.
+
+| | base | replay 0 (s42 / s43) | replay 300 (s42 / s43) |
+|---|---|---|---|
+| yes/no: sensitivity (abnormal films answered "yes") | 87.1 | 96.3 / 98.0 | 95.2 / 97.6 |
+| yes/no: missed abnormal films (of 2,733) | 352 | 100 / 55 | 130 / 66 |
+| yes/no: specificity (normal films answered "no") | 81.8 | 54.1 / 38.1 | 58.9 / 41.6 |
+| yes/no: uncertain-only films answered "yes" (%) | 38.2 | 69.8 / 80.0 | 62.7 / 76.9 |
+| description: abnormal films described with no abnormality (%) | 29.2 | 52.5 / 14.6 | 68.5 / 56.6 |
+| description: normal films described as clean (%) | 81.4 | 91.8 / 66.7 | 94.8 / 91.8 |
+| description: discrimination (points, clean-normal minus clean-abnormal) | 52.2 | 39.3 / 52.0 | 26.4 / 35.2 |
+| films answered "yes" yet described as clean (%) | 21.6 | 50.7 / 12.9 | 66.9 / 55.5 |
+
+*Asked directly, every fine-tuned model leans toward "abnormal".* Sensitivity rises from 87.1 to 95.2–98.0 and missed
+abnormal films fall from 352 to 55–130, but specificity falls from 81.8 to 38.1–58.9, and films with only uncertain labels
+are called abnormal 63–80 % of the time instead of 38 %. All four runs move the same way. Together with the 3B "yes" bias
+on PubMedQA (Sections 5.3–5.6) and the shift toward "no" on PathVQA (Section 5.8), this shows short-answer fine-tuning
+resetting the yes/no threshold, with a direction that depends on the domain.
+
+*Asked to describe, most fine-tuned models omit more abnormalities, and by a seed-dependent amount.* The base describes
+29.2 % of abnormal films without any abnormality; the fine-tuned runs describe 52.5 and 14.6 % (replay 0) and 68.5 and
+56.6 % (replay 300). The ability to separate normal from abnormal films in free text (52.2 points for the base) is never
+higher after fine-tuning (39.3, 52.0, 26.4, 35.2). Both replay-300 runs are worse than both replay-0 runs on these two
+measures, but the two replay-0 seeds differ by 38 points, so that ordering is suggestive only. With 2,733 abnormal films the
+seed dependence cannot be a sample-size artefact: it is a property of the fine-tuned models.
+
+*The two question formats contradict each other more.* Of the abnormal films a model calls abnormal when asked, the base
+describes 21.6 % as clean; three of the four fine-tuned runs describe 51–67 % as clean (one, 12.9 %). A model can answer
+"yes, abnormal" for 98 % of abnormal films and still write a normal-sounding description for most of them.
+
+*Specific findings are rarely named, even by the base.*
+
+| finding named in the description (%) | base | replay 0 (s42 / s43) | replay 300 (s42 / s43) |
+|---|---|---|---|
+| Pleural Effusion (1,445 films) | 33.8 | 20.5 / 28.4 | 14.5 / 26.2 |
+| Lung Opacity (1,586 films) | 70.4 | 49.5 / 84.7 | 30.4 / 46.3 |
+| Edema (900 films) | 14.1 | 12.7 / 16.1 | 3.2 / 5.3 |
+| Cardiomegaly (405 films) | 25.4 | 25.4 / 38.5 | 21.0 / 19.8 |
+| Pneumothorax (278 films) | 9.7 | 8.3 / 10.4 | 2.9 / 4.7 |
+
+Keyword matching here is lenient ("fluid" counts as an effusion) and was not hand-validated, so these rates are upper
+estimates; a pneumothorax, an emergency, is named in at most 10.4 % of descriptions (base 9.7 %). A hand reading of the 30 checked
+descriptions also found them formulaic: clean descriptions are near-identical sentences, and abnormal ones repeatedly place
+"an opacity in the lower right lung field", which suggests a default phrase rather than a reading of the film. This is a
+qualitative observation, not a measured rate.
+
+Two qualifications apply. The labels are produced by CheXbert from report text, not by radiologists reading the images,
+and the normal class is small (231 films), so specificity is the least precise number in the table. And each model was
+decoded once, greedily; the seed dependence above is between training runs, not between decodings.
+
 ---
 
 ## 6. Analysis
@@ -931,6 +993,7 @@ smallest budget over-hedges at both scales and 300 is the best-balanced point at
 - The 35B check (Section 5.7) differs from the 3B runs in three forced ways: custom training code instead of LLaMA-Factory, LoRA on attention and the shared expert only (the routed experts are packed parameters), and evaluation with thinking disabled. Run-to-run spread is larger at 35B (up to 3.7 macro-F1 between seeds); the four replay budgets (0 / 99 / 300 / 900) and the attention-only and one-epoch settings have two seeds, the other ablations one. Thinking mode was measured once, on the base model only, at a 4,096-token budget that 21 % of answers exceeded; whether thinking combines with replay is not measured. The free-text probe's medical false-normal count proved too noisy over 44 images to support any conclusion. The external test sets (Section 5.8) were run on five 35B models only (no 3B, two seeds per condition); free-text abnormality reporting on PneumoniaMNIST is judged by a keyword rule validated by hand on 50 descriptions, and remains seed-dependent even over 390 abnormal images, so a model-based judge with human review and more seeds is needed before it can rank models. PneumoniaMNIST is paediatric and 224×224.
 - Evaluation uses greedy decoding and string matching; open-ended recall rewards verbose answers. Exact match and F1 are reported alongside to bound this.
 - The vision tower is frozen throughout. Unfreezing it (or LoRA on the ViT) is a natural ablation for B2 but roughly doubles memory.
+- The missed-abnormality measure of Section 5.10 rests on automatic CheXbert labels and a keyword judge (validated by hand on 30 descriptions; the per-finding naming rates are lenient and unvalidated), has only 231 normal films, and covers five 35B models with one decoding each; the free-text rates vary strongly between training seeds.
 - Image-text CPT was tested on IU X-Ray (B2, 3.5k pairs) and CheXpert Plus (B3, 5k pairs per arm), always with a frozen vision tower and one epoch; neither helped the main task. B3 has one seed per arm, arms that share half their data, and a weak alignment scorer (1.9 % R@1), so it cannot rule out a small effect of data-quality filtering; a direct report-generation comparison of the two CPT adapters is the planned follow-up.
 - Kaggle's 30 h/week GPU quota bounds throughput at roughly three full experiments per week; the college Docker GPU server, once available, removes the 4-bit requirement (bf16, larger batch).
 
@@ -1006,6 +1069,9 @@ python scripts/score_chexpert_pairs.py --split val --retrieval           # repro
 python scripts/build_b3_pool.py verify && python scripts/build_b3_pool.py sample && python scripts/build_b3_pool.py convert
 python scripts/score_chexpert_pairs.py --pairs <pool manifest> --image-cache-root <pool JPGs> --split b3pool
 python data/convert_chexpert_b3.py && bash train/run_b3.sh              # top-5k vs random-5k CPT, SLAKE SFT, four tables
+# Missed abnormalities (Section 5.10): host serves one 35B model at a time, the container evaluates
+bash train/interns2/serve_for_container.sh base                          # host; also final / r0 / r0_s43 / s43
+python eval/eval_chexpert.py --model <served model dir> --tag interns2_base --concurrency 8   # container
 ```
 
 ---

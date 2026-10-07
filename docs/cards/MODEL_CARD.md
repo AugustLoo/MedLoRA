@@ -1,6 +1,6 @@
 # Model Card — MedLoRA adapters for Qwen2.5-VL-3B-Instruct and Intern-S2-Preview (35B)
 
-**Version** 1.5 · 2026-10-05 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.6 · 2026-10-07 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 This card covers the LoRA adapters produced in this project: the main family on Qwen2.5-VL-3B-Instruct, and a
@@ -253,6 +253,13 @@ them normal (examples include an enlarged cardiac silhouette described as "heart
 The count varies more between seeds of one condition (13 and 3 at zero replay) than between conditions, so no model
 can be said to be safer than another on this measure — but the failure itself is real and is the clinically most
 dangerous one. The 3B adapters were not given this probe.
+
+**Asked and described, the same film can get opposite answers (35B, 3,189 adult CheXpert Plus films).** Every
+fine-tuned adapter answers "abnormal" to 95–98 % of abnormal films when asked yes or no (base 87 %), at the cost of
+calling 41–62 % of normal films abnormal (base 18 %); yet three of four runs describe 53–69 % of abnormal films as
+normal in free text (base 29 %), and specific findings such as pneumothorax are named in at most 10.4 % of
+descriptions. A yes/no accuracy figure therefore says nothing about whether the model's own description of a film mentions what
+is wrong with it. Do not use these adapters to describe or report images.
 
 **Thinking mode is off for the 35B model.** It was disabled to make the answers comparable with 3B and to fit the
 short-answer budget. One held-out PubMedQA run of the *base* model with thinking on (4,096-token budget) left 21 % of

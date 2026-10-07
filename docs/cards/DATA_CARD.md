@@ -1,6 +1,6 @@
 # Data Card — MedLoRA
 
-**Version** 1.4 · 2026-10-05 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.5 · 2026-10-07 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 Every dataset used for training or evaluation in this project, how it was obtained, what was done to
@@ -325,3 +325,12 @@ random (`data/convert_chexpert_b3.py`), images downscaled to a 1,024-pixel long 
 and stay on the server, outside git. Only aggregate statistics (`results/b3_chexpert_cpt_2026-10-04.json`), evaluation
 results on the public test sets, and adapter weights leave it. Demographic columns of the source table (age, sex,
 race, insurance, …) are never read into any derived file.
+
+**Test split for missed abnormalities (Section 5.10 of the report, 2026-10-06/07).** The 3,189 films of the teammate's
+`our_split=test` are used for evaluation only, read-only and with his agreement (he keeps the split sealed for his own
+model selection; our use does not touch his models). Groups from the CheXbert labels in `pairs_with_text_labels.csv`:
+abnormal = any positive finding other than Support Devices (2,733), normal = No Finding positive and nothing else
+positive (231), uncertain-only (225). A downscaled copy of the test images (1,024-pixel long side) is kept in
+`/workspace/chunqian/data/chexpert_test_1024/` for the evaluation; images go from the container to the model served on the
+GPU host only through the machine's internal network and are not stored on the host. Per-image predictions contain
+report-derived labels and stay on the server; only aggregate rates (`results/interns2_chexpert_2026-10-07.json`) leave it.
