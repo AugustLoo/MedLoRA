@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic 6 第 4 周 · Week 4</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --paper:#F7F2E7; --paper-deep:#EFE7D3; --card:#FDFAF2;
+  --navy:#14263B; --ink-soft:#3D4E63; --taupe:#8C8577; --rule:#D8CFBA;
+  --c-base:#0E67B5; --c-a:#C25E28; --c-b1:#1F8A70; --c-b2:#B8860B; --c-c1:#8E44AD; --c-c2:#C2185B;
+  --c-red:#C0392B; --c-gold:#9A9283; --c-good:#1F8A70;
+  --font-head:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --font-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --font-num:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--navy);font-family:var(--font-body);font-size:17px;line-height:1.9;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--c-base)} a:hover{color:var(--navy)}
+.en,.num{font-family:var(--font-num);font-size:.92em}
+h1,h2,h3{font-family:var(--font-head);font-weight:700}
+h2{font-size:38px;line-height:1.35;letter-spacing:.01em;margin-bottom:18px;text-wrap:balance}
+h2::after{content:"";display:block;width:64px;height:4px;background:var(--navy);margin-top:14px}
+h3{font-size:21px;line-height:1.4}
+.kicker{font-family:var(--font-num);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--taupe);margin-bottom:14px}
+.section{padding:110px 24px}
+.section.deep{background:var(--paper-deep)}
+.prose{max-width:720px;margin:0 auto}
+.viz{max-width:1080px;margin:48px auto 0}
+.prose p{margin-bottom:1.1em;color:var(--ink-soft)}
+.prose p.lede{font-size:19px;color:var(--navy)}
+.prose strong,.step-card strong{color:var(--navy)}
+.card{background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
+.srcline{max-width:1080px;margin:18px auto 0;font-size:13px;line-height:1.7;color:var(--taupe)}
+
+/* cover */
+#cover{min-height:100vh;position:relative;overflow:hidden;background:linear-gradient(180deg,#F9F5EC 0%,var(--paper) 55%,#E9E0C9 100%);display:flex;align-items:center;justify-content:center}
+#cover .inner{max-width:920px;padding:0 24px 16vh;position:relative;z-index:3;width:100%}
+#cover h1{font-size:clamp(36px,5.8vw,70px);line-height:1.24;letter-spacing:.04em}
+#cover h1 .hi{color:var(--c-c1)} #cover h1 .hi2{color:var(--c-c2)}
+#cover .sub{margin-top:22px;font-size:18px;color:var(--ink-soft);max-width:680px}
+#cover .asof-line{margin-top:14px;font-family:var(--font-num);font-size:12.5px;color:var(--taupe);letter-spacing:.06em}
+#cover .stats{display:flex;gap:42px;margin-top:44px;flex-wrap:wrap}
+#cover .stat .v{font-family:var(--font-num);font-size:40px;font-weight:700;line-height:1.1}
+#cover .stat .v small{font-size:15px;font-weight:400;color:var(--taupe);margin-left:6px}
+#cover .stat .bar{height:5px;margin-top:8px;width:120px}
+#cover .stat .l{font-size:13px;color:var(--ink-soft);margin-top:8px;max-width:220px;line-height:1.5}
+#cover .scrollhint{position:absolute;bottom:34px;left:0;right:0;text-align:center;font-family:var(--font-num);font-size:11px;letter-spacing:.2em;color:var(--taupe);z-index:3}
+#grid{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.55}
+
+/* quote */
+.quote{max-width:760px;margin:40px auto 0;padding:26px 30px;border-left:6px solid var(--c-good);background:var(--card);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
+.quote p{font-size:18px;line-height:1.85;color:var(--navy);margin:0}
+.quote .who{font-family:var(--font-num);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin-top:14px}
+
+/* split cards */
+.split{max-width:900px;margin:44px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.split .card{padding:20px 22px}
+.split .tag{font-family:var(--font-num);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);display:inline-block;padding:2px 10px;margin-bottom:12px}
+.split .train .tag{background:var(--c-c1)} .split .test .tag{background:var(--navy)}
+.split .n{font-family:var(--font-num);font-size:30px;font-weight:700;line-height:1.1;margin-bottom:6px}
+.split p{font-size:14px;line-height:1.8;color:var(--ink-soft);margin:0}
+
+/* table */
+.tbl{overflow-x:auto;max-width:1080px;margin:36px auto 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16)}
+th,td{padding:10px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule);white-space:nowrap}
+thead th{font-family:var(--font-num);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);background:var(--paper-deep);border-bottom:2px solid var(--navy)}
+td.num,th.num{text-align:right;font-family:var(--font-num);font-variant-numeric:tabular-nums}
+td.best{font-weight:700;color:var(--c-c1)} td.best2{font-weight:700;color:var(--c-c2)}
+td.bad{color:var(--c-red);font-weight:700} td.ok{color:var(--c-good);font-weight:700}
+tbody tr:last-child td{border-bottom:0}
+tbody tr.hl{background:#F3EAF6}
+#ops td:last-child{white-space:normal;min-width:420px}
+
+/* scrolly */
+.scrolly{max-width:1160px;margin:40px auto 0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr);gap:40px;align-items:start}
+.sticky-fig{position:sticky;top:6vh;height:88vh;display:flex;align-items:center}
+.sticky-fig .card{width:100%;padding:22px 24px 18px}
+.sticky-fig .ttl{font-family:var(--font-num);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin-bottom:10px}
+.sticky-fig svg{width:100%;height:auto;display:block;overflow:visible}
+.steps{padding:10vh 0 20vh}
+.step{min-height:64vh;display:flex;align-items:center}
+.step-card{background:var(--card);border:2px solid var(--navy);box-shadow:6px 6px 0 rgba(20,38,59,.16);padding:20px 22px;opacity:.38;transition:opacity .3s,transform .3s;transform:translateX(0)}
+.step.is-active .step-card{opacity:1;transform:translateX(-6px)}
+.step-card .n{font-family:var(--font-num);font-size:11.5px;letter-spacing:.14em;color:var(--taupe);margin-bottom:8px}
+.step-card h3{font-size:20px;margin-bottom:8px}
+.step-card p{font-size:15px;line-height:1.85;color:var(--ink-soft)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--font-num);font-size:12px;color:var(--ink-soft);margin-top:10px}
+.legend span[class^="l"]::before{content:"";display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(20,38,59,.25)}
+.legend .lg::before{background:var(--c-gold)} .legend .lb::before{background:var(--c-base)} .legend .la::before{background:var(--c-a)}
+.legend .lc1::before{background:var(--c-c1)} .legend .lc2::before{background:var(--c-c2)}
+.legend .ltv::before{background:var(--c-a)} .legend .lmm::before{background:var(--c-b1)}
+
+/* tiles */
+.tiles{max-width:1080px;margin:40px auto 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.tiles .card{padding:22px 22px 18px}
+.tiles .big{font-family:var(--font-num);font-size:32px;font-weight:700;line-height:1.1}
+.tiles .big small{font-size:14px;font-weight:400;color:var(--taupe);margin-left:6px}
+.tiles h3{font-size:18px;margin:10px 0 6px}
+.tiles p{font-size:14px;line-height:1.8;color:var(--ink-soft)}
+.next{max-width:760px;margin:36px auto 0;padding:24px 28px}
+.next h3{margin-bottom:12px}
+.next ol{padding-left:22px}
+.next li{margin-bottom:10px;color:var(--ink-soft)}
+.next li strong{color:var(--navy)}
+footer{padding:40px 24px 60px;text-align:center;font-family:var(--font-num);font-size:12px;color:var(--taupe);letter-spacing:.06em}
+footer a{color:var(--ink-soft)}
+
+@media (max-width:900px){
+  .scrolly{grid-template-columns:1fr;gap:0}
+  .sticky-fig{position:sticky;top:0;height:auto;padding:12px 0;background:var(--paper);z-index:2}
+  .section.deep .sticky-fig{background:var(--paper-deep)}
+  .step{min-height:40vh}
+  .split,.tiles{grid-template-columns:1fr}
+  h2{font-size:30px}
+  .section{padding:72px 20px}
+  #cover .stats{gap:26px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.step-card{transition:none}}
+
+/* ---- 中英对照 bilingual ---- */
+.tr-h{display:block;font-family:var(--font-body);font-weight:500;font-size:.5em;letter-spacing:0;line-height:1.35;color:var(--ink-soft);margin-top:10px}
+#cover h1 .tr-h{font-size:.4em;margin-top:16px}
+.tr-h3{display:block;font-family:var(--font-body);font-weight:500;font-size:.74em;color:var(--ink-soft);margin-top:3px;line-height:1.4}
+p.tr,.prose p.tr{color:#566577;font-size:.92em;line-height:1.75;border-left:3px solid var(--rule);padding-left:12px;margin-top:-.4em}
+.prose p.lede.tr{font-size:16.5px;color:#4A5A6C}
+#cover .sub.tr{font-size:15.5px;margin-top:10px;border-left:3px solid var(--rule);padding-left:12px}
+.tr-l{display:block;color:var(--taupe);font-size:12px;margin-top:4px;line-height:1.45}
+.tr-c{display:block;font-family:var(--font-body);font-size:11.5px;font-weight:400;color:var(--taupe);letter-spacing:0;text-transform:none;white-space:normal;margin-top:1px;line-height:1.35}
+thead th .tr-c{font-size:10.5px}
+.tr-s{display:block;margin-top:4px}
+.tr-li{display:block;color:#566577;font-size:.92em;margin-top:3px}
+.quote p.tr{font-size:16px;margin-top:10px;border-left:none;padding-left:0}
+.step-card p.tr{font-size:14px;margin-top:8px}
+.tiles p.tr{font-size:13.5px;margin-top:8px}
+#done td:last-child,#abl td:last-child,#think td:first-child{white-space:normal;min-width:260px}
+#done td:last-child{min-width:440px}
+#cover .inner{padding-bottom:6vh}
+#cover .stats{margin-top:32px}
+
+/* ---- week 4 ---- */
+.legend-x{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--font-num);font-size:12px;color:var(--ink-soft);margin-top:10px}
+.legend-x i{display:inline-block;width:14px;height:12px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(20,38,59,.35)}
+#plan td:last-child,#ext td:last-child,#b3 td:last-child,#named td:first-child{white-space:normal;min-width:240px}
+#plan td:nth-child(2){white-space:normal;min-width:280px}
+#done td:last-child{min-width:440px}
+</style>
+</head>
+<body>
+
+<!-- ============================ Cover ============================ -->
+<section id="cover">
+  <svg id="grid" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs><pattern id="gp" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M56 0H0V56" fill="none" stroke="#D8CFBA" stroke-width="1"/></pattern></defs>
+    <rect width="1400" height="900" fill="url(#gp)"/>
+  </svg>
+  <div class="inner">
+    <div class="kicker">Topic 6 · Task 1.3 · 第 4 周进展汇报 · Week 4 progress report · 2026-10-07</div>
+    <h1>问它，它<span class="hi">认得出</span>；<br>让它描述，它<span class="hi2">说没事</span><span class="tr-h">Asked, it spots the abnormality; asked to describe the film, it says all is well</span></h1>
+    <p class="sub">这周按老师同意的计划做了三件事：四个外部测试集、实验 B3（CheXpert Plus 图文预训练 + 队友的对齐分数筛数据），以及在 3,189 张成人胸片上把「漏报异常」做成正式指标。最重要的发现：微调后的 35B 被直接问「有没有异常」时漏报更少，但让它自己描述同一张片子时，多数模型反而更常把有病的片子写成正常。</p>
+    <p class="sub tr">This week followed the plan the instructor approved: four external test sets, experiment B3 (image-text pre-training on CheXpert Plus, with data filtered by the teammate's alignment score), and a real missed-abnormality measure on 3,189 adult chest X-rays. The key finding: asked directly whether a film is abnormal, the fine-tuned 35B models miss fewer abnormalities, yet asked to describe the same film, most of them more often write it up as normal.</p>
+    <div class="asof-line">Intern-S2-Preview 35B · Qwen2.5-VL-3B (B3) · CheXpert Plus test 3,189 films · two seeds per fine-tuned condition · results as of 2026-10-07</div>
+    <div class="stats">
+      <div class="stat"><div class="v" style="color:var(--c-good)">2–5%<small>← 12.9%</small></div><div class="bar" style="background:var(--c-good)"></div><div class="l">直接问「有没有异常」时的漏报，四个微调模型<span class="tr-l">missed abnormal films when asked yes/no, four fine-tuned runs</span></div></div>
+      <div class="stat"><div class="v" style="color:var(--c-red)">53–69%<small>← 29%</small></div><div class="bar" style="background:var(--c-red)"></div><div class="l">让它描述时一个异常都没提的异常片，四次里有三次<span class="tr-l">abnormal films described with no abnormality, three of four runs</span></div></div>
+      <div class="stat"><div class="v" style="color:var(--c-base)">+2.8–4.8</div><div class="bar" style="background:var(--c-base)"></div><div class="l">VQA-RAD 封闭题，四次都涨：微调能迁移到别的数据集<span class="tr-l">VQA-RAD closed questions, all four runs: fine-tuning transfers</span></div></div>
+    </div>
+  </div>
+  <div class="scrollhint">SCROLL ▼</div>
+</section>
+
+<!-- ============================ 01 计划 ============================ -->
+<section class="section deep" id="plan">
+  <div class="prose">
+    <div class="kicker">01 · 计划 · The plan</div>
+    <h2>老师同意的三个方向<span class="tr-h">The three directions the instructor approved</span></h2>
+    <p class="lede">上次汇报后，老师发来 MedBench（中文医学大模型评测平台）供了解。我把它和同学给的五个数据集逐个评估，提出三个方向和三个新测试集，老师回复：「非常好，加上你新发现的三个数据集，按照你的思路继续推进。」</p>
+    <p class="lede tr">After the last meeting the instructor shared MedBench, a Chinese medical-LLM benchmark, for reference. I assessed it and the five datasets a classmate shared, proposed three directions and three new test sets, and the instructor replied: "Very good — add the three datasets you found and carry on with your plan."</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>方向<span class="tr-c">direction</span></th><th>做什么<span class="tr-c">what</span></th><th>本周<span class="tr-c">this week</span></th></tr></thead>
+      <tbody>
+        <tr><td>C · 外部测试集<span class="tr-c">C · external test sets</span></td><td>VQA-RAD、PathVQA、MedQA，加上 PneumoniaMNIST；只测不训<span class="tr-c">VQA-RAD, PathVQA, MedQA plus PneumoniaMNIST; evaluation only</span></td><td>完成，第 02、03 节<span class="tr-c">done, sections 02–03</span></td></tr>
+        <tr><td>B · 实验 B3<span class="tr-c">B · experiment B3</span></td><td>CheXpert Plus 图文预训练，用队友的对齐分数挑数据<span class="tr-c">image-text pre-training on CheXpert Plus, data chosen by the teammate's alignment score</span></td><td>完成，第 04 节<span class="tr-c">done, section 04</span></td></tr>
+        <tr><td>A · 漏报异常<span class="tr-c">A · missed abnormalities</span></td><td>队友的 CheXpert Plus 测试集，3,189 张成人胸片<span class="tr-c">the teammate's CheXpert Plus test split, 3,189 adult chest X-rays</span></td><td>完成，第 05、06 节<span class="tr-c">done, sections 05–06</span></td></tr>
+        <tr><td>MedBench</td><td>中文为主，和课题的英文短答不匹配<span class="tr-c">mostly Chinese; does not match this project's English short answers</span></td><td>只供了解<span class="tr-c">for reference only</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================ 02 外部测试 ============================ -->
+<section class="section" id="ext">
+  <div class="prose">
+    <div class="kicker">02 · 外部测试 · External tests</div>
+    <h2>换一批题：能迁移，也有副作用<span class="tr-h">New test sets: fine-tuning transfers, with side effects</span></h2>
+    <p class="lede">之前的分数都来自训练用的 SLAKE。这次在 35B 的五个模型上跑了三个英文公开测试集：基座，以及「只做微调」和「掺 300 题」各两个种子。</p>
+    <p class="lede tr">All earlier scores came from SLAKE, the training set. This week five 35B models — the base, and fine-tuning only and replay 300 with two seeds each — were run on three public English test sets.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>测试<span class="tr-c">test</span></th><th class="num">基座<span class="tr-c">base</span></th><th class="num">只做微调 s42 / s43<span class="tr-c">FT only</span></th><th class="num">掺 300 题 s42 / s43<span class="tr-c">replay 300</span></th><th>结论<span class="tr-c">verdict</span></th></tr></thead>
+      <tbody>
+        <tr><td>VQA-RAD 封闭题<span class="tr-c">VQA-RAD closed · 251</span></td><td class="num">80.5</td><td class="num ok">85.3 / 84.1</td><td class="num ok">85.3 / 83.3</td><td>四次都涨：能迁移到别的放射科数据集<span class="tr-c">up in all four runs: transfers to another radiology set</span></td></tr>
+        <tr><td>PathVQA 封闭题<span class="tr-c">PathVQA closed · 3,362</span></td><td class="num">80.1</td><td class="num bad">76.2 / 77.6</td><td class="num bad">76.8 / 77.8</td><td>四次都掉：病理图上变差<span class="tr-c">down in all four runs on pathology</span></td></tr>
+        <tr><td>PathVQA 答 yes 的比例<span class="tr-c">PathVQA predicted "yes" · gold 54.0%</span></td><td class="num">56.7%</td><td class="num">46.4 / 50.4%</td><td class="num">49.6 / 51.3%</td><td>基座略偏 yes，微调后偏 no<span class="tr-c">base leans "yes"; fine-tuned runs lean "no"</span></td></tr>
+        <tr><td>MedQA 医学知识<span class="tr-c">MedQA · 1,273</span></td><td class="num">85.0</td><td class="num bad">84.0 / 83.4</td><td class="num bad">83.6 / 83.9</td><td>四次都掉 1.0–1.6 分<span class="tr-c">down 1.0–1.6 in all four runs</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose" style="margin-top:36px">
+    <p><strong>能迁移。</strong>VQA-RAD 是另一家医院出的放射科问答，四次都涨了 2.8–4.8 分：模型不只是把 SLAKE 背熟了。</p>
+    <p class="tr"><strong>It transfers.</strong> VQA-RAD is a radiology QA set from a different source; all four runs gain 2.8–4.8 points, so the model did not just learn SLAKE by heart.</p>
+    <p><strong>换到病理图，是非倾向反过来了。</strong>3B 在 PubMedQA 上被微调推向 yes；35B 在病理切片上被推向 no。微调改的是模型回答是非题的倾向，往哪边偏取决于领域。</p>
+    <p class="tr"><strong>On pathology the yes/no lean flips.</strong> Fine-tuning pushed 3B toward "yes" on PubMedQA and pushes 35B toward "no" on pathology slides: it resets the yes/no threshold, and the direction depends on the domain.</p>
+    <p><strong>掺不掺题，在这些测试上看不出差别：</strong>两种条件之间的差距，都比同一条件两个种子之间的差距小。</p>
+    <p class="tr"><strong>Replay makes no measurable difference here:</strong> the gap between conditions is smaller than the gap between two seeds of one condition.</p>
+  </div>
+</section>
+
+<!-- ============================ 03 尺子 ============================ -->
+<section class="section deep" id="ruler">
+  <div class="prose">
+    <div class="kicker">03 · 方法 · The ruler</div>
+    <h2>读数之前，先检查尺子准不准<span class="tr-h">Check the ruler before reading it</span></h2>
+    <p class="lede">在 PneumoniaMNIST（624 张儿童胸片）上测「描述里有没有把肺炎片说成正常」时，抽查发现判断规则有漏洞：它靠找「说正常」的措辞，漏掉了 "no apparent abnormalities" 这类说法，而且每个模型漏掉的条数不同，会扭曲模型之间的比较。</p>
+    <p class="lede tr">Measuring "pneumonia films described as normal" on PneumoniaMNIST (624 paediatric films), a hand check found a hole in the judge: it looked for phrases that claim normality and missed ones like "no apparent abnormalities" — and it missed a different number for each model, which distorts comparisons.</p>
+    <p>改成反过来问：去掉「没有……」这类否定句之后，描述里还有没有报告任何异常。我人工核对了 50 条儿童片描述和 30 条成人片描述，全部判对。按旧规则得出的「微调后都更能区分肺炎片」这条结论，已经撤回。</p>
+    <p class="tr">The judge now asks the opposite question: once negated phrases are removed, does the description still report an abnormality? A hand check of 50 paediatric and 30 adult descriptions found every one judged correctly. A conclusion drawn with the old judge — that every fine-tuned model separates pneumonia from normal films better — has been withdrawn.</p>
+  </div>
+  <div class="tiles">
+    <div class="card"><div class="big" style="color:var(--c-red)">21–99</div><h3>旧规则每个模型漏判的条数<span class="tr-h3">misses of the old judge, per model</span></h3><p>624 条描述里，每个模型被漏判的条数都不一样，模型之间的比较因此失真。</p><p class="tr">Out of 624 descriptions, a different number was missed for each model, so comparisons between models were distorted.</p></div>
+    <div class="card"><div class="big" style="color:var(--c-good)">50 / 50</div><h3>新规则抽查：儿童片<span class="tr-h3">new judge, paediatric films</span></h3><p>两类判断各 25 条，跨五个模型，全部判对。</p><p class="tr">25 per verdict, across five models: all correct.</p></div>
+    <div class="card"><div class="big" style="color:var(--c-good)">30 / 30</div><h3>新规则抽查：成人片<span class="tr-h3">new judge, adult films</span></h3><p>在 CheXpert Plus 上再抽 30 条，全部判对，才用它下结论。</p><p class="tr">30 more on CheXpert Plus, all correct, before any conclusion was drawn with it.</p></div>
+  </div>
+</section>
+
+<!-- ============================ 04 B3 ============================ -->
+<section class="section" id="b3">
+  <div class="prose">
+    <div class="kicker">04 · 实验 B3 · Experiment B3</div>
+    <h2>用对齐分数挑预训练数据：这次看不出作用<span class="tr-h">Choosing pre-training data by alignment score: no measurable effect this time</span></h2>
+    <p class="lede">队友（Topic 1）的模型能给「胸片 + 报告」打对齐分。B3 比较两组图文预训练数据：分数最高的 5,000 对，和随机挑的 5,000 对，其余设置与之前的 B2 完全相同，在 3B 上做。</p>
+    <p class="lede tr">The Topic 1 teammate's model scores how well an X-ray and its report match. B3 compares two sets of image-text pre-training data — the 5,000 highest-scoring pairs and 5,000 random pairs — with everything else as in B2, on the 3B model.</p>
+    <p><strong>先保证分数可信。</strong>他的模型在自己训练过的配对上能认出 17–28%，没见过的只有 1.9%，说明它背过训练数据；所以我从 CheXpert Plus 完整版另抽了 10,000 个它没见过的病人来打分。他的模型在我们环境里复现了验证集分数，用他的方法转的图逐像素一致。</p>
+    <p class="tr"><strong>First, trustworthy scores.</strong> His model finds the right report for 17–28% of its own training pairs but 1.9% of unseen ones, so it has memorised its training data; I therefore scored 10,000 patients from the full CheXpert Plus that it had never seen. It reproduced his validation score exactly in our environment, and images converted with his code were pixel-identical to his.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>3B</th><th class="num">不做预训练<span class="tr-c">no CPT (A-server)</span></th><th class="num">随机 5,000<span class="tr-c">random 5k</span></th><th class="num">高分 5,000<span class="tr-c">top-scored 5k</span></th><th>结论<span class="tr-c">verdict</span></th></tr></thead>
+      <tbody>
+        <tr><td>SLAKE 封闭<span class="tr-c">closed</span></td><td class="num">85.3</td><td class="num">85.6</td><td class="num">85.6</td><td>只多对 1 题<span class="tr-c">one question</span></td></tr>
+        <tr><td>SLAKE 开放 EM<span class="tr-c">open exact match</span></td><td class="num">75.5</td><td class="num">75.8</td><td class="num">76.7</td><td>高分组多 0.9，小于种子差 1.4<span class="tr-c">+0.9 for top, below the 1.4 seed spread</span></td></tr>
+        <tr><td>TextVQA</td><td class="num">83.6</td><td class="num bad">82.3</td><td class="num bad">82.0</td><td>两组都掉 4–5 题<span class="tr-c">both lose 4–5 questions</span></td></tr>
+        <tr><td>MMBench</td><td class="num">87.4</td><td class="num">87.4</td><td class="num">88.0</td><td>不变<span class="tr-c">unchanged</span></td></tr>
+        <tr><td>PubMedQA macro-F1</td><td class="num">51.5</td><td class="num">52.0</td><td class="num">50.1</td><td>偏 yes 的问题没变<span class="tr-c">the "yes" bias is untouched</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose" style="margin-top:36px">
+    <p><strong>预训练本身没帮上主任务，</strong>和 B1、B2 一样：看图部分冻结、只有几千条数据，换什么数据都很难在 SFT 之后看出作用。<strong>按分数挑也看不出比随机好。</strong>这是「没测出效果」，不等于「证明没用」：两组有一半数据相同、打分模型本身弱、SLAKE 对预训练几乎没反应，而且只跑了一个种子。</p>
+    <p class="tr"><strong>Pre-training itself did not help the main task,</strong> as with B1 and B2: with a frozen vision tower and a few thousand examples, no corpus shows an effect after SFT. <strong>Choosing by score did no better than choosing at random.</strong> That is an absence of evidence, not evidence of absence: the two sets share half their data, the scorer is weak, SLAKE barely responds to pre-training, and each arm ran once.</p>
+  </div>
+</section>
+
+<!-- ============================ 05 漏报 · scrolly ============================ -->
+<section class="section deep" id="miss-sec">
+  <div class="prose">
+    <div class="kicker">05 · 漏报异常 · Missed abnormalities</div>
+    <h2>同一张片子，问和描述是两个答案<span class="tr-h">One film, two answers</span></h2>
+    <p class="lede">队友的测试集有 3,189 张成人正位胸片，每张都有从报告自动提取的 14 类病变标签：2,733 张有异常，231 张正常。每张片子问两次：「有没有异常？只答是或否」，和「描述一下这张片子」。</p>
+    <p class="lede tr">The teammate's test split has 3,189 adult frontal chest X-rays with 14 finding labels extracted automatically from the reports: 2,733 abnormal, 231 normal. Each film is asked twice: "Are there any abnormal findings? Answer yes or no", and "Describe this chest X-ray".</p>
+    <p>数据只在服务器的容器里，评测脚本也在那里运行，调用同一台机器上的 35B 服务；病人的图片和报告从没离开服务器。</p>
+    <p class="tr">The data stays in the server's container, where the evaluation runs, calling the 35B service on the same machine; no patient image or report ever left the server.</p>
+  </div>
+  <div class="scrolly" id="scrolly-miss">
+    <div class="sticky-fig"><div class="card">
+      <div class="ttl" id="miss-ttl">漏报 · missed</div>
+      <svg id="miss" viewBox="0 0 720 360" role="img" aria-label="Missed-abnormality metrics for the base and four fine-tuned 35B models"></svg>
+      <div class="legend-x" id="miss-legend"></div>
+    </div></div>
+    <div class="steps">
+      <div class="step" data-step="0"><div class="step-card"><div class="n">01 / 04</div><h3>直接问：漏报少了<span class="tr-h3">Asked directly: fewer misses</span></h3><p>2,733 张异常片里，基座答「没有异常」的有 352 张（12.9%）；四个微调模型只有 55–130 张（2–5%）。</p><p class="tr">Of 2,733 abnormal films the base answers "no abnormality" for 352 (12.9%); the four fine-tuned runs for 55–130 (2–5%).</p></div></div>
+      <div class="step" data-step="1"><div class="step-card"><div class="n">02 / 04</div><h3>代价：误报多了<span class="tr-h3">The price: more false alarms</span></h3><p>正常片被说成有异常：基座 18%，微调后 41–62%。四次方向完全一致：微调把是非倾向推向「有」，跟 3B 上偏 yes 是同一件事。</p><p class="tr">Normal films called abnormal: 18% for the base, 41–62% after fine-tuning. All four runs move the same way — the yes/no lean is pushed toward "abnormal", as with the 3B "yes" bias.</p></div></div>
+      <div class="step" data-step="2"><div class="step-card"><div class="n">03 / 04</div><h3>让它描述：多数更爱说没事<span class="tr-h3">Asked to describe: mostly "all is well"</span></h3><p>异常片的描述里一个异常都没提：基座 29%；四个微调模型里三个更差（53–69%），一个更好（15%）。2,733 张下差距依然这么大，说明这是微调后模型本身的不稳定，不是样本少。</p><p class="tr">Abnormal films described with no abnormality: 29% for the base; three of four fine-tuned runs are worse (53–69%), one better (15%). With 2,733 films the spread cannot be a small-sample effect: it is instability in the fine-tuned models themselves.</p></div></div>
+      <div class="step" data-step="3"><div class="step-card"><div class="n">04 / 04</div><h3>同一张片子，两种答案<span class="tr-h3">One film, two answers</span></h3><p>是非题已经答「有异常」的片子，描述里却说正常：基座 22%，三个微调模型 51–67%（一个 13%）。<strong>只看是非题的准确率，会把这个危险藏起来。</strong></p><p class="tr">Films the model calls abnormal when asked, yet describes as normal: 22% for the base, 51–67% for three fine-tuned runs (one, 13%). <strong>A yes/no accuracy figure hides this risk.</strong></p></div></div>
+    </div>
+  </div>
+  <div class="srcline">标签由 CheXbert 从报告文字自动提取，不是医生看片标注；正常片只有 231 张，误报率是最不精确的数字；每个模型只生成一次。<span class="tr-s">Labels come from CheXbert reading report text, not from radiologists reading films; only 231 normal films, so the false-alarm rate is the least precise number; one decoding per model.</span></div>
+</section>
+
+<!-- ============================ 06 点名 ============================ -->
+<section class="section" id="named">
+  <div class="prose">
+    <div class="kicker">06 · 具体病变 · Named findings</div>
+    <h2>具体病变很少被点名，基座也一样<span class="tr-h">Specific findings are rarely named, even by the base</span></h2>
+    <p class="lede">再细一层：标签里写着某种病变的片子，描述里有没有提到它？</p>
+    <p class="lede tr">One level deeper: when a film is labelled with a finding, does the description name it?</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>病变<span class="tr-c">finding</span></th><th class="num">基座<span class="tr-c">base</span></th><th class="num">只做微调 s42 / s43<span class="tr-c">FT only</span></th><th class="num">掺 300 题 s42 / s43<span class="tr-c">replay 300</span></th></tr></thead>
+      <tbody>
+        <tr><td>胸腔积液<span class="tr-c">Pleural Effusion · 1,445 张 films</span></td><td class="num">33.8</td><td class="num">20.5 / 28.4</td><td class="num">14.5 / 26.2</td></tr>
+        <tr><td>肺部阴影<span class="tr-c">Lung Opacity · 1,586 张 films</span></td><td class="num">70.4</td><td class="num">49.5 / 84.7</td><td class="num">30.4 / 46.3</td></tr>
+        <tr><td>肺水肿<span class="tr-c">Edema · 900 张 films</span></td><td class="num">14.1</td><td class="num">12.7 / 16.1</td><td class="num">3.2 / 5.3</td></tr>
+        <tr><td>心脏增大<span class="tr-c">Cardiomegaly · 405 张 films</span></td><td class="num">25.4</td><td class="num">25.4 / 38.5</td><td class="num">21.0 / 19.8</td></tr>
+        <tr><td>气胸<span class="tr-c">Pneumothorax · 278 张 films</span></td><td class="num">9.7</td><td class="num">8.3 / 10.4</td><td class="num">2.9 / 4.7</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose" style="margin-top:36px">
+    <p><strong>气胸是急症，提到它的描述最多也只有 10.4%（基座 9.7%）。</strong>微调后多数病变被点名的比例更低。这里的关键词判定比较宽松（比如出现 fluid 也算提到积液），所以这些比例只会偏高，是上限。</p>
+    <p class="tr"><strong>A pneumothorax is an emergency, yet at most 10.4% of descriptions name it (base 9.7%).</strong> After fine-tuning most findings are named less often. The keyword match is lenient ("fluid" counts as an effusion), so these rates are upper estimates.</p>
+    <p><strong>描述很模板化（抽查时看到的）：</strong>说正常时几乎是同一句话；说有异常时，反复写「右下肺野有一处阴影」，更像默认说法，而不是真的看了图。</p>
+    <p class="tr"><strong>The descriptions are formulaic (seen in the hand check):</strong> normal ones are near-identical sentences, and abnormal ones keep placing "an opacity in the lower right lung field" — more like a default phrase than a reading of the film.</p>
+  </div>
+</section>
+
+<!-- ============================ 07 总结 ============================ -->
+<section class="section deep" id="done">
+  <div class="prose">
+    <div class="kicker">07 · 总结 · Summary</div>
+    <h2>这周做了什么<span class="tr-h">What was done this week</span></h2>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>做了什么<span class="tr-c">work</span></th><th>结果<span class="tr-c">result</span></th></tr></thead>
+      <tbody>
+        <tr><td>① 外部测试集<span class="tr-c">external test sets</span></td><td>VQA-RAD 四次都涨（能迁移）；PathVQA 四次都掉且偏 no；MedQA 四次都掉 1.0–1.6；掺题看不出差别<span class="tr-c">VQA-RAD up in all four runs (transfer); PathVQA down and leaning "no"; MedQA down 1.0–1.6; no replay effect</span></td></tr>
+        <tr><td>② 判断规则修正<span class="tr-c">judge correction</span></td><td>抽查发现旧规则的漏洞，换成新规则后人工核对 80 条全对；一条旧结论撤回<span class="tr-c">a hand check exposed the old judge; the new one checked correct on 80 descriptions; one earlier conclusion withdrawn</span></td></tr>
+        <tr><td>③ 实验 B3<span class="tr-c">experiment B3</span></td><td>CheXpert Plus 图文预训练没帮上主任务；按对齐分数挑数据看不出比随机好<span class="tr-c">CheXpert Plus pre-training did not help the main task; choosing by alignment score did no better than random</span></td></tr>
+        <tr class="hl"><td>④ 漏报异常（3,189 张成人片）<span class="tr-c">missed abnormalities (3,189 adult films)</span></td><td>直接问时漏报更少、误报更多；让它描述时多数更常说正常；两种问法互相矛盾<span class="tr-c">asked directly: fewer misses, more false alarms; asked to describe: mostly more "normal"; the two formats contradict each other</span></td></tr>
+        <tr><td>⑤ 报告与卡片<span class="tr-c">report and cards</span></td><td>报告 v1.4 新增 5.8–5.10 三节；数据卡 1.5、模型卡 1.6；参考文献 40 条已核对<span class="tr-c">report v1.4 adds sections 5.8–5.10; data card 1.5, model card 1.6; 40 verified references</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================ 08 计划 ============================ -->
+<section class="section" id="next">
+  <div class="prose">
+    <div class="kicker">08 · 计划 · Plan</div>
+    <h2>接下来的计划<span class="tr-h">Next steps</span></h2>
+  </div>
+  <div class="card next">
+    <h3>按优先级<span class="tr-h3">In priority order</span></h3>
+    <ol>
+      <li><strong>下周 · 把「漏报」测得更准。</strong>请另一个模型逐条判断描述有没有提到标签里的病变，再人工抽查，代替现在的关键词规则。<span class="tr-li"><strong>Next week: measure missed findings more precisely.</strong> Have a second model judge each description against the labelled findings, with hand checks, instead of keywords.</span></li>
+      <li><strong>下周 · 更灵敏地重测 B3。</strong>不做 SFT，直接比较两个预训练模型给测试片写报告的质量。<span class="tr-li"><strong>Next week: a more sensitive B3 test.</strong> Compare the two pre-trained models directly on writing reports for the test films, before any SFT.</span></li>
+      <li><strong>之后 · 试一个减少「描述漏报」的办法。</strong>例如在 SFT 数据里加入一部分完整报告（长答案），看能不能让模型描述时不再一味说正常。<span class="tr-li"><strong>Then: try a fix for omissions in descriptions.</strong> For example, mix some full reports (long answers) into the SFT data and see whether descriptions stop defaulting to "normal".</span></li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  MedLoRA · <a href="https://github.com/AugustLoo/MedLoRA">github.com/AugustLoo/MedLoRA</a> · 所有数字来自仓库 · every number comes from <span class="en">results/</span> and <span class="en">outputs/eval/</span>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(t,a,x){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;return e;}
+function clear(svg){while(svg.firstChild)svg.removeChild(svg.firstChild);}
+var C={navy:"#14263B",soft:"#3D4E63",taupe:"#8C8577",rule:"#D8CFBA",card:"#FDFAF2",
+       base:"#0E67B5",r0:"#B8860B",r3:"#8E44AD"};
+var MONO="IBM Plex Mono,monospace";
+
+/* ---------- scrolly: 漏报 (颜色只分条件, 种子 43 用斜纹, 柱下直接标注) ---------- */
+var DATA={"missed": {"base": 12.9, "r0a": 3.7, "r0b": 2.0, "r3a": 4.8, "r3b": 2.4}, "falarm": {"base": 18.2, "r0a": 45.9, "r0b": 61.9, "r3a": 41.1, "r3b": 58.4}, "descmiss": {"base": 29.2, "r0a": 52.5, "r0b": 14.6, "r3a": 68.5, "r3b": 56.6}, "contra": {"base": 21.6, "r0a": 50.7, "r0b": 12.9, "r3a": 66.9, "r3b": 55.5}};
+var BARS=[{k:"base",cond:"base",seed:"",zh:"基座",en:"base"},
+          {k:"r0a",cond:"r0",seed:"s42",zh:"只做微调",en:"FT only"},
+          {k:"r0b",cond:"r0",seed:"s43",zh:"只做微调",en:"FT only"},
+          {k:"r3a",cond:"r3",seed:"s42",zh:"掺 300 题",en:"replay 300"},
+          {k:"r3b",cond:"r3",seed:"s43",zh:"掺 300 题",en:"replay 300"}];
+var STEPS=[{m:"missed",hi:20,ttl:"直接问时的漏报 %（注意：纵轴到 20） · missed when asked yes/no (axis to 20)"},
+           {m:"falarm",hi:100,ttl:"正常片被说成有异常 % · normal films called abnormal"},
+           {m:"descmiss",hi:100,ttl:"描述里一个异常都没提 % · abnormal films described as clean"},
+           {m:"contra",hi:100,ttl:"答「有」却描述为正常 % · answered yes, described as clean"}];
+var state=STEPS[0];
+function drawMiss(){
+  var svg=document.getElementById("miss"); clear(svg);
+  var W=720,H=360,L=50,R=78,T=26,B=70,pw=W-L-R,ph=H-T-B, hi=state.hi;
+  var y=function(v){return T+ph-(v/hi)*ph;};
+  var d=el("defs",{});
+  [["r0",C.r0],["r3",C.r3]].forEach(function(p){
+    var pg=el("pattern",{id:"hatch-"+p[0],width:7,height:7,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
+    pg.appendChild(el("rect",{width:7,height:7,fill:C.card})); pg.appendChild(el("rect",{width:3.2,height:7,fill:p[1]})); d.appendChild(pg);
+  });
+  svg.appendChild(d);
+  [0,.25,.5,.75,1].map(function(f){return f*hi;}).forEach(function(t){
+    svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:C.rule}));
+    svg.appendChild(el("text",{x:L-10,y:y(t)+4,"text-anchor":"end","font-family":MONO,"font-size":11,fill:C.taupe},t));
+  });
+  var vals=DATA[state.m], gap=pw/BARS.length, bw=Math.min(74,gap*0.62);
+  var baseV=vals.base;
+  svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(baseV),y2:y(baseV),stroke:C.base,"stroke-width":1.4,"stroke-dasharray":"5 4",opacity:.8}));
+  svg.appendChild(el("text",{x:W-R+8,y:y(baseV)-2,"font-size":12,"font-weight":700,fill:C.soft},"基座线"));
+  svg.appendChild(el("text",{x:W-R+8,y:y(baseV)+13,"font-family":MONO,"font-size":11,fill:C.taupe},"base "+baseV.toFixed(1)));
+  BARS.forEach(function(b,i){
+    var v=vals[b.k], cx=L+gap*i+gap/2, col=b.cond==="base"?C.base:C[b.cond];
+    var fill=b.seed==="s43"?"url(#hatch-"+b.cond+")":col;
+    var g=el("g",{});
+    var rect=el("rect",{x:cx-bw/2,y:y(v),width:bw,height:Math.max(0,y(0)-y(v)),fill:fill,stroke:col,"stroke-width":1.6,rx:4});
+    rect.appendChild(el("title",{},b.zh+" "+(b.seed||"")+" · "+b.en+" "+(b.seed||"")+": "+v.toFixed(1)+"%"));
+    g.appendChild(rect);
+    g.appendChild(el("text",{x:cx,y:y(v)-8,"text-anchor":"middle","font-family":MONO,"font-size":13,"font-weight":700,fill:C.navy},v.toFixed(1)));
+    svg.appendChild(g);
+    svg.appendChild(el("text",{x:cx,y:H-B+22,"text-anchor":"middle","font-size":13,"font-weight":700,fill:C.navy},b.zh));
+    svg.appendChild(el("text",{x:cx,y:H-B+40,"text-anchor":"middle","font-family":MONO,"font-size":11,fill:C.taupe},b.en+(b.seed?" · "+b.seed:"")));
+  });
+  svg.appendChild(el("line",{x1:L,x2:W-R,y1:y(0),y2:y(0),stroke:C.navy,"stroke-width":1.6}));
+  document.getElementById("miss-ttl").textContent=state.ttl;
+  document.getElementById("miss-legend").innerHTML=
+    '<span><i style="background:'+C.base+'"></i>基座 · base</span>'+
+    '<span><i style="background:'+C.r0+'"></i>只做微调 · FT only</span>'+
+    '<span><i style="background:'+C.r3+'"></i>掺 300 题 · replay 300</span>'+
+    '<span style="color:#8C8577">实心 = 种子 42，斜纹 = 种子 43 · solid = seed 42, hatched = seed 43</span>';
+}
+
+function scrolly(id,onStep){
+  var root=document.getElementById(id); if(!root)return;
+  var steps=Array.prototype.slice.call(root.querySelectorAll(".step"));
+  var setActive=function(i){steps.forEach(function(s,j){s.classList.toggle("is-active",j===i);});onStep(i);};
+  setActive(0);
+  if(!("IntersectionObserver" in window))return;
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting)setActive(parseInt(e.target.getAttribute("data-step"),10));});
+  },{rootMargin:"-45% 0px -45% 0px",threshold:0});
+  steps.forEach(function(s){io.observe(s);});
+}
+scrolly("scrolly-miss",function(i){state=STEPS[i]||STEPS[0];drawMiss();});
+})();
+</script>
+</body>
+</html>
