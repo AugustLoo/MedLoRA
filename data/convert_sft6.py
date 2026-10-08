@@ -7,7 +7,8 @@
 防泄漏 (自动, 统计写进 <out-dir>/sft6_stats.json):
   - 训练样本与测试部分「同图同题」(VQA) / 「同题干」(MedQA) / 「同图」(PneumoniaMNIST) 的剔除;
   - 训练部分内部完全重复的样本只留一条;
-  - 统计训练 / 测试共用的图片数 (VQA-RAD 已知有), 报告里注明。
+  - 统计训练 / 测试共用的图片数; VQA 类默认再去掉所有问「测试部分图片」的训练题
+    (VQA-RAD 203 张测试图里 202 张也在训练部分, 不去掉的话考试前就见过几乎所有考卷上的图)。
 抽样: 固定种子, 数量是参数 (以后加大改数字重跑)。只为抽中的样本存图, 文件名是图片哈希。
 
 用法 (5090 主机, s2train 环境, 走 hf-mirror; 一般由 train/interns2/run_6ds.sh data 调用):
@@ -111,8 +112,10 @@ def _save(image, image_dir: Path, key: str) -> Path:
     return path
 
 
-def build_vqa(train, test, image_dir: Path, n: int, seed: int):
-    """VQA-RAD / PathVQA: 剔除与测试「同图同题」的样本, 去重, 抽 n 条 (0 = 全部), 只为抽中的存图。"""
+def build_vqa(train, test, image_dir: Path, n: int, seed: int, exclude_test_images: bool = False):
+    """VQA-RAD / PathVQA: 剔除与测试「同图同题」的样本, 去重, 抽 n 条 (0 = 全部), 只为抽中的存图。
+    exclude_test_images: 再去掉所有问「测试部分图片」的训练题 (VQA-RAD 官方切分按问题切, 203 张测试图里 202 张
+    也在训练部分; 2026-10-08 决定 S2-6datasets 只用测试部分没有的图, 让 VQA-RAD 仍是「没见过的图」)。"""
     test_imgs, test_pairs = set(), set()
     for j in range(len(test)):
         r = test[j]
@@ -127,6 +130,11 @@ def build_vqa(train, test, image_dir: Path, n: int, seed: int):
     total = len(items)
     items, dup = dedupe(items, key=lambda t: t[1:])
     clean = [t for t in items if (t[1], t[2]) not in test_pairs]
+    n_pair_dropped = len(items) - len(clean)
+    n_img_dropped = 0
+    if exclude_test_images:
+        kept = [t for t in clean if t[1] not in test_imgs]
+        n_img_dropped, clean = len(clean) - len(kept), kept
     picked = sample(clean, n, seed)
     image_dir.mkdir(parents=True, exist_ok=True)
     rows = []
@@ -135,7 +143,8 @@ def build_vqa(train, test, image_dir: Path, n: int, seed: int):
         rows.append(vqa_row(r["question"], r["answer"], _save(r["image"], image_dir, k)))
     train_imgs = {t[1] for t in items}
     stats = {"train_total": total, "duplicates_dropped": dup,
-             "same_image_and_question_as_test_dropped": len(items) - len(clean),
+             "same_image_and_question_as_test_dropped": n_pair_dropped,
+             "rows_on_test_images_dropped": n_img_dropped,
              "used": len(rows), "used_closed": sum(is_closed(r["messages"][1]["content"]) for r in rows),
              "train_images": len(train_imgs), "test_images": len(test_imgs),
              "images_shared_with_test": len(train_imgs & test_imgs),
@@ -223,6 +232,8 @@ def main():
     ap.add_argument("--pneumonia-test-npz", default=str(REPO / "data/raw/medmnist/pneumoniamnist_224_test.npz"))
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--allow-count-mismatch", action="store_true")
+    ap.add_argument("--keep-test-image-rows", action="store_true",
+                    help="VQA 类保留问测试部分图片的训练题 (默认去掉, 见 build_vqa)")
     args = ap.parse_args()
     out, imgs = Path(args.out_dir), Path(args.image_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -235,7 +246,8 @@ def main():
             repo = {"vqarad": "flaviagiammarino/vqa-rad", "pathvqa": "flaviagiammarino/path-vqa"}[name]
             train, test = _load(repo, "data/train-*.parquet", "train"), _load(repo, "data/test-*.parquet", "test")
             _check_count(name, len(train), args.allow_count_mismatch)
-            rows, st = build_vqa(train, test, imgs / name, getattr(args, name), args.seed)
+            rows, st = build_vqa(train, test, imgs / name, getattr(args, name), args.seed,
+                                 exclude_test_images=not args.keep_test_image_rows)
         elif name == "medqa":
             repo = "GBaker/MedQA-USMLE-4-options"
             train = _load(repo, "phrases_no_exclude_train.jsonl", "train")

@@ -107,3 +107,15 @@ def test_build_pneumonia_balanced_and_no_test_images(tmp_path):
     assert st["used_pneumonia"] == 3 and st["used_normal"] == 3
     answers = sorted(r["messages"][1]["content"] for r in rows)
     assert answers == ["no", "no", "no", "yes", "yes", "yes"]
+
+
+def test_build_vqa_can_drop_rows_on_test_images(tmp_path):
+    a, b = img("red"), img("green")
+    train = [{"image": a, "question": "What color?", "answer": "red"},     # 问的是测试部分的图 → 去掉
+             {"image": b, "question": "Is it green?", "answer": "yes"}]
+    test = [{"image": a, "question": "Is it red?", "answer": "yes"}]
+    rows, st = C.build_vqa(train, test, tmp_path, n=0, seed=42, exclude_test_images=True)
+    assert st["rows_on_test_images_dropped"] == 1 and st["used"] == 1
+    assert st["used_rows_on_test_images"] == 0 and st["images_shared_with_test"] == 1
+    rows, st = C.build_vqa(train, test, tmp_path, n=0, seed=42)              # 默认不去掉
+    assert st["rows_on_test_images_dropped"] == 0 and st["used"] == 2
