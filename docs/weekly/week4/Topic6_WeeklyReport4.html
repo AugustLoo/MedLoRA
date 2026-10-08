@@ -351,7 +351,7 @@ thead th .tr-c{font-size:10.5px}
   <div class="card next">
     <h3>按优先级<span class="tr-h3">In priority order</span></h3>
     <ol>
-      <li><strong>下周 · 把「漏报」测得更准。</strong>请另一个模型逐条判断描述有没有提到标签里的病变，再人工抽查，代替现在的关键词规则。<span class="tr-li"><strong>Next week: measure missed findings more precisely.</strong> Have a second model judge each description against the labelled findings, with hand checks, instead of keywords.</span></li>
+      <li><strong>下周 · 把「描述时漏报」测得更准。</strong>现在靠关键词判断，比较粗糙，改成三层检查：① 用 <span class="en">CheXbert</span>（就是生成标准答案的同一个工具）去读模型的描述，再和标准答案逐项对比；② 在服务器上另跑一个开源大模型做第二意见，不用被测的 35B 自己改自己的卷子；③ 人工抽查一两百条。数据不能离开服务器，所以不用 ChatGPT 这类在线服务。<span class="tr-li"><strong>Next week: measure omissions in descriptions more precisely.</strong> Keywords are crude, so three checks instead: (1) run CheXbert — the same tool that produced the gold labels — on the model's descriptions and compare finding by finding; (2) an open-weights language model on the server as a second opinion, never the 35B under test; (3) a hand check of one to two hundred descriptions. The data cannot leave the server, so no online service such as ChatGPT.</span></li>
       <li><strong>下周 · 更灵敏地重测 B3。</strong>不做 SFT，直接比较两个预训练模型给测试片写报告的质量。<span class="tr-li"><strong>Next week: a more sensitive B3 test.</strong> Compare the two pre-trained models directly on writing reports for the test films, before any SFT.</span></li>
       <li><strong>之后 · 试一个减少「描述漏报」的办法。</strong>例如在 SFT 数据里加入一部分完整报告（长答案），看能不能让模型描述时不再一味说正常。<span class="tr-li"><strong>Then: try a fix for omissions in descriptions.</strong> For example, mix some full reports (long answers) into the SFT data and see whether descriptions stop defaulting to "normal".</span></li>
     </ol>
