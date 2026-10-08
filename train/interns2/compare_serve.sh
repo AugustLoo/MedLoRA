@@ -47,6 +47,20 @@ current() {  # 当前在 23334 上回答的模型 (intern-s2-base / intern-s2-me
 
 listening() { ss -ltn | grep -q ":$1 "; }
 
+gpu_busy() {  # 0-3 号卡里显存占用超过 1 GB 的, 每行一张
+    nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits -i "$GPUS" | awk -F', *' '$2 > 1000 {print "  GPU " $1 ": " $2 " MiB"}'
+}
+
+wait_released() {  # 刚停掉的模型要过一会儿才把显存放掉 (tp 4 的后台进程逐个退出), 最多等 2 分钟
+    local i
+    for i in $(seq 1 60); do
+        if [[ -z "$(gpu_busy)" ]]; then (( i > 1 )) && echo " 已释放"; return 0; fi
+        (( i == 1 )) && printf "等显存释放"
+        printf "."; sleep 2
+    done
+    echo
+}
+
 check_free() {
     if listening "$SHILONG_PORT"; then
         echo "世龙的服务还开着 (端口 $SHILONG_PORT), 本脚本不会去停它。"
@@ -54,10 +68,11 @@ check_free() {
         exit 1
     fi
     local busy
-    busy="$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits -i "$GPUS" | awk -F', *' '$2 > 1000 {print "  GPU " $1 ": " $2 " MiB"}')"
+    busy="$(gpu_busy)"
     if [[ -n "$busy" ]]; then
-        echo "0-3 号卡上还有别人的程序在占显存, 先弄清是谁的再切换:"
+        echo "0-3 号卡上的显存还被占着, 先弄清是谁的再切换 (不要直接杀进程):"
         echo "$busy"
+        echo "查看占用的进程: nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv"
         exit 1
     fi
 }
@@ -72,6 +87,7 @@ switch)
     fi
     bash "$SERVE" stop                      # 只停我们自己开的 (没开就什么也不做)
     if listening "$PORT"; then echo "端口 $PORT 被别的程序占着, 先查清楚: ss -ltnp | grep $PORT"; exit 1; fi
+    listening "$SHILONG_PORT" || wait_released
     check_free
     echo "开 $NAME (约 3-6 分钟, 期间接口连不上是正常的) ..."
     bash "$SERVE" start "$DIR"
@@ -88,6 +104,8 @@ status)
     ;;
 stop)
     bash "$SERVE" stop
+    wait_released
+    if [[ -n "$(gpu_busy)" ]]; then echo "注意: 0-3 号卡显存 2 分钟后仍未释放:"; gpu_busy; fi
     echo "已关。记得告诉世龙可以开回他的服务。"
     ;;
 *)
