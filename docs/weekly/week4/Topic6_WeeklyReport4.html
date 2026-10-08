@@ -170,7 +170,7 @@ thead th .tr-c{font-size:10.5px}
       <div class="stat"><div class="v" style="color:var(--c-base)">+2.8–4.8</div><div class="bar" style="background:var(--c-base)"></div><div class="l">VQA-RAD 封闭题，四次都涨：微调能迁移到别的数据集<span class="tr-l">VQA-RAD closed questions, all four runs: fine-tuning transfers</span></div></div>
     </div>
   </div>
-  <div class="scrollhint">SCROLL ▼</div>
+  <div class="scrollhint">点击翻页 · CLICK ▶</div>
 </section>
 
 <!-- ============================ 01 计划 ============================ -->
@@ -436,6 +436,77 @@ function scrolly(id,onStep){
   steps.forEach(function(s){io.observe(s);});
 }
 scrolly("scrolly-miss",function(i){state=STEPS[i]||STEPS[0];drawMiss();});
+})();
+</script>
+<nav id="pager" aria-label="翻页 · pages">
+  <button type="button" id="pg-prev" aria-label="上一页 · previous">◀</button>
+  <span id="pg-n">封面 · cover</span>
+  <button type="button" id="pg-next" aria-label="下一页 · next">▶</button>
+</nav>
+<style>
+#pager{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;align-items:center;gap:8px;background:rgba(253,250,242,.94);border:1.5px solid #14263B;box-shadow:4px 4px 0 rgba(20,38,59,.14);padding:5px 8px;font-family:var(--font-num);font-size:12px;color:#3D4E63;user-select:none}
+#pager button{all:unset;cursor:pointer;width:28px;height:26px;display:grid;place-items:center;color:#14263B;font-size:12px}
+#pager button:hover{background:#EFE7D3}
+#pager button:focus-visible{outline:2px solid #0E67B5}
+#pg-n{min-width:84px;text-align:center}
+@media print{#pager{display:none}}
+</style>
+<script>
+/* 翻页: 单击页面 / → / 空格 / PageDown 下一页, ← / PageUp 上一页 (翻页笔也能用)。
+   每节开头和滚动图的每一步是一个停靠点; 一节比一屏长时先整屏往下翻, 不跳过内容。 */
+(function(){
+"use strict";
+var secs=[].slice.call(document.querySelectorAll("#cover, section.section"));
+function stops(){
+  var out=[];
+  secs.forEach(function(s){
+    out.push(s.getBoundingClientRect().top+scrollY);
+    [].slice.call(s.querySelectorAll(".step")).forEach(function(st){
+      var r=st.getBoundingClientRect();out.push(r.top+scrollY+r.height/2-innerHeight/2);
+    });
+  });
+  return out.sort(function(a,b){return a-b;});
+}
+function maxY(){return document.documentElement.scrollHeight-innerHeight;}
+var target=null,t0=0;
+function base(){return (target!=null&&Date.now()-t0<900)?target:scrollY;}
+function go(y){y=Math.round(Math.max(0,Math.min(maxY(),y)));target=y;t0=Date.now();window.scrollTo({top:y,behavior:"smooth"});}
+function next(){
+  var cur=base(),s=stops(),n=null;
+  for(var k=0;k<s.length;k++)if(s[k]>cur+8){n=s[k];break;}
+  if(n==null)n=maxY();
+  if(n-cur>innerHeight*1.05)n=cur+innerHeight*0.85;
+  go(n);
+}
+function prev(){
+  var cur=base(),s=stops(),p=null;
+  for(var k=s.length-1;k>=0;k--)if(s[k]<cur-8){p=s[k];break;}
+  if(p==null)p=0;
+  if(cur-p>innerHeight*1.05)p=cur-innerHeight*0.85;
+  go(p);
+}
+document.getElementById("pg-next").addEventListener("click",next);
+document.getElementById("pg-prev").addEventListener("click",prev);
+document.addEventListener("click",function(e){
+  if(e.button!==0||e.defaultPrevented)return;
+  if(e.target.closest("a,button,input,select,textarea,#pager"))return;
+  if(String(window.getSelection()))return;
+  next();
+});
+document.addEventListener("keydown",function(e){
+  if(e.altKey||e.ctrlKey||e.metaKey)return;
+  if(e.target.closest&&e.target.closest("input,textarea,select"))return;
+  var k=e.key;
+  if(k==="ArrowRight"||k==="PageDown"||(k===" "&&!e.shiftKey)){e.preventDefault();next();}
+  else if(k==="ArrowLeft"||k==="PageUp"||(k===" "&&e.shiftKey)){e.preventDefault();prev();}
+});
+var label=document.getElementById("pg-n");
+function mark(){
+  var i=0,line=scrollY+innerHeight*0.4;
+  secs.forEach(function(s,j){if(s.getBoundingClientRect().top+scrollY<=line)i=j;});
+  label.textContent=i===0?"封面 · cover":(i<10?"0":"")+i+" / "+(secs.length-1<10?"0":"")+(secs.length-1);
+}
+addEventListener("scroll",mark,{passive:true});mark();
 })();
 </script>
 </body>
