@@ -62,7 +62,9 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8765)
+    ap.add_argument("--model-name", default=MODEL_NAME, help="/v1/models 返回的模型名 (测 compare_ask.py 时用)")
     args = ap.parse_args()
+    globals()["MODEL_NAME"] = args.model_name
     print(f"mock server on http://127.0.0.1:{args.port}/v1  (model: {MODEL_NAME})")
     ThreadingHTTPServer(("127.0.0.1", args.port), Handler).serve_forever()
 
