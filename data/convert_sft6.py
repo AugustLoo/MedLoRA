@@ -102,3 +102,159 @@ def dedupe(items, key):
             seen.add(k)
             kept.append(it)
     return kept, len(items) - len(kept)
+
+
+def _save(image, image_dir: Path, key: str) -> Path:
+    path = image_dir / f"{key}.png"
+    if not path.is_file():
+        image.convert("RGB").save(path)
+    return path
+
+
+def build_vqa(train, test, image_dir: Path, n: int, seed: int):
+    """VQA-RAD / PathVQA: 剔除与测试「同图同题」的样本, 去重, 抽 n 条 (0 = 全部), 只为抽中的存图。"""
+    test_imgs, test_pairs = set(), set()
+    for j in range(len(test)):
+        r = test[j]
+        k = image_key(r["image"])
+        test_imgs.add(k)
+        test_pairs.add((k, norm_q(r["question"])))
+    items = []
+    for i in range(len(train)):
+        r = train[i]
+        k = image_key(r["image"])
+        items.append((i, k, norm_q(r["question"]), M.normalize(r["answer"])))
+    total = len(items)
+    items, dup = dedupe(items, key=lambda t: t[1:])
+    clean = [t for t in items if (t[1], t[2]) not in test_pairs]
+    picked = sample(clean, n, seed)
+    image_dir.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for i, k, _, _ in picked:
+        r = train[i]
+        rows.append(vqa_row(r["question"], r["answer"], _save(r["image"], image_dir, k)))
+    train_imgs = {t[1] for t in items}
+    stats = {"train_total": total, "duplicates_dropped": dup,
+             "same_image_and_question_as_test_dropped": len(items) - len(clean),
+             "used": len(rows), "used_closed": sum(is_closed(r["messages"][1]["content"]) for r in rows),
+             "train_images": len(train_imgs), "test_images": len(test_imgs),
+             "images_shared_with_test": len(train_imgs & test_imgs),
+             "used_rows_on_test_images": sum(t[1] in test_imgs for t in picked)}
+    return rows, stats
+
+
+def build_medqa(train, test, n: int, seed: int):
+    test_q = {norm_q(test[j]["question"]) for j in range(len(test))}
+    items = [(i, norm_q(train[i]["question"])) for i in range(len(train))]
+    total = len(items)
+    items, dup = dedupe(items, key=lambda t: t[1])
+    clean = [t for t in items if t[1] not in test_q]
+    picked = sample(clean, n, seed)
+    rows = [medqa_row(train[i]["question"], train[i]["options"], train[i]["answer_idx"]) for i, _ in picked]
+    stats = {"train_total": total, "duplicates_dropped": dup,
+             "same_question_as_test_dropped": len(items) - len(clean), "used": len(rows)}
+    return rows, stats
+
+
+def build_pneumonia(train, test_images, image_dir: Path, n: int, seed: int, label_col: str = "label"):
+    """肺炎 / 正常各抽 n // 2 张 (不够就全用, 不重复抽), 剔除与测试同图的。"""
+    test_keys = {image_key(im) for im in test_images}
+    items = [(i, image_key(train[i]["image"]), as_int(train[i][label_col])) for i in range(len(train))]
+    total = len(items)
+    items, dup = dedupe(items, key=lambda t: t[1])
+    clean = [t for t in items if t[1] not in test_keys]
+    by_label = defaultdict(list)
+    for t in clean:
+        by_label[t[2]].append(t)
+    picked = []
+    for lab in (1, 0):
+        picked += sample(by_label[lab], n // 2 if n > 0 else 0, seed + lab)
+    random.Random(seed).shuffle(picked)
+    image_dir.mkdir(parents=True, exist_ok=True)
+    rows = [pneumonia_row(lab, _save(train[i]["image"], image_dir, k)) for i, k, lab in picked]
+    stats = {"train_total": total, "train_pneumonia": sum(t[2] == 1 for t in items),
+             "train_normal": sum(t[2] == 0 for t in items), "duplicates_dropped": dup,
+             "same_image_as_test_dropped": len(items) - len(clean), "used": len(rows),
+             "used_pneumonia": sum(t[2] == 1 for t in picked), "used_normal": sum(t[2] == 0 for t in picked)}
+    return rows, stats
+
+
+# ---------------------------------------------------------------- 下载与写文件 (只在主机上跑)
+def _load(repo, files, split):
+    from datasets import load_dataset
+    # 只下需要的分片; 仓库说明里登记的其他切分不在 → 关掉切分校验 (与 eval_medvqa.py 相同)
+    return load_dataset(repo, data_files={split: files}, split=split, verification_mode="no_checks")
+
+
+def _check_count(name, n, allow):
+    if n != EXPECTED_TRAIN[name]:
+        msg = f"{name} 训练部分 {n} 条, 公开说明是 {EXPECTED_TRAIN[name]} 条"
+        if not allow:
+            sys.exit(msg + "。先核对再继续 (确认无误可加 --allow-count-mismatch)。")
+        print("注意: " + msg)
+
+
+def _pneumonia_train(allow):
+    from datasets import load_dataset
+    ds = load_dataset("danjacobellis/pneumoniamnist_224", split="train")
+    feats = ds.features
+    img_col = next((c for c, f in feats.items() if type(f).__name__ == "Image"), None)
+    lab_col = next((c for c in ("label", "labels") if c in feats), None)
+    if img_col is None or lab_col is None:
+        sys.exit(f"PneumoniaMNIST 镜像的列认不出: {feats}")
+    names = getattr(feats[lab_col], "names", None)
+    if names and "pneu" not in str(names[1]).lower():
+        sys.exit(f"标签 1 不是肺炎: {names}")
+    if img_col != "image":
+        ds = ds.rename_column(img_col, "image")
+    _check_count("pneumonia", len(ds), allow)
+    return ds, lab_col
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--out-dir", required=True)
+    ap.add_argument("--image-dir", required=True)
+    ap.add_argument("--only", nargs="*", choices=sorted(EXPECTED_TRAIN), default=sorted(EXPECTED_TRAIN))
+    ap.add_argument("--vqarad", type=int, default=0, help="0 = 全部")
+    ap.add_argument("--pathvqa", type=int, default=5000)
+    ap.add_argument("--medqa", type=int, default=3000)
+    ap.add_argument("--pneumonia", type=int, default=2000, help="肺炎 / 正常各一半")
+    ap.add_argument("--pneumonia-test-npz", default=str(REPO / "data/raw/medmnist/pneumoniamnist_224_test.npz"))
+    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--allow-count-mismatch", action="store_true")
+    args = ap.parse_args()
+    out, imgs = Path(args.out_dir), Path(args.image_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    stats_path = out / "sft6_stats.json"
+    all_stats = json.loads(stats_path.read_text(encoding="utf-8")) if stats_path.is_file() else {}
+
+    for name in args.only:
+        print(f"==== {name}", flush=True)
+        if name in ("vqarad", "pathvqa"):
+            repo = {"vqarad": "flaviagiammarino/vqa-rad", "pathvqa": "flaviagiammarino/path-vqa"}[name]
+            train, test = _load(repo, "data/train-*.parquet", "train"), _load(repo, "data/test-*.parquet", "test")
+            _check_count(name, len(train), args.allow_count_mismatch)
+            rows, st = build_vqa(train, test, imgs / name, getattr(args, name), args.seed)
+        elif name == "medqa":
+            repo = "GBaker/MedQA-USMLE-4-options"
+            train = _load(repo, "phrases_no_exclude_train.jsonl", "train")
+            test = _load(repo, "phrases_no_exclude_test.jsonl", "test")
+            _check_count(name, len(train), args.allow_count_mismatch)
+            rows, st = build_medqa(train, test, args.medqa, args.seed)
+        else:
+            import numpy as np
+            from PIL import Image
+            train, lab_col = _pneumonia_train(args.allow_count_mismatch)
+            test_images = [Image.fromarray(a) for a in np.load(args.pneumonia_test_npz)["test_images"]]
+            rows, st = build_pneumonia(train, test_images, imgs / name, args.pneumonia, args.seed, lab_col)
+        st["seed"] = args.seed
+        fn = out / f"{name}_sft_train.json"
+        fn.write_text(json.dumps(rows, ensure_ascii=False, indent=1), encoding="utf-8")
+        all_stats[name] = st
+        stats_path.write_text(json.dumps(all_stats, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"{fn}: {len(rows)} 条 | {json.dumps(st, ensure_ascii=False)}", flush=True)
+
+
+if __name__ == "__main__":
+    main()
