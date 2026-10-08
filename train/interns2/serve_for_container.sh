@@ -22,7 +22,8 @@ case "${1:-}" in
   r0)    TAG=interns2_mix_0;   DIR=$ROOT/merged/interns2_mix_0; TMP=$DIR ;;
   r0_s43) TAG=interns2_abl_r0_s43; DIR=$ROOT/merged/$TAG; TMP=$DIR ;;
   s43)   TAG=interns2_abl_s43;  DIR=$ROOT/merged/$TAG; TMP=$DIR ;;
-  *) echo "用法: $0 base | final | r0 | r0_s43 | s43"; exit 1 ;;
+  six)   TAG=interns2_6ds;      DIR=$ROOT/merged/interns2_6ds ;;   # S2-6datasets, 合并模型保留, 不删
+  *) echo "用法: $0 base | final | r0 | r0_s43 | s43 | six"; exit 1 ;;
 esac
 cleanup() { bash "$REPO/train/interns2/serve.sh" stop >/dev/null 2>&1 || true; [[ -n $TMP ]] && rm -rf "$TMP"; }
 trap cleanup EXIT

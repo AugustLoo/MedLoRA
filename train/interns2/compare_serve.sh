@@ -5,6 +5,7 @@
 # 用法 (ubuntu 主机):
 #   bash train/interns2/compare_serve.sh switch base     # 原版 Intern-S2-Preview          → 显示为 intern-s2-base
 #   bash train/interns2/compare_serve.sh switch final    # 训练版 (交给世龙部署的那个)     → 显示为 intern-s2-medlora
+#   bash train/interns2/compare_serve.sh switch six      # S2-6datasets (训练并合并之后)   → 显示为 intern-s2-6ds
 #   bash train/interns2/compare_serve.sh status          # 现在开的是哪个
 #   bash train/interns2/compare_serve.sh stop            # 用完关掉 (之后记得告诉世龙可以开回他的服务)
 #
@@ -24,6 +25,7 @@ model_dir() {
     case "$1" in
         base)  echo "$MODELS/Intern-S2-Preview" ;;
         final) echo "$MODELS/Intern-S2-Preview-MedLoRA" ;;
+        six)   echo "/home/ubuntu/chunqian/merged/interns2_6ds" ;;   # S2-6datasets (run_6ds.sh merge 之后才有)
         *) return 1 ;;
     esac
 }
@@ -31,6 +33,7 @@ model_name() {
     case "$1" in
         base)  echo intern-s2-base ;;
         final) echo intern-s2-medlora ;;
+        six)   echo intern-s2-6ds ;;
     esac
 }
 
@@ -41,6 +44,7 @@ current() {  # 当前在 23334 上回答的模型 (intern-s2-base / intern-s2-me
         "") ;;
         */Intern-S2-Preview) echo intern-s2-base ;;
         */Intern-S2-Preview-MedLoRA) echo intern-s2-medlora ;;
+        */interns2_6ds) echo intern-s2-6ds ;;
         *) echo "$id" ;;
     esac
 }
@@ -80,8 +84,9 @@ check_free() {
 case "${1:-}" in
 switch)
     WHICH="${2:-}"
-    DIR="$(model_dir "$WHICH")" || { echo "用法: $0 switch base | final"; exit 1; }
+    DIR="$(model_dir "$WHICH")" || { echo "用法: $0 switch base | final | six"; exit 1; }
     NAME="$(model_name "$WHICH")"
+    [[ -f "$DIR/config.json" ]] || { echo "找不到模型 $DIR (S2-6datasets 要先 bash train/interns2/run_6ds.sh merge)"; exit 1; }
     if [[ "$(current)" == "$NAME" ]]; then
         echo "现在开的已经是 $NAME, 不用切换。地址 $URL"; exit 0
     fi
@@ -109,5 +114,5 @@ stop)
     echo "已关。记得告诉世龙可以开回他的服务。"
     ;;
 *)
-    echo "用法: $0 switch base | switch final | status | stop"; exit 1 ;;
+    echo "用法: $0 switch base | switch final | switch six | status | stop"; exit 1 ;;
 esac

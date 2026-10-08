@@ -25,7 +25,8 @@ TAGS = [("基座", "baseline"), ("基座(服务器)", "baseline_server"),
         ("35B 消融 ep1", "interns2_abl_ep1"), ("35B 消融 attn", "interns2_abl_attn"), ("35B 消融 r8", "interns2_abl_r8"), ("35B 消融 r32", "interns2_abl_r32"), ("35B 消融 lr5e-5", "interns2_abl_lr5e-5"), ("35B 消融 lr2e-4", "interns2_abl_lr2e-4"),
         ("35B 回放300 s43", "interns2_abl_s43"), ("35B 只挂注意力 s43", "interns2_abl_attn_s43"), ("35B 只练1轮 s43", "interns2_abl_ep1_s43"), ("35B 回放0 s43", "interns2_abl_r0_s43"),
         ("35B 回放99", "interns2_abl_r100"), ("35B 回放900", "interns2_abl_r900"), ("35B 回放900 s43", "interns2_abl_r900_s43"), ("35B 回放99 s43", "interns2_abl_r100_s43"),
-        ("B3 CheXpert CPT 高分", "b3_top"), ("B3 CheXpert CPT 随机", "b3_rand")]
+        ("B3 CheXpert CPT 高分", "b3_top"), ("B3 CheXpert CPT 随机", "b3_rand"),
+        ("35B 六数据集", "interns2_6ds")]
 
 
 def macro_f1(pairs):

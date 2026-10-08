@@ -48,7 +48,7 @@ export MEDVLM_API_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}'
 cleanup() { bash "$REPO/train/interns2/serve.sh" stop >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 
-[[ $# -gt 0 ]] || { echo "用法: $0 prefetch | base final r0 r0_s43 s43"; exit 1; }
+[[ $# -gt 0 ]] || { echo "用法: $0 prefetch | base final r0 r0_s43 s43 six"; exit 1; }
 [[ -f data/raw/medmnist/pneumoniamnist_224_test.npz ]] || { echo "缺 data/raw/medmnist/pneumoniamnist_224_test.npz, 先从本机上传"; exit 1; }
 for NAME in "$@"; do
   TMP_MERGED=""
@@ -58,7 +58,8 @@ for NAME in "$@"; do
     r0)    TAG=interns2_mix_0;   DIR=$ROOT/merged/interns2_mix_0; TMP_MERGED=$DIR ;;
     r0_s43) TAG=interns2_abl_r0_s43; DIR=$ROOT/merged/$TAG; TMP_MERGED=$DIR ;;
     s43)   TAG=interns2_abl_s43;  DIR=$ROOT/merged/$TAG; TMP_MERGED=$DIR ;;
-    *) echo "未知模型 $NAME (可选 base / final / r0 / r0_s43 / s43)"; exit 1 ;;
+    six)   TAG=interns2_6ds;      DIR=$ROOT/merged/interns2_6ds ;;   # S2-6datasets, 合并模型保留 (run_6ds.sh merge)
+    *) echo "未知模型 $NAME (可选 base / final / r0 / r0_s43 / s43 / six)"; exit 1 ;;
   esac
   if [[ -f outputs/eval/vqarad_$TAG.json && -f outputs/eval/pathvqa_$TAG.json && -f outputs/eval/medqa_$TAG.json && -f outputs/eval/pneumonia_$TAG.json ]]; then
     log "$NAME ($TAG): 四个测试都已有结果, 跳过"; continue

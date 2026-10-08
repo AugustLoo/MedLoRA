@@ -29,7 +29,8 @@ NO_THINK = {"chat_template_kwargs": {"enable_thinking": False}}
 MAX_PIXELS = 512 * 28 * 28  # 与评测时的远程客户端相同
 NAMES = ("intern-s2-base", "intern-s2-medlora")
 # 服务按评测时的参数启动, /v1/models 返回的是模型目录路径; 按目录名换成好认的名字
-DIR_NAMES = {"Intern-S2-Preview": "intern-s2-base", "Intern-S2-Preview-MedLoRA": "intern-s2-medlora"}
+DIR_NAMES = {"Intern-S2-Preview": "intern-s2-base", "Intern-S2-Preview-MedLoRA": "intern-s2-medlora",
+             "interns2_6ds": "intern-s2-6ds"}
 
 
 def friendly(served_id: str) -> str:
