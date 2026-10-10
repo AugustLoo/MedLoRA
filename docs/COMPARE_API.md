@@ -46,7 +46,7 @@
 | 服务器目录（只读） | `/home/ubuntu/chunqian/merged/interns2_6ds` |
 | 训练数据 | 上面两份，再加四个数据集的**训练部分**：VQA-RAD 734、PathVQA 5,000、MedQA 3,000、PneumoniaMNIST 2,000，合计 15,953 条 |
 | 训练方法 | 和训练版完全一样，只换了数据 |
-| 已知表现 | SLAKE、PubMedQA、TextVQA、MMBench 四项和训练版基本一样（差别在一两道题以内）；VQA-RAD 等四项的结果待补 |
+| 已知表现 | SLAKE、PubMedQA、TextVQA、MMBench 四项和训练版基本一样；病理图题（PathVQA）92.7（训练版 76.8）、医师考试题 85.3、儿童胸片判断肺炎 95.4 且描述时很少再把肺炎说成正常（漏报 20.8%，训练版 77.7%）。这四项它练过同类题（但没练过测试题）。成人胸片的描述还没测 |
 
 切换：`bash train/interns2/compare_serve.sh switch six`。上面「训练版」指的仍是交给世龙的那个（S2-2datasets）。
 

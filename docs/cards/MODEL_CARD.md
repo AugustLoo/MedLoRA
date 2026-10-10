@@ -168,8 +168,12 @@ both are shown (seed 42 / seed 43). PubMedQA on the held-out half.
 
 The six-dataset model matches replay 300 on all four tables: every difference is smaller than the gap between the two
 replay-300 seeds, so adding 10,734 examples from four other medical sources neither helps nor hurts the main task,
-retention or calibration (single seed). Its effect on VQA-RAD, PathVQA, MedQA and PneumoniaMNIST — in-domain for this
-model — is measured separately (`results/README.md`).
+retention or calibration (single seed). On VQA-RAD, PathVQA, MedQA and PneumoniaMNIST — in-domain for this model, with
+no test item and no VQA-RAD test image trained on — it gains where the base was weak: PathVQA closed 92.65 (base 80.13,
+replay 300 76.83) without the "no" lean, MedQA back to 85.31, PneumoniaMNIST yes/no 95.35 with 4 of 390 pneumonia films
+missed (base 76), and — although no description was trained — pneumonia films described without a lung abnormality fall
+from 67-78 % to 20.8 %. VQA-RAD (83.27) does not move beyond seed spread. Whether the description gain carries over to
+adult chest X-rays (CheXpert Plus) has not been measured yet (`results/README.md`).
 
 **Reading the table.** Fine-tuning lifts SLAKE by about 10 closed and 20 open points, 8-11 points above the
 fine-tuned 3B model. The base is as reluctant to answer "maybe" as the 3B base (7 of 55), but short-answer SFT does not
