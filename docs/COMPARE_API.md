@@ -3,7 +3,7 @@
 给在服务器上做对比界面（UI）的同学。两个模型通过同一个地址提供服务，**一次只开一个**：先开原版问一遍，切换到训练版，再问同样的问题，最后把两边答案放在一起比。
 
 - 负责人：Chunqian（Topic 6 / Task 1.3）
-- 更新：2026-10-08
+- 更新：2026-10-10（加了第三个模型 S2-6datasets，见第一节末尾）
 
 ---
 
@@ -37,6 +37,18 @@
 - **耗时**：4 张 RTX 5090，978 步，1 小时 58 分。
 - **交付**：训练好的补丁合并进原模型，成为一个完整模型（世龙的推理环境加载不了单独的补丁）。
 - 训练代码：`train/interns2/train_lora.py`；合并代码：`train/interns2/merge_lora.py`。
+
+### 第三个模型：S2-6datasets（2026-10-10 起可用）
+
+| | S2-6datasets |
+|---|---|
+| 简称 | `intern-s2-6ds` |
+| 服务器目录（只读） | `/home/ubuntu/chunqian/merged/interns2_6ds` |
+| 训练数据 | 上面两份，再加四个数据集的**训练部分**：VQA-RAD 734、PathVQA 5,000、MedQA 3,000、PneumoniaMNIST 2,000，合计 15,953 条 |
+| 训练方法 | 和训练版完全一样，只换了数据 |
+| 已知表现 | SLAKE、PubMedQA、TextVQA、MMBench 四项和训练版基本一样（差别在一两道题以内）；VQA-RAD 等四项的结果待补 |
+
+切换：`bash train/interns2/compare_serve.sh switch six`。上面「训练版」指的仍是交给世龙的那个（S2-2datasets）。
 
 ---
 
@@ -91,6 +103,7 @@ python scripts/compare_ask.py batch questions.jsonl
 # 3. 切到训练版，用同一个问题文件再跑一遍
 bash train/interns2/compare_serve.sh switch final
 python scripts/compare_ask.py batch questions.jsonl
+#    （想再比 S2-6datasets：switch six，再 batch 一遍；merge 时把三个答案文件都列出来）
 
 # 4. 合并两边答案（按题目对齐）
 python scripts/compare_ask.py merge
@@ -123,7 +136,7 @@ UI 也可以不经过上面的小工具，直接调接口。接口是 **OpenAI �
 |---|---|
 | 地址（在主机上） | `http://127.0.0.1:23334/v1` |
 | 地址（在 user0 等容器里） | `http://172.17.0.1:23334/v1` |
-| 查当前是哪个模型 | `GET /v1/models`，返回的 `data[0].id` 是**模型目录路径**：结尾是 `Intern-S2-Preview` 就是原版，结尾是 `Intern-S2-Preview-MedLoRA` 就是训练版 |
+| 查当前是哪个模型 | `GET /v1/models`，返回的 `data[0].id` 是**模型目录路径**：结尾是 `Intern-S2-Preview` 就是原版，结尾是 `Intern-S2-Preview-MedLoRA` 就是训练版，结尾是 `interns2_6ds` 就是 S2-6datasets |
 | 提问 | `POST /v1/chat/completions` |
 | 鉴权 | 不需要 |
 

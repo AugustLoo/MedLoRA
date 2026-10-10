@@ -1,6 +1,6 @@
 # Model Card — MedLoRA adapters for Qwen2.5-VL-3B-Instruct and Intern-S2-Preview (35B)
 
-**Version** 1.6 · 2026-10-07 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.7 · 2026-10-10 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 This card covers the LoRA adapters produced in this project: the main family on Qwen2.5-VL-3B-Instruct, and a
@@ -83,6 +83,12 @@ the training seed together, as for the 3B replications.
 | `interns2_abl_ep1`, `…_ep1_s43` | 300 | 1 epoch instead of 3 | 42, 43 | training length |
 | `interns2_abl_r8`, `…_r32` | 300 | rank 8 / 32 | 42 | capacity |
 | `interns2_abl_lr5e-5`, `…_lr2e-4` | 300 | learning rate halved / doubled | 42 | step size |
+| `interns2_6ds` (**S2-6datasets**, 2026-10-09) | 300 | training data only: SLAKE + PubMedQA replay 300 + the train splits of VQA-RAD (734), PathVQA (5,000), MedQA (3,000), PneumoniaMNIST (2,000) — 15,953 examples, 2,991 steps, 5 h 40 min | 42 | does broader medical SFT data help or hurt (instructor's request) |
+
+`interns2_6ds` keeps every training setting of `interns2_mix_300` and changes only the data; how the four new sources
+were built, de-duplicated and kept apart from their test splits is in `DATA_CARD.md` §4e. It is merged into a full model
+and kept on the host at `/home/ubuntu/chunqian/merged/interns2_6ds` so the comparison service can serve it
+(`train/interns2/compare_serve.sh switch six`). A second seed has not been run.
 
 ### Hyper-parameters
 
@@ -158,6 +164,12 @@ both are shown (seed 42 / seed 43). PubMedQA on the held-out half.
 | 1 epoch | 93.03 / 93.03 | 82.79 / 84.34 | 87.44 / 87.67 | 94.20 / 94.20 | 64.14 / 62.32 | 22 / 10 | 9 / 16 · 13 / 19 |
 | rank 8 · rank 32 | 93.27 · 93.27 | 86.98 · 86.51 | 87.44 · 87.11 | 94.20 · 94.00 | 66.28 · 66.31 | 23 · 24 | 15 / 15 · 17 / 12 |
 | lr 5e-5 · lr 2e-4 | 92.55 · 95.19 | 85.89 · 86.20 | 86.67 · 86.11 | 94.40 · 94.20 | 64.56 · 66.28 | 21 · 22 | 13 / 18 · 14 / 12 |
+| six datasets (`interns2_6ds`) | 94.71 | 86.20 | 87.22 | 93.40 | 66.59 | 23 | 13 / 15 |
+
+The six-dataset model matches replay 300 on all four tables: every difference is smaller than the gap between the two
+replay-300 seeds, so adding 10,734 examples from four other medical sources neither helps nor hurts the main task,
+retention or calibration (single seed). Its effect on VQA-RAD, PathVQA, MedQA and PneumoniaMNIST — in-domain for this
+model — is measured separately (`results/README.md`).
 
 **Reading the table.** Fine-tuning lifts SLAKE by about 10 closed and 20 open points, 8-11 points above the
 fine-tuned 3B model. The base is as reluctant to answer "maybe" as the 3B base (7 of 55), but short-answer SFT does not

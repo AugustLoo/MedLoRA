@@ -198,3 +198,23 @@ bash train/interns2/external.sh prefetch            # 走镜像下数据, 不占
 # 与同学约好时间, 停他的服务后在 tmux 里:
 bash train/interns2/external.sh base final r0        # 进度: tail -5 /home/ubuntu/chunqian/logs/external.log
 ```
+
+## S2-6datasets: 六个数据集的训练部分 (2026-10-08 至 10-10)
+
+老师要求新训一个用六个数据集训练的模型, 保留 S2-2datasets (`interns2_mix_300`)。数据由 `data/convert_sft6.py` 生成
+(只用训练部分, 自动剔除与测试部分重叠的样本, VQA-RAD 去掉问测试图的题; 数据卡 §4e), 训练设置与 `interns2_mix_300` 相同。
+全部步骤一个脚本, 分阶段跑 (主机, tmux 里), 做完的会跳过:
+
+```bash
+bash train/interns2/run_6ds.sh data       # 下四个数据集的训练部分并转换 (不占卡)
+bash train/interns2/run_6ds.sh smoke      # 3 步冒烟 (要 0-3 号卡)
+bash train/interns2/run_6ds.sh train      # 2,991 步, 实测 5 h 40 min
+bash train/interns2/run_6ds.sh merge      # 合并到 /home/ubuntu/chunqian/merged/interns2_6ds (73.2 GB, 保留)
+bash train/interns2/run_6ds.sh eval       # 四张表, 约 16 分钟
+bash train/interns2/run_6ds.sh external   # VQA-RAD / PathVQA / MedQA / PneumoniaMNIST
+bash train/interns2/serve_for_container.sh six   # CheXpert 漏报 (容器里评测)
+```
+
+经验: 从别的脚本或非交互 shell 里调用时没有 conda 函数, 2026-10-10 夜里外部四项因此退出码 127; 五个主机脚本已改成找不到
+conda 时退回 `/home/ubuntu/miniconda3` (31dfce7)。在 tmux 里用 `bash -ic` 启动也能加载 conda。合并后的模型可在对比服务里用:
+`bash train/interns2/compare_serve.sh switch six`。

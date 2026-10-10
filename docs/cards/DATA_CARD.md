@@ -1,6 +1,6 @@
 # Data Card — MedLoRA
 
-**Version** 1.5 · 2026-10-07 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.6 · 2026-10-10 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 Every dataset used for training or evaluation in this project, how it was obtained, what was done to
@@ -19,10 +19,10 @@ it, and the rules that govern it. Each row of the pipeline is reproducible from 
 | MMBench (en, dev) | **general-ability retention probe** (multiple-choice) | fixed 500-question sample | see dataset card |
 | COCO Caption 2017 (val) | **free-text probe** (35B models) | fixed 300-image sample | CC BY 4.0 annotations |
 | SLAKE test images | **free-text medical probe** (35B models) | all 96 test images | CC BY 4.0 |
-| VQA-RAD (test) | **external medical VQA test** (added 2026-09-30) | 451 questions | CC0 1.0 |
-| PathVQA (test) | **external pathology VQA test** (added 2026-09-30) | 6,719 questions | MIT |
-| MedQA-USMLE, 4 options (test) | **external medical-knowledge test** (added 2026-09-30) | 1,273 questions | CC BY 4.0 |
-| PneumoniaMNIST 224 (test) | **missed-abnormality probe** (added 2026-09-30) | 624 images (390 pneumonia / 234 normal) | CC BY 4.0 |
+| VQA-RAD (test; train split §4e) | **external medical VQA test** (added 2026-09-30); train split for `interns2_6ds` | 451 test questions; 734 train | CC0 1.0 |
+| PathVQA (test; train split §4e) | **external pathology VQA test** (added 2026-09-30); train split for `interns2_6ds` | 6,719 test questions; 5,000 train | MIT |
+| MedQA-USMLE, 4 options (test; train split §4e) | **external medical-knowledge test** (added 2026-09-30); train split for `interns2_6ds` | 1,273 test questions; 3,000 train | CC BY 4.0 |
+| PneumoniaMNIST 224 (test; train split §4e) | **missed-abnormality probe** (added 2026-09-30); train split for `interns2_6ds` | 624 test images (390 pneumonia / 234 normal); 2,000 train | CC BY 4.0 |
 | IU X-Ray (OpenI, Kaggle mirror) | image-text CPT prototype | ≈3,483 frontal image-report pairs | public |
 | CheXpert Plus | image-text CPT (B3) | 10,000-study pool, 5,000 per arm | registered; college server only |
 
@@ -30,7 +30,9 @@ it, and the rules that govern it. Each row of the pipeline is reproducible from 
 
 1. **SLAKE test and the PubMedQA held-out half are never trained on.** The PubMedQA split is a
    committed file with a regeneration guard; the SLAKE test split is the dataset's own. The four external
-   test sets added on 2026-09-30 (Section 4d) are evaluation-only as well; only their test shards are downloaded.
+   test sets added on 2026-09-30 (Section 4d) are evaluation-only as well. Their train splits are used only by
+   `interns2_6ds` (Section 4e), after removing every training item that repeats a test item and, for VQA-RAD,
+   every training question on a test-split image.
 2. **Controlled-access data and patient-level derived files never enter git or a public Kaggle
    dataset.** This governs MIMIC-CXR and CheXpert Plus. Only aggregate metrics leave the machine.
 
@@ -226,6 +228,40 @@ models) found all 50 judged correctly. `scripts/rescore_pneumonia.py` recomputes
 
 **Licences / access** (checked on the Hub dataset cards, 2026-10-01). VQA-RAD CC0 1.0; PathVQA MIT; MedQA CC BY 4.0;
 MedMNIST CC BY 4.0 (the Hub mirror used on the server states no licence; the official MedMNIST terms apply). Only per-question predictions and scores are stored; no data is redistributed.
+
+---
+
+## 4e. Train splits of the four external sets (S2-6datasets, added 2026-10-08)
+
+At the instructor's request one 35B model (`interns2_6ds`, "S2-6datasets") is trained on six sources: the two used
+so far plus the **train splits** of the four sets in §4d. Their **test splits stay evaluation-only** and are used here
+only to remove overlapping training examples. Built by `data/convert_sft6.py` (unit tests in `tests/test_convert_sft6.py`)
+on the 5090 host, seed 42; prompts are verbatim the evaluation prompts, so a training example and a test question
+differ only in content. Counts below are from `results/interns2_6ds_data_2026-10-10.json`.
+
+| Source | Train split | Duplicates removed | Same item as a test item | Rows on test-split images removed | Used |
+|---|---|---|---|---|---|
+| SLAKE (existing `slake_train.json`) | 4,919 | — | — | — | 4,919 |
+| PubMedQA replay (existing, §3c) | 300 | — | — | — | 300 |
+| VQA-RAD `data/train-*.parquet` | 1,793 | 0 | 0 | **1,059** | 734 (400 yes/no) |
+| PathVQA `data/train-*.parquet` | 19,654 | 1,659 | 0 | 0 | 5,000 sampled (2,712 yes/no) |
+| MedQA `phrases_no_exclude_train.jsonl` | 10,178 | 2 | 0 | — | 3,000 sampled |
+| PneumoniaMNIST 224, train split | 4,708 (3,477 pneumonia / 1,213 normal) | 18 | 0 | — | 2,000 (1,000 each) |
+| **Total** | | | | | **15,953** |
+
+- **Overlap checks.** Images are matched by a pixel hash (same pixels in any mode give the same key), questions by
+  lower-cased whitespace-normalised text. "Same item" means same image and question (VQA), same stem (MedQA) or same
+  image (PneumoniaMNIST); none were found. Exact duplicates inside a train split are kept once.
+- **VQA-RAD shares images between its splits.** Its official split is by question: 202 of the 203 test images also
+  appear in the train split, under 1,059 of the 1,793 training questions. Training on those would let the model see
+  almost every test image before the test, so all training questions on test-split images are dropped and 734 remain
+  (111 images). VQA-RAD therefore stays an unseen-image test, though no longer an unseen-dataset test, for
+  `interns2_6ds`. PathVQA's splits share no images.
+- **Sampling.** PathVQA and MedQA are capped (5,000 and 3,000) so that, together with PneumoniaMNIST, they do not
+  outweigh the 4,919 SLAKE examples, and to keep training to one night; the caps are command-line arguments and can be
+  raised. PneumoniaMNIST is class-balanced (the train split is 74 % pneumonia).
+- **Storage.** Training files `data/processed/{vqarad,pathvqa,medqa,pneumonia}_sft_train.json` and images
+  `data/sft6_images/` on the host, outside git.
 
 ---
 

@@ -1,0 +1,66 @@
+{
+  "what": "S2-6datasets (interns2_6ds) training data: per-source counts from data/convert_sft6.py on the 5090 host, 2026-10-08/09. Counts only, no data.",
+  "sources": {
+    "slake_train": {
+      "used": 4919
+    },
+    "pubmedqa_sft_train_300": {
+      "used": 300
+    },
+    "medqa": {
+      "train_total": 10178,
+      "duplicates_dropped": 2,
+      "same_question_as_test_dropped": 0,
+      "used": 3000,
+      "seed": 42
+    },
+    "pathvqa": {
+      "train_total": 19654,
+      "duplicates_dropped": 1659,
+      "same_image_and_question_as_test_dropped": 0,
+      "used": 5000,
+      "used_closed": 2712,
+      "train_images": 2599,
+      "test_images": 858,
+      "images_shared_with_test": 0,
+      "used_rows_on_test_images": 0,
+      "seed": 42
+    },
+    "pneumonia": {
+      "train_total": 4708,
+      "train_pneumonia": 3477,
+      "train_normal": 1213,
+      "duplicates_dropped": 18,
+      "same_image_as_test_dropped": 0,
+      "used": 2000,
+      "used_pneumonia": 1000,
+      "used_normal": 1000,
+      "seed": 42
+    },
+    "vqarad": {
+      "train_total": 1793,
+      "duplicates_dropped": 0,
+      "same_image_and_question_as_test_dropped": 0,
+      "rows_on_test_images_dropped": 1059,
+      "used": 734,
+      "used_closed": 400,
+      "train_images": 313,
+      "test_images": 203,
+      "images_shared_with_test": 202,
+      "used_rows_on_test_images": 0,
+      "seed": 42
+    }
+  },
+  "total_used": 15953,
+  "training": {
+    "steps": 2991,
+    "epochs": 3,
+    "final_loss": 0.032,
+    "sec_per_step": 6.13,
+    "minutes": 340.2,
+    "skipped_long": 0,
+    "seed": 42,
+    "started": "2026-10-09 22:18",
+    "finished": "2026-10-10 03:58"
+  }
+}
