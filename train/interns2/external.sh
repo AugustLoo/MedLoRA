@@ -21,7 +21,8 @@ LOG=$ROOT/logs/external.log
 mkdir -p "$ROOT/logs" "$ROOT/merged"
 log() { echo "[$(date '+%m-%d %H:%M:%S')] $*" | tee -a "$LOG"; }
 
-source "$(conda info --base)/etc/profile.d/conda.sh"
+CONDA_BASE="$(conda info --base 2>/dev/null || true)"; [[ -n $CONDA_BASE ]] || CONDA_BASE=/home/ubuntu/miniconda3  # 被别的脚本调用或非交互 shell 里没有 conda 函数
+source "$CONDA_BASE/etc/profile.d/conda.sh"
 conda activate "$ROOT/envs/s2train"
 cd "$REPO"
 export HF_HOME=$ROOT/hf OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false

@@ -11,7 +11,8 @@ ROOT=/home/ubuntu/chunqian
 REPO=$ROOT/MedLoRA
 MODELS=/home/ubuntu/Large-Model-Service-Interns2/models
 cd "$REPO"
-source "$(conda info --base)/etc/profile.d/conda.sh"
+CONDA_BASE="$(conda info --base 2>/dev/null || true)"; [[ -n $CONDA_BASE ]] || CONDA_BASE=/home/ubuntu/miniconda3  # 被别的脚本调用或非交互 shell 里没有 conda 函数
+source "$CONDA_BASE/etc/profile.d/conda.sh"
 conda activate "$ROOT/envs/s2train"
 export CUDA_VISIBLE_DEVICES="${GPUS:-0,1,2,3}" OMP_NUM_THREADS=1 HF_HOME=$ROOT/hf HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 

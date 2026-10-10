@@ -54,7 +54,8 @@ log() { echo "[$(date '+%m-%d %H:%M:%S')] $*" | tee -a "$LOG"; }
 cleanup() { bash "$REPO/train/interns2/serve.sh" stop >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 
-source "$(conda info --base)/etc/profile.d/conda.sh"
+CONDA_BASE="$(conda info --base 2>/dev/null || true)"; [[ -n $CONDA_BASE ]] || CONDA_BASE=/home/ubuntu/miniconda3  # 被别的脚本调用或非交互 shell 里没有 conda 函数
+source "$CONDA_BASE/etc/profile.d/conda.sh"
 conda activate "$ROOT/envs/s2train"
 cd "$REPO"
 export CUDA_VISIBLE_DEVICES="$GPUS" OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false
