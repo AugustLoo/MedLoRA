@@ -26,6 +26,7 @@ model_dir() {
         base)  echo "$MODELS/Intern-S2-Preview" ;;
         final) echo "$MODELS/Intern-S2-Preview-MedLoRA" ;;
         six)   echo "/home/ubuntu/chunqian/merged/interns2_6ds" ;;   # S2-6datasets (run_6ds.sh merge 之后才有)
+        cxp)   echo "/home/ubuntu/chunqian/merged/interns2_cxp" ;;   # S2-CheXpertPlus
         *) return 1 ;;
     esac
 }
@@ -34,6 +35,7 @@ model_name() {
         base)  echo intern-s2-base ;;
         final) echo intern-s2-medlora ;;
         six)   echo intern-s2-6ds ;;
+        cxp)   echo intern-s2-cxp ;;
     esac
 }
 
@@ -45,6 +47,7 @@ current() {  # 当前在 23334 上回答的模型 (intern-s2-base / intern-s2-me
         */Intern-S2-Preview) echo intern-s2-base ;;
         */Intern-S2-Preview-MedLoRA) echo intern-s2-medlora ;;
         */interns2_6ds) echo intern-s2-6ds ;;
+        */interns2_cxp) echo intern-s2-cxp ;;
         *) echo "$id" ;;
     esac
 }
@@ -84,7 +87,7 @@ check_free() {
 case "${1:-}" in
 switch)
     WHICH="${2:-}"
-    DIR="$(model_dir "$WHICH")" || { echo "用法: $0 switch base | final | six"; exit 1; }
+    DIR="$(model_dir "$WHICH")" || { echo "用法: $0 switch base | final | six | cxp"; exit 1; }
     NAME="$(model_name "$WHICH")"
     [[ -f "$DIR/config.json" ]] || { echo "找不到模型 $DIR (S2-6datasets 要先 bash train/interns2/run_6ds.sh merge)"; exit 1; }
     if [[ "$(current)" == "$NAME" ]]; then
@@ -114,5 +117,5 @@ stop)
     echo "已关。记得告诉世龙可以开回他的服务。"
     ;;
 *)
-    echo "用法: $0 switch base | switch final | switch six | status | stop"; exit 1 ;;
+    echo "用法: $0 switch base | switch final | switch six | switch cxp | status | stop"; exit 1 ;;
 esac
