@@ -83,6 +83,7 @@ merge)
   if [[ -f $MERGED/model.safetensors.index.json ]]; then log "已合并, 跳过"; exit 0; fi
   FREE=$(df --output=avail -BG "$ROOT" | tail -1 | tr -dc 0-9)
   (( FREE >= 90 )) || { log "磁盘只剩 ${FREE} GB, 合并要约 75 GB, 先清理"; exit 1; }
+  need_gpus   # 合并会占它看得到的所有卡; 只给 0-3 号 (2026-10-12 夜里看到了别人占着的 4 号卡, 显存不够失败)
   rm -rf "$MERGED"
   log "合并到 $MERGED"
   python train/interns2/merge_lora.py --adapter "$OUT" --out "$MERGED" >> "$ROOT/logs/$TAG.merge.log" 2>&1
