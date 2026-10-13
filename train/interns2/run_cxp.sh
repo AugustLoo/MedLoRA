@@ -107,7 +107,7 @@ eval)
 external)
   [[ -f $MERGED/model.safetensors.index.json ]] || { log "还没有合并模型, 先 merge"; exit 1; }
   need_gpus
-  bash train/interns2/external.sh six
+  bash train/interns2/external.sh cxp
   ;;
 status)
   for f in "${DATA_FILES[@]}"; do printf "%-28s %s\n" "$(basename "$f")" "$([[ -f $f ]] && echo 有 || echo 缺)"; done
