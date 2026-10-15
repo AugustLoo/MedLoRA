@@ -35,8 +35,21 @@ for k in KEYS:
     ok, n = maybe(M[k]["tag"])
     V[k] = {"slake": M[k]["slake_closed"], "maybe": 100 * ok / n, "maybe_n": f"{ok}/{n}",
             "path": M[k]["pathvqa_closed"], "medqa": M[k]["medqa"], "pneu": M[k]["pneumonia_closed"]["accuracy"],
-            "descmiss": M[k]["chexpert"]["freetext"]["abnormal_no_abnormality_reported_pct"]}
+            "descmiss": M[k]["chexpert"]["freetext"]["abnormal_no_abnormality_reported_pct"],
+            "contra": M[k]["chexpert"]["freetext"]["abnormal_closed_yes_but_desc_none_pct"]}
 b, d2, d6, cx = (V[k] for k in KEYS)
+# 第 4 周「只做微调」种子 43: 同一做法换个种子, 描述漏报本来就低 (说明单次结果可能有运气)
+R0_S43 = json.loads((REPO / "outputs/eval/chexpert_interns2_abl_r0_s43.json").read_text(encoding="utf-8"))
+R0_S43_MISS = R0_S43["freetext"]["abnormal_no_abnormality_reported_pct"]
+
+
+def distinct_sentences(tag):
+    """PneumoniaMNIST 624 张儿童胸片 (公开数据) 的描述里, 不同句子的个数: 越多越不模板化。"""
+    rows = [json.loads(x) for x in open(REPO / f"outputs/eval/pneumonia_{tag}_preds.jsonl", encoding="utf-8")]
+    return len({t.strip() for r in rows for t in re.split(r"(?<=\.)\s+", r["desc"].strip()) if t.strip()})
+
+
+SENT = {k: distinct_sentences(M[k]["tag"]) for k in KEYS}
 
 # 图表数据: 准确率 (越高越好) 与描述漏报 (越低越好)
 ACC = [("slake", "SLAKE 是非题", "SLAKE closed"), ("maybe", "敢说「不确定」", "PubMedQA maybe"),
@@ -98,10 +111,31 @@ BODY = f"""
   <div class="srcline">* 对 S2-6datasets 是练过的同类题（没练过测试题）。「敢说不确定」= PubMedQA 中答案为 maybe 的 55 题答对的比例。每个模型只训练一次。<span class="tr-s">* In-domain for S2-6datasets (never the test items). "maybe" = share of the 55 PubMedQA maybe questions answered correctly. One training run per model.</span></div>
 </section>
 
-<!-- ============================ 03 中文数据 · 讨论 ============================ -->
-<section class="section deep" id="zh">
+<!-- ============================ 03 上周的问题 ============================ -->
+<section class="section deep" id="why">
   <div class="prose">
-    <div class="kicker">03 · 讨论 · For discussion</div>
+    <div class="kicker">03 · 上周的问题 · Last week's problem</div>
+    <h2>办法找到了，原因找到一半<span class="tr-h">A fix found; the cause only partly</span></h2>
+    <p class="lede">上周发现：同一张片子，问「有没有异常」答有，让它描述却说正常；描述也很模板化。</p>
+    <p class="lede tr">Last week: asked, the model says a film is abnormal; asked to describe it, it says normal — and the descriptions are formulaic.</p>
+  </div>
+  <div class="tiles">
+    <div class="card"><div class="big" style="color:var(--c-good)">{r1(d6['contra'])}%<small>← {r1(d2['contra'])}%</small></div><h3>办法：换训练数据<span class="tr-h3">Fix: change the training data</span></h3><p>「答有却描述正常」：S2-6datasets {r1(d6['contra'])}%，S2-CheXpertPlus {r1(cx['contra'])}%。</p><p class="tr">"Abnormal" yet described as normal: {r1(d6['contra'])}% and {r1(cx['contra'])}% for the new models.</p></div>
+    <div class="card"><div class="big" style="color:var(--c-base)">数据</div><h3>原因：训练数据太窄<span class="tr-h3">Cause: too narrow training data</span></h3><p>方法不变只换数据就变好。S2-6datasets 全是短答也治好了，所以不是「只练短答」，更像 S2-2datasets 只有两种数据；哪个数据集起作用还没拆开测。</p><p class="tr">Only the data changed. S2-6datasets has short answers only and still fixes it, so the likely cause is S2-2datasets' two narrow datasets; which dataset helps is not yet isolated.</p></div>
+    <div class="card"><div class="big" style="color:var(--c-red)">{r1(R0_S43_MISS)}%</div><h3>还要再训一次确认<span class="tr-h3">Needs a second run</span></h3><p>上周同一做法换个种子，描述漏报本来就只有 {r1(R0_S43_MISS)}%，所以 {r1(d6['descmiss'])}% 可能有运气成分，要用种子 43 重训。</p><p class="tr">Last week one seed of the same recipe already gave {r1(R0_S43_MISS)}%, so {r1(d6['descmiss'])}% may be partly luck; retrain with seed 43.</p></div>
+  </div>
+  <div class="prose" style="margin-top:32px">
+    <p><strong>模板化也少了：</strong>儿童胸片 624 条描述里，不同的句子从 {SENT['S2-2datasets']:,} 种增加到 {SENT['S2-6datasets']:,} / {SENT['S2-CheXpertPlus']:,} 种（成人片是受控数据，要在服务器上另外统计）。</p>
+    <p class="tr"><strong>Less formulaic:</strong> across 624 paediatric descriptions, distinct sentences rise from {SENT['S2-2datasets']:,} to {SENT['S2-6datasets']:,} / {SENT['S2-CheXpertPlus']:,} (adult films are controlled data and will be counted on the server).</p>
+    <p><strong>系统兜底：</strong>论文里的「一致性检查」会在问答和描述矛盾时提醒医生复核。</p>
+    <p class="tr"><strong>A system safeguard:</strong> the thesis's consistency check will flag any contradiction for human review.</p>
+  </div>
+</section>
+
+<!-- ============================ 04 中文数据 · 讨论 ============================ -->
+<section class="section" id="zh">
+  <div class="prose">
+    <div class="kicker">04 · 讨论 · For discussion</div>
     <h2>加入中文数据<span class="tr-h">Adding Chinese data</span></h2>
     <p class="lede">苏学长发现：把英文问题换成中文，模型就容易答错。原因是训练数据全是英文，而系统落地后以中文问答为主。</p>
     <p class="lede tr">Su found that the models often answer wrongly once an English question is asked in Chinese: all training data is English, yet the deployed system will mainly be used in Chinese.</p>
@@ -120,10 +154,10 @@ BODY = f"""
   </div>
 </section>
 
-<!-- ============================ 04 计划 ============================ -->
-<section class="section" id="next">
+<!-- ============================ 05 计划 ============================ -->
+<section class="section deep" id="next">
   <div class="prose">
-    <div class="kicker">04 · 计划 · Plan</div>
+    <div class="kicker">05 · 计划 · Plan</div>
     <h2>接下来的计划<span class="tr-h">Next steps</span></h2>
   </div>
   <div class="card next">
@@ -206,6 +240,7 @@ EXTRA = """/* ---- week 5 ---- */
 .duo-legend{max-width:1160px;margin:14px auto 0}
 .next ol{margin-top:4px}
 #zh .next{margin-top:28px}
+#why .tiles .big{font-size:30px}
 .split p.tr{margin-top:10px;font-size:13px}
 @media (max-width:900px){.duo{grid-template-columns:1fr}}
 """
