@@ -175,23 +175,33 @@
 
 ---
 
-## 十、要改的代码
+## 十、代码与数据（2026-10-16 全部完成，GPU 冒烟测试待做）
 
-已完成（第①步，提交 c541eb1、c748d79）：
+| 内容 | 文件 | 说明 |
+|---|---|---|
+| 训练 | `train/interns2/train_lora.py` | `--mode pt` 纯文字预训练；`--init-adapter` 从上一步补丁接着训；`--eval-data` 验证损失；**多轮对话**每一轮回答都算损失（用 35B 真实模板核对过） |
+| 第①步数据 | `data/convert_cpt35_stage1.py` | 教材 + 指南 + 中文百科，切段、抽样、留验证集 |
+| 第②步数据 | `data/convert_sft35_stage2.py` | HuatuoGPT-SFT + DISC-Med-SFT 清洗、去重、测试集隔离、抽样 |
+| 第③步数据 | `data/convert_sft35_stage3.py` | CMExam、MedMCQA、medical-o1 转成「答案 + 解析」 |
+| 共用 | `data/sft35_common.py` | 测试集隔离索引（所有评测题的 20 字窗口）、个人信息 / 推广 / 网页残留清洗 |
+| 评测 | `eval/eval_slake.py --lang zh`、`eval/eval_cmexam.py` | SLAKE 中文题（按「是 / 否」归一、按字判分）；CMExam 测试集抽 1,000 道单选 |
+| 一条龙 | `train/interns2/run_cpt35.sh`、`train/interns2/run_sft35.sh` | ①：data / smoke / sweep / train；②③：data2 / data3 / smoke / train a·b·c / merge / eval / evalzh |
+| 测试 | `tests/test_convert_cpt35_stage1.py`、`tests/test_sft35_data.py`、`tests/test_train_lora_pt.py` | 共 34 个，服务器上全部通过 |
 
-1. `train_lora.py` 加 `--mode pt`、`--init-adapter`、`--eval-data`；
-2. `data/convert_cpt35_stage1.py`：第①步语料清洗、切段、抽样、留验证集；
-3. `train/interns2/run_cpt35.sh`：data | smoke | sweep | train | status。
+**服务器上已生成的数据**（`/home/ubuntu/chunqian/data/processed/`）：
 
-待做：
+| 文件 | 内容 |
+|---|---|
+| `cpt35_stage1.json` / `_val.json` | 第①步：训练 24,043 段 + 验证 235 段，1,937 万 token |
+| `sft35_zh_dialog.json` | 第②步中文：华佗 6,000（1–3 轮）+ DISC 6,000（医患对话 5,222、知识图谱问答 778），共 12,000 |
+| `sft35_reasoning.json` | 第③步：CMExam 5,000 + MedMCQA 5,000 + medical-o1 中文 1,500 + 英文 1,500，共 13,000 |
 
-4. `train_lora.py` 支持**多轮对话**：现在只读第一轮问答，HuatuoGPT-SFT、DISC-Med-SFT 有多轮，每一轮回答都要算损失；
-5. 第②步数据脚本：下载并清洗 HuatuoGPT-SFT、DISC-Med-SFT，抽样，与六个数据集合并，做第七节的去重和测试集隔离；
-6. 第③步数据脚本：CMExam、MedMCQA、medical-o1 转成「答案 + 解析」格式；
-7. 评测：`eval/eval_slake.py` 加 `--lang zh`；新增 CMExam 测试（抽 1,000 题，中文医师考试）；
-8. 一条龙脚本：第②③步的 data | smoke | train | merge | eval。
+清洗与隔离的结果（详见同目录 `*_stats.json`）：
 
----
+- DISC 的 cMedQA 部分 2 万条整体排除；提到图片但没有图的对话丢掉 430 条；
+- 测试集隔离：CMExam 训练集里有 211 道与它自己的验证 / 测试集重复或改写（查过的约 5%），MedMCQA 117 道，medical-o1 8 道，都已剔除；
+- 推广过滤：问答数据改用更严的规则（两种以上「我院 / 热线 / 在线咨询……」才算），第一版沿用第①步规则时误伤了约四成正常问答；
+- 所有样本套上模板后都不超过 1,024 token（最长 945）。
 
 ## 十一、评测
 

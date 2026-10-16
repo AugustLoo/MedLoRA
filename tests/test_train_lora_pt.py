@@ -73,3 +73,58 @@ def test_existing_6ds_adapter_matches_default_targets():
     if not cfg.exists():
         pytest.skip("只在服务器上有")
     assert T.adapter_mismatch(json.loads(cfg.read_text()), 16, 32, T.LORA_TARGETS["attn_shared"]) == []
+
+
+class CharTok:
+    """一个字符一个 token 的假 tokenizer, 用来核对多轮对话的损失掩码。"""
+    unk_token_id = 0
+    eos_token_id = 2
+    pad_token_id = 1
+
+    def convert_tokens_to_ids(self, t):
+        return 7 if t == "<|im_end|>" else 0
+
+    def __call__(self, text, add_special_tokens=False, return_tensors=None):
+        return {"input_ids": torch.tensor([[ord(c) for c in text]])}
+
+    def decode(self, ids):
+        return "".join(chr(int(i)) for i in ids)
+
+
+class ChatProc:
+    """假的对话模板: <|im_start|>{role}\n{text}<|im_end|>\n, 生成提示加 <|im_start|>assistant\n。"""
+    tokenizer = CharTok()
+
+    def apply_chat_template(self, msgs, tokenize=False, add_generation_prompt=False, enable_thinking=False):
+        s = "".join(f"<|im_start|>{m['role']}\n{m['content'][0]['text']}<|im_end|>\n" for m in msgs)
+        return s + ("<|im_start|>assistant\n" if add_generation_prompt else "")
+
+
+def multi_turn_data(tmp_path, msgs, cutoff=1024):
+    return T.SFTData([write(tmp_path, [{"messages": msgs}])], ChatProc(), cutoff, 262144, [])
+
+
+def test_multi_turn_trains_every_assistant_turn_only(tmp_path):
+    msgs = [{"role": "user", "content": "头痛怎么办"}, {"role": "assistant", "content": "多休息"},
+            {"role": "user", "content": "还要吃药吗"}, {"role": "assistant", "content": "先观察两天"}]
+    d = multi_turn_data(tmp_path, msgs)
+    ex = d[0]
+    tok = CharTok()
+    learned = tok.decode(ex["input_ids"][ex["labels"] != -100])
+    assert learned == "多休息<|im_end|>先观察两天<|im_end|>"
+    assert "头痛怎么办" in tok.decode(ex["input_ids"]) and "头痛" not in learned
+
+
+def test_multi_turn_keeps_only_turns_that_fit(tmp_path):
+    msgs = [{"role": "user", "content": "问"}, {"role": "assistant", "content": "答" * 10},
+            {"role": "user", "content": "再问"}, {"role": "assistant", "content": "答" * 200}]
+    ex = multi_turn_data(tmp_path, msgs, cutoff=80)[0]
+    assert len(ex["input_ids"]) <= 80
+    assert CharTok().decode(ex["input_ids"][ex["labels"] != -100]) == "答" * 10 + "<|im_end|>"
+
+
+def test_single_turn_path_unchanged(tmp_path):
+    msgs = [{"role": "user", "content": "问题"}, {"role": "assistant", "content": "回答"}]
+    d = multi_turn_data(tmp_path, msgs)
+    prompt, target, img = d.render(d.rows[0])
+    assert prompt.endswith("<|im_start|>assistant\n") and target == "回答<|im_end|>" and img is None

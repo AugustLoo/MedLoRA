@@ -128,8 +128,51 @@ class SFTData(Dataset):
             target = answer + (self.end or "")
         return prompt, target, img
 
+    def segments(self, row):
+        """多轮纯文字对话 (第②步的华佗 / DISC 数据): 整段套一次模板, 再按顺序在里面找到每一轮回答的位置,
+        切成 [(文字, 是否计损失), …]。每一轮回答从内容开头算到它的回合结束符 (含); 用户的话和模板标记都不计损失。
+        某一轮回答在模板文本里找不到时返回 None (该条跳过), 不去猜。"""
+        msgs = [{"role": m["role"], "content": [{"type": "text", "text": m["content"]}]} for m in row["messages"]]
+        full = self.proc.apply_chat_template(msgs, tokenize=False, enable_thinking=False)
+        out, cur = [], 0
+        for m in row["messages"]:
+            if m["role"] != "assistant":
+                continue
+            pos = full.find(m["content"], cur)
+            if pos < 0:
+                return None
+            end = full.find(self.end, pos + len(m["content"])) if self.end else -1
+            end = end + len(self.end) if end >= 0 else pos + len(m["content"])
+            out += [(full[cur:pos], False), (full[pos:end], True)]
+            cur = end
+        return out
+
+    def _multi_turn(self, row):
+        segs = self.segments(row)
+        if segs is None:
+            return None
+        ids, labels = [], []
+        for text, train in segs:
+            t = self.tok(text, add_special_tokens=False, return_tensors="pt")["input_ids"][0]
+            if train and len(ids) + len(t) > self.cutoff:
+                break  # 超长: 只保留放得下的前几轮 (至少要有一轮回答)
+            if not train and len(ids) + len(t) >= self.cutoff:
+                break
+            ids.append(t)
+            labels.append(t if train else torch.full_like(t, -100))
+        if not any((x != -100).any() for x in labels):
+            return None
+        ids, labels = torch.cat(ids), torch.cat(labels)
+        if (labels[-1] == -100).item():  # 末尾是没有回答跟着的用户话, 去掉
+            keep = int((labels != -100).nonzero().max()) + 1
+            ids, labels = ids[:keep], labels[:keep]
+        return {"input_ids": ids, "labels": labels, "attention_mask": torch.ones_like(ids)}
+
     def __getitem__(self, i):
-        prompt, target, img = self.render(self.rows[i])
+        row = self.rows[i]
+        if len(row["messages"]) > 2 and not row.get("images"):
+            return self._multi_turn(row)
+        prompt, target, img = self.render(row)
         enc = self.proc(text=[prompt], images=[img] if img is not None else None, return_tensors="pt")
         tgt = self.tok(target, add_special_tokens=False, return_tensors="pt")["input_ids"][0]
         ids = torch.cat([enc["input_ids"][0], tgt])
