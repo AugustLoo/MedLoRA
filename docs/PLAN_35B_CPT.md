@@ -89,9 +89,10 @@
 |---|---|---|---|---|
 | **Huatuo26M-Lite**（本方案用） | 17.8 万 | 138 MB | Apache-2.0 | 从 Huatuo-26M 的 2,600 万条里去重、挑高频问题、打分筛选，答案由 ChatGPT 参照原答案改写 |
 | huatuo_encyclopedia_qa（备选） | 36.4 万 | 604 MB | Apache-2.0 | 从中文维基百科疾病 / 药品词条和医学文章抽出的问答 |
-| huatuo_knowledge_graph_qa（备选） | 10–100 万 | — | Apache-2.0 | 从医学知识图谱生成的问答 |
+| huatuo_knowledge_graph_qa（备选） | 79.8 万 | 148 MB | Apache-2.0 | 从医学知识图谱生成的问答（问题由模板生成） |
+| huatuo_consultation_qa | 2,534 万 | 4.5 GB | Apache-2.0 | 在线问诊记录；**答案只给网址，没有文字**，不能直接用 |
 
-完整的 Huatuo-26M（2,600 万条）没有在 Hugging Face 上公开，所以用它的精选版 Lite。引用：Li et al., *Huatuo-26M, a Large-scale Chinese Medical QA Dataset*, arXiv 2305.01526。
+官方仓库 <https://github.com/FreedomIntelligence/Huatuo-26M> 只放介绍，数据在 Hugging Face。2,600 万条里绝大部分是问诊记录，只公开了答案网址，能直接拿到文字的约 134 万条，所以用质量最高的精选版 Lite。官方 README 里也有「用作语言模型预训练数据」的实验。引用：Li et al., *Huatuo-26M, a Large-scale Chinese Medical QA Dataset*, arXiv 2305.01526。
 
 CheXpert Plus 不再用于预训练。之后如果想加强胸片描述，可以放进微调阶段，但那样微调数据就和 S2-6datasets 不同了，对照不再干净，所以本方案不加。
 
