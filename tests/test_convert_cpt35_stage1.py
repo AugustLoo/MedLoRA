@@ -81,3 +81,22 @@ def test_final_check_splits_chunks_that_still_exceed_limit():
 def test_looks_like_ad():
     assert C.looks_like_ad("本诊所专业整形美容, 价格优惠, 欢迎咨询电话预约, 地址在市中心。" * 3)
     assert not C.looks_like_ad("肝囊肿一般没有症状, 囊肿长大到一定程度可能压迫胃肠道而引起上腹不适。" * 5)
+
+
+def test_split_val_takes_only_the_tail_of_a_long_book():
+    docs = [(f"book{i}", [f"b{i}.{j}" for j in range(300)], 3000) for i in range(5)]   # 5 本书, 共 1,500 段
+    tr, va = C.split_val(docs, 0.01, random.Random(0))
+    assert sum(len(c) for _, c, _ in va) == 15                     # 1% , 而不是一整本 300 段
+    assert sum(len(c) for _, c, _ in tr) + 15 == 1500 and len(tr) == 5
+    (vname, vchunks, _), = va
+    book = vname.split("#")[0]
+    head = next(c for n, c, _ in tr if n == book)
+    assert head + vchunks == next(c for n, c, _ in docs if n == book)  # 前面训练, 末尾验证
+
+
+def test_strip_attribution_keeps_content_lines():
+    text = ("The thalamus relays sensory signals.\n"
+            "Gray675. Provided by: Wikipedia. Located at: en.wikipedia.org. License: Public Domain: No Known Copyright\n"
+            "CC BY-SA: Attribution-ShareAlike\n"
+            "It sits above the midbrain.")
+    assert C.strip_attribution(text) == "The thalamus relays sensory signals.\nIt sits above the midbrain."

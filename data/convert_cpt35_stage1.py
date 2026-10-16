@@ -159,20 +159,39 @@ def take_budget(docs: Iterable[tuple[str, str]], count: Count, limit: int, budge
 
 
 def split_val(docs: list[tuple[str, list[str], int]], frac: float, rng: random.Random, max_chunks: int = 100):
-    """按整篇划出验证集 (同一篇不会一半训练一半验证); 验证段数约为总段数的 frac, 最多 max_chunks 段。"""
+    """划出验证集, 约为总段数的 frac, 最多 max_chunks 段。短篇整篇划入 (同一篇不会一半训练一半验证);
+    碰到篇幅超过还缺段数两倍的长篇 (比如一整本教材), 只把它最后若干段 (末尾章节) 划入验证, 前面的仍用于训练,
+    免得来源只有几十本书时一下子拿走一整本。"""
     total = sum(len(c) for _, c, _ in docs)
     target = min(max_chunks, max(1, round(total * frac))) if total >= 20 else 0
     order = list(range(len(docs)))
     rng.shuffle(order)
-    val_idx, got = set(), 0
+    train, val, got = list(docs), [], 0
     for i in order:
-        if got >= target or len(docs) - len(val_idx) <= 1:
+        need = target - got
+        if need <= 0 or len(val) >= len(docs) - 1:
             break
-        if got + len(docs[i][1]) > max(target * 2, 3) and got > 0:
-            continue
-        val_idx.add(i)
-        got += len(docs[i][1])
-    return [d for i, d in enumerate(docs) if i not in val_idx], [d for i, d in enumerate(docs) if i in val_idx]
+        name, chunks, n = docs[i]
+        if len(chunks) <= max(need * 2, 3):
+            val.append(docs[i])
+            train[i] = None
+            got += len(chunks)
+        else:
+            head, tail = chunks[:-need], chunks[-need:]
+            val.append((f"{name}#末尾{need}段", tail, round(n * need / len(chunks))))
+            train[i] = (name, head, n - val[-1][2])
+            got += need
+    return [d for d in train if d is not None], val
+
+
+_ATTRIBUTION = re.compile(r"Provided by:|Located at:|License:|Authored by:|creativecommons\.org|Public Domain:|"
+                          r"\bCC BY(-[A-Z]+)*(\s\d\.\d)?\s*:", re.I)
+
+
+def strip_attribution(text: str) -> str:
+    """去掉开源教材里的图片 / 内容出处与许可说明行 (Provided by … Located at … License …)。
+    2026-10-16 统计: 这类行占教材文字 4.7%, 主要在 AandP for STEM Educators 一本里; 其他来源几乎没有。"""
+    return "\n".join(l for l in text.split("\n") if not _ATTRIBUTION.search(l))
 
 
 # ---------------------------------------------------------------- 读三个来源
@@ -180,7 +199,7 @@ def iter_openmedtext(root: Path, rng: random.Random):
     books = sorted(root.glob("Med-Textbooks/*/*.txt"))
     rng.shuffle(books)
     for b in books:
-        yield f"{b.parent.name}/{b.stem}", b.read_text(encoding="utf-8", errors="ignore")
+        yield f"{b.parent.name}/{b.stem}", strip_attribution(b.read_text(encoding="utf-8", errors="ignore"))
 
 
 def iter_guidelines(path: Path, rng: random.Random):
