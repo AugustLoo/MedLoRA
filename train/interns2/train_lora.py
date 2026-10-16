@@ -24,6 +24,11 @@
       --output outputs/interns2_mix_300
   # 断了从最近的检查点接着跑: 同一条命令加 --resume
 
+三步训练 (docs/PLAN_35B_CPT.md) 用到的额外开关:
+  --mode pt            纯文字增量预训练: 数据行是 {"text": ...}, 整段文字都算损失 (不套对话模板, 末尾加结束符)
+  --init-adapter DIR   从上一步的补丁开始训 (LoRA 设置必须相同); 与 --resume 不同, 优化器和步数从零开始
+  --eval-data FILE     验证集: 训练前、每 --eval-steps 步、结束时各算一次平均损失 (按 token 加权), 写进日志 (比较学习率用)
+
 日志: <output>/train_log.jsonl (每 10 步一行, 含 loss / lr / 每步秒数 / 预计剩余时间); 结束时保存 LoRA adapter。
 """
 from __future__ import annotations
@@ -138,6 +143,49 @@ class SFTData(Dataset):
         return item
 
 
+class PretrainData(Dataset):
+    """纯文字增量预训练: 每行 {"text": ...} (数据脚本已切成约 1,000 token 一段); 不套对话模板, 末尾加结束符,
+    所有 token 都算损失 (与 3B 的 B1 / LLaMA-Factory stage=pt 相同)。超过 cutoff 的段截断, 不丢弃。"""
+
+    def __init__(self, files, processor, cutoff, limit=0, seed=42):
+        self.tok, self.cutoff = processor.tokenizer, cutoff
+        rows = []
+        for f in files:
+            part = json.loads(Path(f).read_text(encoding="utf-8"))
+            if part and "text" not in part[0]:
+                sys.exit(f"{f} 不是预训练格式 (每行要有 \"text\"); 对话格式的数据请用 --mode sft")
+            log(f"数据 {f}: {len(part)} 段")
+            rows += part
+        random.Random(seed).shuffle(rows)
+        self.rows = rows[:limit] if limit else rows
+        eot = self.tok.convert_tokens_to_ids("<|endoftext|>")
+        self.eos_id = eot if eot is not None and eot != self.tok.unk_token_id else self.tok.eos_token_id
+
+    def __len__(self):
+        return len(self.rows)
+
+    def render(self, row):
+        """与 SFTData.render 同形: (提示词, 计损失的文本, 图片); 预训练没有提示词, 整段都计损失。"""
+        return "", row["text"], None
+
+    def __getitem__(self, i):
+        ids = self.tok(self.rows[i]["text"], add_special_tokens=False, return_tensors="pt")["input_ids"][0]
+        ids = torch.cat([ids[: self.cutoff - 1], torch.tensor([self.eos_id], dtype=ids.dtype)])
+        return {"input_ids": ids, "labels": ids.clone(), "attention_mask": torch.ones_like(ids)}
+
+
+def adapter_mismatch(saved: dict, rank: int, alpha: int, target: str) -> list[str]:
+    """--init-adapter 的补丁必须和本次 LoRA 设置一致, 否则权重形状或挂载位置对不上。返回不一致项 (空 = 一致)。"""
+    out = []
+    if saved.get("r") != rank:
+        out.append(f"rank {saved.get('r')} ≠ {rank}")
+    if saved.get("lora_alpha") != alpha:
+        out.append(f"alpha {saved.get('lora_alpha')} ≠ {alpha}")
+    if saved.get("target_modules") != target:
+        out.append(f"target_modules 不同: {saved.get('target_modules')!r}")
+    return out
+
+
 def make_collate(pad_id: int):
     def collate(items):
         items = [x for x in items if x is not None]
@@ -176,6 +224,21 @@ def load(args):
     cfg = LoraConfig(r=args.rank, lora_alpha=args.alpha, lora_dropout=args.dropout,
                      target_modules=LORA_TARGETS[args.targets], bias="none")
     model = get_peft_model(model, cfg)
+    if args.init_adapter:
+        from peft import set_peft_model_state_dict
+        from safetensors.torch import load_file
+
+        src = Path(args.init_adapter)
+        bad = adapter_mismatch(json.loads((src / "adapter_config.json").read_text(encoding="utf-8")),
+                               args.rank, args.alpha, LORA_TARGETS[args.targets])
+        if bad:
+            sys.exit(f"--init-adapter {src} 的 LoRA 设置和本次不同: {'; '.join(bad)}")
+        weights = load_file(str(src / "adapter_model.safetensors"))
+        res = set_peft_model_state_dict(model, weights)
+        unexpected = list(getattr(res, "unexpected_keys", []) or [])
+        if unexpected:
+            sys.exit(f"--init-adapter 有 {len(unexpected)} 个权重对不上, 例如 {unexpected[:3]}")
+        log(f"从 {src} 载入上一步的补丁: {len(weights)} 个张量")
     trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
     total = sum(p.numel() for p in model.parameters())
     n_mod = sum(1 for n, _ in model.named_modules() if n.endswith("lora_A"))
@@ -189,6 +252,26 @@ def first_device(model):
 
 def peak_mem():
     return {i: round(torch.cuda.max_memory_allocated(i) / 2**30, 1) for i in range(torch.cuda.device_count())}
+
+
+@torch.no_grad()
+def evaluate(model, loader, dev0, max_batches=0):
+    """验证集平均损失, 按计损失的 token 数加权 (模型返回的是每个 batch 内的平均)。"""
+    model.eval()
+    tot, n_tok = 0.0, 0
+    for b, batch in enumerate(loader):
+        if max_batches and b >= max_batches:
+            break
+        if batch is None:
+            continue
+        batch = {k: v.to(dev0) for k, v in batch.items() if k in MODEL_KEYS + ("labels",)}
+        with torch.autocast("cuda", dtype=torch.bfloat16):
+            loss = model(**batch).loss
+        k = int((batch["labels"][:, 1:] != -100).sum())
+        tot += loss.item() * k
+        n_tok += k
+    model.train()
+    return tot / max(1, n_tok), n_tok
 
 
 # ---------------------------------------------------------------- 训练
@@ -218,6 +301,12 @@ def main():
     ap.add_argument("--limit", type=int, default=0, help="只用前 N 条样本 (调试)")
     ap.add_argument("--smoke-steps", type=int, default=0, help="只跑 N 个优化步就停, 打印显存与速度")
     ap.add_argument("--resume", action="store_true")
+    ap.add_argument("--mode", choices=["sft", "pt"], default="sft",
+                    help="sft = 对话格式只算答案 (默认); pt = 纯文字增量预训练, 整段都算损失")
+    ap.add_argument("--init-adapter", help="从这个补丁目录开始训 (上一步的产物; LoRA 设置须相同)")
+    ap.add_argument("--eval-data", nargs="+", default=[], help="验证集文件 (格式与 --mode 一致)")
+    ap.add_argument("--eval-steps", type=int, default=100, help="每多少步算一次验证损失")
+    ap.add_argument("--eval-limit", type=int, default=0, help="验证集只用前 N 条 (0 = 全部)")
     args = ap.parse_args()
 
     torch.manual_seed(args.seed)
@@ -228,25 +317,39 @@ def main():
     path_map = [tuple(x.split("=", 1)) for x in args.path_map]
 
     model, processor = load(args)
-    data = SFTData(args.data, processor, args.cutoff, args.max_pixels, path_map,
-                   limit=args.limit or (args.batch * args.accum * args.smoke_steps if args.smoke_steps else 0),
-                   seed=args.seed)
+    limit = args.limit or (args.batch * args.accum * args.smoke_steps if args.smoke_steps else 0)
 
-    # 看一眼第一条样本: 只有答案部分参与损失
+    def make_data(files, lim):
+        if args.mode == "pt":
+            return PretrainData(files, processor, args.cutoff, limit=lim, seed=args.seed)
+        return SFTData(files, processor, args.cutoff, args.max_pixels, path_map, limit=lim, seed=args.seed)
+
+    data = make_data(args.data, limit)
+
+    # 看一眼前两条样本: sft 只有答案部分参与损失; pt 整段参与 (只打印开头和结尾)
     for k in range(min(2, len(data))):
         prompt, target, img = data.render(data.rows[k])
-        shown = prompt.replace("<|image_pad|>", "")
-        kind = "带图" if img is not None else "纯文字"
-        log(f"样本 {k} 提示词 ({kind}, 图片占位已省略):\n" + shown[-600:])
+        if args.mode == "sft":
+            shown = prompt.replace("<|image_pad|>", "")
+            kind = "带图" if img is not None else "纯文字"
+            log(f"样本 {k} 提示词 ({kind}, 图片占位已省略):\n" + shown[-600:])
         ex = data[k]
         if ex is not None:
             tgt = ex["labels"][ex["labels"] != -100]
-            log(f"样本 {k}: 总长 {len(ex['input_ids'])} token, 其中计损失 {len(tgt)} 个 -> {processor.tokenizer.decode(tgt)!r}")
+            text = processor.tokenizer.decode(tgt)
+            shown = text if args.mode == "sft" else text[:200] + " …… " + text[-120:]
+            log(f"样本 {k}: 总长 {len(ex['input_ids'])} token, 其中计损失 {len(tgt)} 个 -> {shown!r}")
 
     pad_id = processor.tokenizer.pad_token_id if processor.tokenizer.pad_token_id is not None else processor.tokenizer.eos_token_id
     gen = torch.Generator().manual_seed(args.seed)
     loader = DataLoader(data, batch_size=args.batch, shuffle=True, generator=gen, num_workers=args.workers,
                         collate_fn=make_collate(pad_id), persistent_workers=args.workers > 0)
+    eval_loader = None
+    if args.eval_data:
+        eval_set = make_data(args.eval_data, args.eval_limit)
+        eval_loader = DataLoader(eval_set, batch_size=args.batch, shuffle=False, num_workers=min(2, args.workers),
+                                 collate_fn=make_collate(pad_id))
+        log(f"验证集 {len(eval_set)} 条, 每 {args.eval_steps} 步算一次")
     steps_per_epoch = len(loader) // args.accum
     total_steps = args.smoke_steps or max(1, int(steps_per_epoch * args.epochs))
     warm = int(total_steps * args.warmup)
@@ -274,6 +377,20 @@ def main():
     dev0 = first_device(model)
     model.train()
     logf = open(out / "train_log.jsonl", "a", encoding="utf-8")
+
+    def run_eval(at_step):
+        if eval_loader is None:
+            return
+        t0 = time.time()
+        loss, n_tok = evaluate(model, eval_loader, dev0, max_batches=2 if args.smoke_steps else 0)
+        rec = {"type": "eval", "step": at_step, "eval_loss": round(loss, 4), "eval_tokens": n_tok,
+               "eval_sec": round(time.time() - t0, 1)}
+        logf.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        logf.flush()
+        log(json.dumps(rec, ensure_ascii=False))
+
+    if step == 0:
+        run_eval(0)
     t_start, t_last, skipped, running = time.time(), time.time(), 0, []
     last_logged = step
     micro, done = 0, False
@@ -314,6 +431,8 @@ def main():
                 logf.flush()
                 log(json.dumps(rec, ensure_ascii=False))
                 running, t_last, last_logged = [], now, step
+            if args.eval_steps and step % args.eval_steps == 0 and step != total_steps and not args.smoke_steps:
+                run_eval(step)
             if step % args.save_steps == 0 and not args.smoke_steps:
                 ckpt.mkdir(exist_ok=True)
                 model.save_pretrained(ckpt)
@@ -324,6 +443,7 @@ def main():
                 break
         epoch += 1
 
+    run_eval(step)
     if args.smoke_steps:
         log(f"冒烟结束。各卡显存峰值 (GiB): {peak_mem()}")
         log("没有保存 adapter。确认显存和每步耗时后, 去掉 --smoke-steps 正式训练。")
