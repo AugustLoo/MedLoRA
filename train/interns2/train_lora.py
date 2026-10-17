@@ -297,8 +297,21 @@ def peak_mem():
     return {i: round(torch.cuda.max_memory_allocated(i) / 2**30, 1) for i in range(torch.cuda.device_count())}
 
 
+def rope_cache_holders(model):
+    """模型里缓存 rope_deltas 的模块 (Intern-S2 的 compute_3d_position_ids 会把上一个带图批次的位置偏移存下来)。"""
+    return [m for m in model.modules() if hasattr(m, "rope_deltas")]
+
+
+def reset_rope_cache(holders):
+    """每次前向前清空 rope_deltas。不清的话, 纯文字批次会沿用上一个带图批次的偏移, 并按 当前批大小 // 缓存批大小 复制;
+    缓存是 4 条、当前只剩 1 条 (每轮最后一个不满的批次) 时得到空张量, 训练崩溃 (2026-10-17 模型 A 第 1,745 步)。
+    以前的模型不受影响: 沿用的偏移在一条样本内是同一个常数, RoPE 只看相对位置, 结果不变。"""
+    for m in holders:
+        m.rope_deltas = None
+
+
 @torch.no_grad()
-def evaluate(model, loader, dev0, max_batches=0):
+def evaluate(model, loader, dev0, max_batches=0, holders=()):
     """验证集平均损失, 按计损失的 token 数加权 (模型返回的是每个 batch 内的平均)。"""
     model.eval()
     tot, n_tok = 0.0, 0
@@ -308,6 +321,7 @@ def evaluate(model, loader, dev0, max_batches=0):
         if batch is None:
             continue
         batch = {k: v.to(dev0) for k, v in batch.items() if k in MODEL_KEYS + ("labels",)}
+        reset_rope_cache(holders)
         with torch.autocast("cuda", dtype=torch.bfloat16):
             loss = model(**batch).loss
         k = int((batch["labels"][:, 1:] != -100).sum())
@@ -418,6 +432,8 @@ def main():
         log(f"从检查点恢复: 第 {step} 步, 跳过已训练的 {skip_batches} 个 batch")
 
     dev0 = first_device(model)
+    holders = rope_cache_holders(model)
+    log(f"缓存 rope_deltas 的模块 {len(holders)} 个, 每次前向前清空")
     model.train()
     logf = open(out / "train_log.jsonl", "a", encoding="utf-8")
 
@@ -425,7 +441,7 @@ def main():
         if eval_loader is None:
             return
         t0 = time.time()
-        loss, n_tok = evaluate(model, eval_loader, dev0, max_batches=2 if args.smoke_steps else 0)
+        loss, n_tok = evaluate(model, eval_loader, dev0, max_batches=2 if args.smoke_steps else 0, holders=holders)
         rec = {"type": "eval", "step": at_step, "eval_loss": round(loss, 4), "eval_tokens": n_tok,
                "eval_sec": round(time.time() - t0, 1)}
         logf.write(json.dumps(rec, ensure_ascii=False) + "\n")
@@ -449,6 +465,7 @@ def main():
                 skipped += args.batch
                 continue
             batch = {k: v.to(dev0) for k, v in batch.items() if k in MODEL_KEYS + ("labels",)}
+            reset_rope_cache(holders)
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 loss = model(**batch).loss / args.accum
             loss.backward()

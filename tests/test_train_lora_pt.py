@@ -128,3 +128,20 @@ def test_single_turn_path_unchanged(tmp_path):
     d = multi_turn_data(tmp_path, msgs)
     prompt, target, img = d.render(d.rows[0])
     assert prompt.endswith("<|im_start|>assistant\n") and target == "回答<|im_end|>" and img is None
+
+
+def test_reset_rope_cache_clears_stale_deltas():
+    class Inner(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.rope_deltas = torch.zeros(4, 1)   # 上一个带图批次 (4 条) 留下的
+    class Outer(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.inner = Inner()
+            self.lin = torch.nn.Linear(2, 2)
+    m = Outer()
+    holders = T.rope_cache_holders(m)
+    assert holders == [m.inner]
+    T.reset_rope_cache(holders)
+    assert m.inner.rope_deltas is None
