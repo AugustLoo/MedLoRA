@@ -185,7 +185,7 @@ BODY = f"""
   </div>
   <div class="card next">
     <ol>
-      <li><strong>评测 A / B / C：</strong>每个约 12 小时（含中文和「去掉图像」），胸片漏报在容器里另测；要和世龙排显卡时间。<span class="tr-li"><strong>Evaluate A / B / C:</strong> about 12 hours each, plus chest X-ray omissions in the container; needs GPU time agreed with Shilong.</span></li>
+      <li><strong>评测 A / B / C：</strong>每个约 3 小时显卡（含中文、「去掉图像」和胸片漏报），四个模型共约 12 小时；要和世龙排显卡时间。<span class="tr-li"><strong>Evaluate A / B / C:</strong> about 3 GPU hours each (Chinese tests, no-image control and chest X-rays included), about 12 hours for all four models; needs GPU time agreed with Shilong.</span></li>
       <li><strong>硬盘：</strong>每次合并要约 73 GB，主机只剩约 89 GB，一次只能评一个；想问苏学长扩容的进度。<span class="tr-li"><strong>Disk:</strong> each merge needs about 73 GB and about 89 GB is free, so one model at a time; asking Su about the expansion.</span></li>
       <li><strong>确认结果：</strong>结论关键的模型用种子 43 再训一次。<span class="tr-li"><strong>Confirm:</strong> retrain the key model with seed 43.</span></li>
       <li><strong>论文：</strong>想请老师确认最后能否加一章原型系统（矛盾提醒、不确定时提示人工复核）。<span class="tr-li"><strong>Thesis:</strong> may the last chapter add a prototype system (contradiction alerts, human review when unsure)?</span></li>
