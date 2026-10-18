@@ -48,12 +48,13 @@ need_gpus() {
   [[ -z "$busy" ]] || { log "0-3 号卡还被占着: $busy"; exit 1; }
   export CUDA_VISIBLE_DEVICES="$GPUS"
 }
-model_of() {  # a|b|c → TAG / 数据 / 起点补丁 / 学习率 / 轮数
+model_of() {  # a|b|c|cpt1 → TAG / 数据 / 起点补丁 / 学习率 / 轮数 (cpt1 = 只做第①步, 只用于 merge / eval)
   case $1 in
     a) TAG=interns2_s2a; DATA_FILES=("${STAGE2[@]}"); INIT=""; LR=1e-4; EPOCHS=3 ;;
     b) TAG=interns2_s2b; DATA_FILES=("${STAGE2[@]}"); INIT=$CPT; LR=1e-4; EPOCHS=3 ;;
     c) TAG=interns2_s3c; DATA_FILES=("${STAGE3[@]}"); INIT=outputs/interns2_s2b; LR=5e-5; EPOCHS=1 ;;
-    *) echo "模型只能是 a / b / c"; exit 1 ;;
+    cpt1) TAG=interns2_cpt1; DATA_FILES=(); INIT=""; LR=1e-4; EPOCHS=1 ;;
+    *) echo "模型只能是 a / b / c / cpt1"; exit 1 ;;
   esac
   OUT=outputs/$TAG; MERGED=$ROOT/merged/$TAG
 }
@@ -64,12 +65,15 @@ train_cmd() {  # 与现有 35B 模型同一组 LoRA 设置, 只换数据 / 起�
 }
 
 run_evals() {  # run_evals <TAG> <模型目录> [只测中文]
+  # KEEP_SERVE=1: 服务由调用方 (接力脚本) 在 23334 上开好、用完再停, 这里不开不停 (容器的 CheXpert 评测同时用这个服务)
   local tag=$1 dir=$2 zh_only=${3:-}
   export MEDVLM_API_BASE=http://127.0.0.1:23334/v1
   export MEDVLM_API_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}'
-  trap 'bash train/interns2/serve.sh stop >/dev/null 2>&1 || true' EXIT
-  log "起服务 $dir"
-  bash train/interns2/serve.sh start "$dir" >> "$ROOT/logs/$tag.serve.log" 2>&1
+  if [[ -z ${KEEP_SERVE:-} ]]; then
+    trap 'bash train/interns2/serve.sh stop >/dev/null 2>&1 || true' EXIT
+    log "起服务 $dir"
+    bash train/interns2/serve.sh start "$dir" >> "$ROOT/logs/$tag.serve.log" 2>&1
+  fi
   local L=$ROOT/logs/$tag.eval.log
   if [[ -z $zh_only && ! -f outputs/eval/mmbench_$tag.json ]]; then
     log "$tag 四张表"
@@ -87,7 +91,7 @@ run_evals() {  # run_evals <TAG> <模型目录> [只测中文]
     [[ -f outputs/eval/medqa_$tag.json ]] || { log "$tag MedQA"; python eval/eval_medqa.py --model "$dir" --tag "$tag" >> "$L" 2>&1; }
     [[ -f outputs/eval/pneumonia_$tag.json ]] || { log "$tag PneumoniaMNIST"; python eval/eval_pneumonia.py --model "$dir" --tag "$tag" --freetext >> "$L" 2>&1; }
   fi
-  bash train/interns2/serve.sh stop >> "$ROOT/logs/$tag.serve.log" 2>&1
+  [[ -n ${KEEP_SERVE:-} ]] || bash train/interns2/serve.sh stop >> "$ROOT/logs/$tag.serve.log" 2>&1
   log "$tag 评测完成: $(python -c "
 import json,os
 def g(f,k):
@@ -137,7 +141,7 @@ merge)
 eval)
   model_of "${2:-}"
   [[ -f $MERGED/model.safetensors.index.json ]] || { log "$TAG 还没有合并模型, 先 merge"; exit 1; }
-  need_gpus
+  [[ -n ${KEEP_SERVE:-} ]] || need_gpus
   run_evals "$TAG" "$MERGED"
   ;;
 evalzh)
@@ -161,5 +165,5 @@ status)
   done
   ;;
 *)
-  echo "用法: $0 data2 | data3 | smoke | train a|b|c | merge a|b|c | eval a|b|c | evalzh base|final|six | status"; exit 1 ;;
+  echo "用法: $0 data2 | data3 | smoke | train a|b|c | merge a|b|c|cpt1 | eval a|b|c|cpt1 | evalzh base|final|six | status"; exit 1 ;;
 esac
