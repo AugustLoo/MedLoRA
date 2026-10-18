@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-18",
+  "judge": "CheXbert (StanfordAIMI/RRG_scorers chexbert.pth), CPU in the user0 container",
+  "ruler_check": {
+    "n_reports": 300,
+    "overall_agree_pct": 96.19
+  },
+  "models": {
+    "原版": {
+      "tag": "interns2_base",
+      "abnormal_no_finding_reported_pct": 24.95,
+      "keyword_judge_abnormal_no_finding_pct": 29.2,
+      "abnormal_closed_yes_but_desc_none_pct": 18.1,
+      "normal_finding_reported_pct": 33.77,
+      "agreement_with_keyword_judge_pct": 94.36,
+      "groups": {
+        "abnormal": 2733,
+        "normal": 231,
+        "uncertain_only": 225
+      }
+    },
+    "S2-2datasets (回放 300, 种子 42)": {
+      "tag": "interns2_mix_300",
+      "abnormal_no_finding_reported_pct": 56.53,
+      "keyword_judge_abnormal_no_finding_pct": 68.46,
+      "abnormal_closed_yes_but_desc_none_pct": 54.98,
+      "normal_finding_reported_pct": 19.48,
+      "agreement_with_keyword_judge_pct": 86.89,
+      "groups": {
+        "abnormal": 2733,
+        "normal": 231,
+        "uncertain_only": 225
+      }
+    },
+    "回放 300 种子 43": {
+      "tag": "interns2_abl_s43",
+      "abnormal_no_finding_reported_pct": 35.86,
+      "keyword_judge_abnormal_no_finding_pct": 56.6,
+      "abnormal_closed_yes_but_desc_none_pct": 34.76,
+      "normal_finding_reported_pct": 33.33,
+      "agreement_with_keyword_judge_pct": 78.14,
+      "groups": {
+        "abnormal": 2733,
+        "normal": 231,
+        "uncertain_only": 225
+      }
+    },
+    "回放 0 种子 42": {
+      "tag": "interns2_mix_0",
+      "abnormal_no_finding_reported_pct": 43.8,
+      "keyword_judge_abnormal_no_finding_pct": 52.51,
+      "abnormal_closed_yes_but_desc_none_pct": 41.82,
+      "normal_finding_reported_pct": 20.35,
+      "agreement_with_keyword_judge_pct": 90.97,
+      "groups": {
+        "abnormal": 2733,
+        "normal": 231,
+        "uncertain_only": 225
+      }
+    },
+    "回放 0 种子 43": {
+      "tag": "interns2_abl_r0_s43",
+      "abnormal_no_finding_reported_pct": 9.77,
+      "keyword_judge_abnormal_no_finding_pct": 14.64,
+      "abnormal_closed_yes_but_desc_none_pct": 8.29,
+      "normal_finding_reported_pct": 50.65,
+      "agreement_with_keyword_judge_pct": 93.79,
+      "groups": {
+        "abnormal": 2733,
+        "normal": 231,
+        "uncertain_only": 225
+      }
+    },
+    "S2-6datasets": {
+      "tag": "interns2_6ds",
+      "abnormal_no_finding_reported_pct": 11.2,
+      "keyword_judge_abnormal_no_finding_pct": 13.76,
+      "abnormal_closed_yes_but_desc_none_pct": 7.55,
+      "normal_finding_reported_pct": 35.5,
+      "agreement_with_keyword_judge_pct": 95.58,
+      "groups": {
+        "abnormal": 2733,
+        "normal": 231,
+        "uncertain_only": 225
+      }
+    }
+  }
+}
