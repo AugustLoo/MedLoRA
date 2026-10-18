@@ -1,0 +1,422 @@
+{
+  "date": "2026-10-18",
+  "note": "35B 三步训练 (docs/PLAN_35B_CPT.md): ① 知识预训练 → ② 问答微调 → ③ 推理训练。只有训练记录与中文基线, A/B/C 尚未评测。",
+  "stage1_lr_sweep": {
+    "5e-5": [
+      1.7348,
+      1.69,
+      1.6841
+    ],
+    "1e-4": [
+      1.7348,
+      1.6767,
+      1.6673
+    ],
+    "2e-4": [
+      1.7348,
+      1.6622,
+      1.6541
+    ]
+  },
+  "stage1_lr_rule": "取 120 步后验证损失在最好值 1% 以内的最小学习率 → 1e-4 (2e-4 低 0.8%)",
+  "models": {
+    "interns2_cpt1 (①)": {
+      "args": {
+        "mode": "pt",
+        "lr": 0.0001,
+        "epochs": 1.0,
+        "batch": 4,
+        "accum": 4,
+        "warmup": 0.03,
+        "cutoff": 1024,
+        "rank": 16,
+        "alpha": 32,
+        "init_adapter": null,
+        "seed": 42,
+        "data": [
+          "/home/ubuntu/chunqian/data/processed/cpt35_stage1.json"
+        ]
+      },
+      "steps": 1502,
+      "final_train_loss": 1.4266,
+      "sec_per_step_last": 7.88,
+      "train_loss_first10pct_mean": 1.7046,
+      "train_loss_last10pct_mean": 1.6282,
+      "train_loss_every_10pct": [
+        1.7702,
+        1.7095,
+        1.709,
+        1.6756,
+        1.7494,
+        1.7445,
+        1.5797,
+        1.6167,
+        1.6404,
+        1.5949,
+        1.4266
+      ],
+      "eval_loss": [
+        [
+          0,
+          1.7348
+        ],
+        [
+          200,
+          1.6347
+        ],
+        [
+          400,
+          1.6176
+        ],
+        [
+          600,
+          1.6065
+        ],
+        [
+          800,
+          1.6024
+        ],
+        [
+          1000,
+          1.5988
+        ],
+        [
+          1200,
+          1.5971
+        ],
+        [
+          1400,
+          1.5966
+        ],
+        [
+          1502,
+          1.5964
+        ]
+      ]
+    },
+    "interns2_s2a (A: ②)": {
+      "args": {
+        "mode": "sft",
+        "lr": 0.0001,
+        "epochs": 3.0,
+        "batch": 4,
+        "accum": 4,
+        "warmup": 0.05,
+        "cutoff": 1024,
+        "rank": 16,
+        "alpha": 32,
+        "init_adapter": null,
+        "seed": 42,
+        "data": [
+          "/home/ubuntu/chunqian/data/processed/slake_train.json",
+          "/home/ubuntu/chunqian/data/processed/pubmedqa_sft_train_300.json",
+          "/home/ubuntu/chunqian/data/processed/vqarad_sft_train.json",
+          "/home/ubuntu/chunqian/data/processed/pathvqa_sft_train.json",
+          "/home/ubuntu/chunqian/data/processed/medqa_sft_train.json",
+          "/home/ubuntu/chunqian/data/processed/pneumonia_sft_train.json",
+          "/home/ubuntu/chunqian/data/processed/sft35_zh_dialog.json"
+        ]
+      },
+      "steps": 5241,
+      "final_train_loss": 1.2738,
+      "sec_per_step_last": 6.76,
+      "train_loss_first10pct_mean": 1.4089,
+      "train_loss_last10pct_mean": 1.255,
+      "train_loss_every_10pct": [
+        1.4562,
+        1.444,
+        1.5351,
+        1.3584,
+        1.2396,
+        1.2585,
+        1.2733,
+        1.1485,
+        1.3631,
+        1.3587,
+        1.2738
+      ],
+      "eval_loss": []
+    },
+    "interns2_s2b (B: ①→②)": {
+      "args": {
+        "mode": "sft",
+        "lr": 0.0001,
+        "epochs": 3.0,
+        "batch": 4,
+        "accum": 4,
+        "warmup": 0.05,
+        "cutoff": 1024,
+        "rank": 16,
+        "alpha": 32,
+        "init_adapter": "outputs/interns2_cpt1",
+        "seed": 42,
+        "data": [
+          "/home/ubuntu/chunqian/data/processed/slake_train.json",
+          "/home/ubuntu/chunqian/data/processed/pubmedqa_sft_train_300.json",
+          "/home/ubuntu/chunqian/data/processed/vqarad_sft_train.json",
+          "/home/ubuntu/chunqian/data/processed/pathvqa_sft_train.json",
+          "/home/ubuntu/chunqian/data/processed/medqa_sft_train.json",
+          "/home/ubuntu/chunqian/data/processed/pneumonia_sft_train.json",
+          "/home/ubuntu/chunqian/data/processed/sft35_zh_dialog.json"
+        ]
+      },
+      "steps": 5241,
+      "final_train_loss": 1.2689,
+      "sec_per_step_last": 6.08,
+      "train_loss_first10pct_mean": 1.3993,
+      "train_loss_last10pct_mean": 1.2524,
+      "train_loss_every_10pct": [
+        1.4014,
+        1.4479,
+        1.5406,
+        1.3548,
+        1.2367,
+        1.2505,
+        1.2739,
+        1.1532,
+        1.3592,
+        1.3575,
+        1.2689
+      ],
+      "eval_loss": []
+    },
+    "interns2_s3c (C: ①→②→③)": {
+      "args": {
+        "mode": "sft",
+        "lr": 5e-05,
+        "epochs": 1.0,
+        "batch": 4,
+        "accum": 4,
+        "warmup": 0.05,
+        "cutoff": 1024,
+        "rank": 16,
+        "alpha": 32,
+        "init_adapter": "outputs/interns2_s2b",
+        "seed": 42,
+        "data": [
+          "/home/ubuntu/chunqian/data/processed/sft35_reasoning.json"
+        ]
+      },
+      "steps": 812,
+      "final_train_loss": 1.0544,
+      "sec_per_step_last": 6.27,
+      "train_loss_first10pct_mean": 1.2533,
+      "train_loss_last10pct_mean": 1.2021,
+      "train_loss_every_10pct": [
+        1.37,
+        1.3059,
+        1.274,
+        1.1715,
+        1.2668,
+        1.2428,
+        1.2196,
+        1.2378,
+        1.1163,
+        1.2292,
+        1.0544
+      ],
+      "eval_loss": []
+    }
+  },
+  "data": {
+    "stage1": {
+      "openmedtext": {
+        "lang": "en",
+        "license": "按书: CC BY / CC BY-SA / CC BY-NC / CC BY-NC-SA (见目录名)",
+        "budget_tokens": 0,
+        "docs": 29,
+        "chunks": 7756,
+        "tokens": 7367963,
+        "train_chunks": 7678,
+        "val_chunks": 78,
+        "skipped_as_ads": 0
+      },
+      "guidelines": {
+        "lang": "en",
+        "license": "Common Crawl Foundation Terms of Use",
+        "budget_tokens": 4000000,
+        "docs": 1730,
+        "chunks": 5466,
+        "tokens": 3999790,
+        "train_chunks": 5409,
+        "val_chunks": 57,
+        "skipped_as_ads": 0
+      },
+      "mmedc_baike": {
+        "lang": "zh",
+        "license": "CC BY-NC-SA 4.0",
+        "budget_tokens": 8000000,
+        "docs": 4814,
+        "chunks": 11056,
+        "tokens": 7999263,
+        "train_chunks": 10956,
+        "val_chunks": 100,
+        "skipped_as_ads": 622
+      },
+      "mmedc_filtered": {
+        "lang": "zh",
+        "license": "CC BY-NC-SA 4.0",
+        "budget_tokens": -1,
+        "docs": 0,
+        "chunks": 0,
+        "tokens": 0,
+        "train_chunks": 0,
+        "val_chunks": 0,
+        "skipped_as_ads": 0
+      },
+      "_total": {
+        "train_chunks": 24043,
+        "val_chunks": 235,
+        "tokens": 19367016,
+        "chunk_tokens": 1000,
+        "seed": 42
+      }
+    },
+    "stage2_zh_dialog": {
+      "huatuo_sft": {
+        "total": 226042,
+        "pool": 18000,
+        "kept": 6000,
+        "target": 6000,
+        "rounds": {
+          "1": 3964,
+          "3": 977,
+          "2": 1059
+        },
+        "by_source": {
+          "huatuo_sft": 6000
+        },
+        "dropped": {
+          "医院推广 (两种以上自我推销用语)": 18,
+          "格式不对 (不是一问一答交替)": 32,
+          "含联系方式 / 个人信息 / 网址": 3,
+          "第一句问题与已收的重复 (跨数据集去重)": 3,
+          "问题太短或回答太短": 2
+        }
+      },
+      "disc_med_sft": {
+        "total": 464898,
+        "pool": 18000,
+        "kept": 6000,
+        "target": 6000,
+        "rounds": {
+          "1": 1414,
+          "3": 3698,
+          "2": 888
+        },
+        "by_source": {
+          "disc_med_sft/meddial": 5222,
+          "disc_med_sft/CMeKG": 778
+        },
+        "dropped": {
+          "cMedQA 来源 (限非商用)": 20000,
+          "格式不对 (不是一问一答交替)": 418,
+          "问题太短或回答太短": 175,
+          "提到图片但数据里没有图": 430,
+          "医院推广 (两种以上自我推销用语)": 14,
+          "含联系方式 / 个人信息 / 网址": 12,
+          "第一句问题与已收的重复 (跨数据集去重)": 6,
+          "第一轮就超长": 2
+        }
+      },
+      "_eval_index": {
+        "SLAKE test (中英文)": 2094,
+        "MedQA test": 1273,
+        "PubMedQA 考卷半边": 500,
+        "CMExam valid": 6811,
+        "CMExam test": 6811,
+        "MedMCQA validation": 4183,
+        "MedMCQA test": 6150
+      }
+    },
+    "stage3_reasoning": {
+      "cmexam": {
+        "total": 54497,
+        "pool": 15000,
+        "kept": 5000,
+        "target": 5000,
+        "dropped": {
+          "与评测题重复或改写": 211,
+          "没有解析或解析太短": 952,
+          "不是单选题或答案不在选项里": 226,
+          "超长": 21
+        }
+      },
+      "medmcqa": {
+        "total": 182822,
+        "pool": 15000,
+        "kept": 5000,
+        "target": 5000,
+        "dropped": {
+          "没有解析或解析太短": 1144,
+          "不是单选题": 3214,
+          "与评测题重复或改写": 117,
+          "超长": 21,
+          "回答含联系方式 / 网址": 16
+        }
+      },
+      "medical_o1_zh": {
+        "total": 20171,
+        "pool": 4500,
+        "kept": 1500,
+        "target": 1500,
+        "dropped": {
+          "与评测题重复或改写": 2
+        }
+      },
+      "medical_o1_en": {
+        "total": 19704,
+        "pool": 4500,
+        "kept": 1500,
+        "target": 1500,
+        "dropped": {
+          "与评测题重复或改写": 6,
+          "题目或回答太短": 8
+        }
+      },
+      "_eval_index": {
+        "SLAKE test (中英文)": 2094,
+        "MedQA test": 1273,
+        "PubMedQA 考卷半边": 500,
+        "CMExam valid": 6811,
+        "CMExam test": 6811,
+        "MedMCQA validation": 4183,
+        "MedMCQA test": 6150
+      }
+    }
+  },
+  "zh_baseline": {
+    "原版": {
+      "tag": "interns2_base",
+      "slake_zh": {
+        "open_em": 69.98,
+        "open_recall": 80.57,
+        "open_f1": 80.21,
+        "closed_acc": 84.29
+      },
+      "slake_zh_n": [
+        420,
+        613
+      ],
+      "cmexam_acc": 93.0,
+      "cmexam_n": 1000,
+      "cmexam_unparsed": 1
+    },
+    "S2-2datasets": {
+      "tag": "interns2_mix_300",
+      "slake_zh": {
+        "open_em": 76.84,
+        "open_recall": 86.65,
+        "open_f1": 86.37,
+        "closed_acc": 93.81
+      },
+      "slake_zh_n": [
+        420,
+        613
+      ],
+      "cmexam_acc": 93.6,
+      "cmexam_n": 1000,
+      "cmexam_unparsed": 0
+    }
+  }
+}

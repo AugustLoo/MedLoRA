@@ -370,3 +370,44 @@ positive (231), uncertain-only (225). A downscaled copy of the test images (1,02
 `/workspace/chunqian/data/chexpert_test_1024/` for the evaluation; images go from the container to the model served on the
 GPU host only through the machine's internal network and are not stored on the host. Per-image predictions contain
 report-derived labels and stay on the server; only aggregate rates (`results/interns2_chexpert_2026-10-07.json`) leave it.
+
+## 9. Three-stage training corpora (35B, added 2026-10-16)
+
+Downloaded on the GPU host through the hf-mirror endpoint; kept on the host under `/home/ubuntu/chunqian/data/`
+(`cpt_corpora/`, `sft35_raw/`, `processed/`), outside git. Licences are research-only (several CC BY-NC / CC BY-NC-SA);
+the thesis will state this. Per-source statistics are in `results/interns2_3stage_train_2026-10-18.json`.
+
+**Stage ① — knowledge pretraining** (`data/convert_cpt35_stage1.py`, 1,000-token chunks packed from paragraphs):
+
+| Source | Language | Licence | Chunks (train / val) | Tokens |
+|---|---|---|---|---|
+| OpenMedText, all 29 textbooks | en | per book: CC BY / BY-SA / BY-NC / BY-NC-SA | 7,678 / 78 | 7.37 M |
+| epfl-llm/guidelines (sampled to a 4 M budget) | en | Common Crawl terms of use | 5,409 / 57 | 4.00 M |
+| MMedC Chinese, medical encyclopaedia part (8 M budget) | zh | CC BY-NC-SA 4.0 | 10,956 / 100 | 8.00 M |
+| **Total** | | | **24,043 / 235** | **19.37 M** |
+
+The MMedC web-filtered part was dropped after inspection (mostly hospital promotion); 622 encyclopaedia documents were
+dropped by an advertising-density filter (two or more promotion terms per 1,000 characters). Textbook attribution lines
+are stripped. Long books give only their last chunks to validation, so no whole book is held out.
+
+**Stage ② — Chinese instruction data** (`data/convert_sft35_stage2.py`), 12,000 conversations added to the six-dataset mix:
+- HuatuoGPT-SFT 6,000 (1 / 2 / 3 rounds: 3,964 / 1,059 / 977), the 问：/答： prefixes and HTML residue removed;
+- DISC-Med-SFT 6,000 (doctor–patient dialogue 5,222, CMeKG knowledge QA 778). Its cMedQA part (20,000) is excluded as a
+  whole (marked non-commercial in the source listing); 430 dialogues that refer to an image that is not provided are dropped.
+- Filters: personal information / contact details, hospital promotion (two or more distinct self-promotion terms — a
+  first version with the stage-① rule wrongly dropped about 40 % of ordinary Q&A), malformed (not alternating question / answer) or too-short turns,
+  a first question already taken from the other source. All examples fit 1,024 tokens after the chat template (longest 945).
+
+**Stage ③ — exam questions with explanations** (`data/convert_sft35_stage3.py`), answer + explanation as the target:
+CMExam 5,000, MedMCQA 5,000, medical-o1-reasoning-SFT Chinese 1,500 and English 1,500 (13,000 in total).
+Questions without an explanation, multi-answer questions and answers outside the options are dropped.
+
+**Keeping test sets out** (`data/sft35_common.py`, `EvalIndex`): every evaluation question we use — SLAKE test (zh and
+en), MedQA test, the PubMedQA held-out half, CMExam valid/test, MedMCQA validation/test — is indexed as normalised
+20-character windows; a training item is dropped on an exact match or when at least half of its windows hit the index.
+Removed: CMExam 211 (its own training split overlaps its valid/test with copies and rewrites), MedMCQA 117, medical-o1 8;
+none of the sampled stage-② dialogues matched.
+
+**New evaluation sets**: SLAKE Chinese test (1,033 questions; closed questions scored by yes/no polarity, open questions
+by exact match and character-level recall / F1, `medvlm/metrics.py`) and 1,000 single-answer CMExam test questions
+(seed 42, `eval/eval_cmexam.py`).

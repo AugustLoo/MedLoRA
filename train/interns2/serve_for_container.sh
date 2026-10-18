@@ -5,6 +5,8 @@
 #   final : 最终版 (回放 300)    /home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview-MedLoRA (只读使用)
 #   r0    : 只做微调 (回放 0)    outputs/interns2_mix_0 临时合并到 /home/ubuntu/chunqian/merged/
 #   r0_s43 / s43 : 回放 0 与回放 300 的第二个种子 (outputs/interns2_abl_r0_s43 / interns2_abl_s43), 同样临时合并
+#   a / b / c / cpt1 : 三步训练的模型 A / B / C 与只做第①步的 interns2_cpt1 (docs/PLAN_35B_CPT.md)。
+#          run_sft35.sh merge 合并过就直接用、用完保留 (主机评测还要用); 没合并过就临时合并, 评完删掉
 # 用法 (ubuntu 主机, tmux 里; 先停同学的服务):  bash train/interns2/serve_for_container.sh base
 set -Eeuo pipefail
 ROOT=/home/ubuntu/chunqian
@@ -25,8 +27,17 @@ case "${1:-}" in
   s43)   TAG=interns2_abl_s43;  DIR=$ROOT/merged/$TAG; TMP=$DIR ;;
   six)   TAG=interns2_6ds;      DIR=$ROOT/merged/interns2_6ds ;;   # S2-6datasets, 合并模型保留, 不删
   cxp)   TAG=interns2_cxp;      DIR=$ROOT/merged/interns2_cxp ;;   # S2-CheXpertPlus
-  *) echo "用法: $0 base | final | r0 | r0_s43 | s43 | six | cxp"; exit 1 ;;
+  a)     TAG=interns2_s2a;      DIR=$ROOT/merged/$TAG ;;
+  b)     TAG=interns2_s2b;      DIR=$ROOT/merged/$TAG ;;
+  c)     TAG=interns2_s3c;      DIR=$ROOT/merged/$TAG ;;
+  cpt1)  TAG=interns2_cpt1;     DIR=$ROOT/merged/$TAG ;;
+  *) echo "用法: $0 base | final | r0 | r0_s43 | s43 | six | cxp | a | b | c | cpt1"; exit 1 ;;
 esac
+if [[ $1 =~ ^(a|b|c|cpt1)$ && ! -f $DIR/model.safetensors.index.json ]]; then
+  TMP=$DIR
+  FREE=$(df --output=avail -BG "$ROOT" | tail -1 | tr -dc 0-9)
+  (( FREE >= 80 )) || { echo "磁盘只剩 ${FREE} GB, 合并要约 75 GB, 先删掉上一个评测完的合并模型"; exit 1; }
+fi
 cleanup() { bash "$REPO/train/interns2/serve.sh" stop >/dev/null 2>&1 || true; [[ -n $TMP ]] && rm -rf "$TMP"; }
 trap cleanup EXIT
 

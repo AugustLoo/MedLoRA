@@ -9,8 +9,8 @@
 #   bash train/interns2/run_sft35.sh smoke     # 第②步数据 3 步冒烟 (多轮对话 + 图片混在一起), 看显存和每步耗时
 #   bash train/interns2/run_sft35.sh train a|b|c
 #   bash train/interns2/run_sft35.sh merge a|b|c
-#   bash train/interns2/run_sft35.sh eval  a|b|c        # 四张表 + SLAKE 中文 + CMExam + 四个外部测试
-#   bash train/interns2/run_sft35.sh evalzh base|final|six   # 已有模型补测两项中文评测, 作对照
+#   bash train/interns2/run_sft35.sh eval  a|b|c        # 四张表 + SLAKE 中文 + CMExam + SLAKE 去掉图像 + 四个外部测试
+#   bash train/interns2/run_sft35.sh evalzh base|final|six   # 已有模型补测两项中文评测 + SLAKE 去掉图像, 作对照
 #   bash train/interns2/run_sft35.sh status
 # CheXpert Plus 成人胸片评测在容器里跑 (同 S2-6datasets 的做法), 本脚本不管。
 # 本脚本从不停世龙的服务: 他的服务 (23333) 开着或 0-3 号卡被占时, 要卡的阶段直接拒绝运行。
@@ -78,6 +78,8 @@ run_evals() {  # run_evals <TAG> <模型目录> [只测中文]
   fi
   [[ -f outputs/eval/slake_zh_$tag.json ]] || { log "$tag SLAKE 中文"; python eval/eval_slake.py --model "$dir" --tag "$tag" --lang zh >> "$L" 2>&1; }
   [[ -f outputs/eval/cmexam_$tag.json ]] || { log "$tag CMExam"; python eval/eval_cmexam.py --model "$dir" --tag "$tag" >> "$L" 2>&1; }
+  # 去掉图像的对照: 只给文字再考一遍 SLAKE, 和有图的分数比, 看模型是不是真的在看图
+  [[ -f outputs/eval/slake_noimg_$tag.json ]] || { log "$tag SLAKE 去掉图像"; python eval/eval_slake.py --model "$dir" --tag "$tag" --no-image >> "$L" 2>&1; }
   if [[ -z $zh_only ]]; then
     for DS in vqa-rad path-vqa; do
       [[ -f outputs/eval/${DS//-/}_$tag.json ]] || { log "$tag $DS"; python eval/eval_medvqa.py --dataset $DS --model "$dir" --tag "$tag" >> "$L" 2>&1; }

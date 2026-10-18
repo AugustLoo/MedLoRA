@@ -91,6 +91,24 @@ were built, de-duplicated and kept apart from their test splits is in `DATA_CARD
 and kept on the host at `/home/ubuntu/chunqian/merged/interns2_6ds` so the comparison service can serve it
 (`train/interns2/compare_serve.sh switch six`). A second seed has not been run.
 
+#### Three-stage adapters (2026-10-16 to 10-18; evaluation pending)
+
+Same LoRA settings as above (rank 16, alpha 32, attention + shared expert, 0.054 %), seed 42. Each stage continues the
+previous stage's adapter (`--init-adapter`), so each comparison adds one stage. Plan and data: `docs/PLAN_35B_CPT.md`.
+
+| Tag | Stages | Data | lr / epochs | Steps | Purpose |
+|---|---|---|---|---|---|
+| `interns2_cpt1` | ① knowledge pretraining (`--mode pt`, loss on all text) | 29 open medical textbooks, clinical guidelines, Chinese medical encyclopaedia — 24,043 chunks, 19.4 M tokens | 1e-4 / 1 (from a 3-point sweep) | 1,502 | stage-① product; validation loss 1.735 → 1.596 |
+| `interns2_s2a` (A) | ② instruction tuning | the six-dataset mix of `interns2_6ds` + 12,000 Chinese medical dialogues (Huatuo, DISC-Med) | 1e-4 / 3 | 5,241 | control |
+| `interns2_s2b` (B) | ① → ② | as A, starting from `interns2_cpt1` | 1e-4 / 3 | 5,241 | does stage ① help (B vs A) |
+| `interns2_s3c` (C) | ① → ② → ③ reasoning | 13,000 exam questions with explanations (CMExam, MedMCQA, medical-o1) | 5e-5 / 1 | 812 | does stage ③ help (C vs B) |
+
+Training introduced the first text-only multi-turn batches into Intern-S2 training and exposed a cache problem in the
+model code: a text-only batch reuses the `rope_deltas` cached from the previous image batch, and a 1-sample batch after a
+4-sample one gets an empty tensor (A crashed at step 1,745). `train_lora.py` now clears the cache before every forward
+pass (commit 3c52642); A resumed from its step-1,700 checkpoint. Earlier adapters are unaffected. None of the four has
+been evaluated yet, and none has a second seed.
+
 ### Hyper-parameters
 
 Identical across every SFT run — this is what makes the comparisons single-variable:

@@ -9,6 +9,8 @@
   python eval/eval_slake.py --model Qwen/Qwen2.5-VL-3B-Instruct --adapter outputs/sft_slake_qlora_r16 --tag sft_r16
   # 中文题 (测试集 1,033 道; 2026-10-16 加, 见 docs/PLAN_35B_CPT.md), 结果另存 slake_zh_<tag>.json
   python eval/eval_slake.py --model ... --tag interns2_base --lang zh
+  # 去掉图像的对照 (只给文字): 分数掉得越多, 说明模型越是真的在看图; 结果另存 slake[_zh]_noimg_<tag>.json
+  python eval/eval_slake.py --model ... --tag interns2_base --no-image
 
 输出: outputs/eval/slake_<tag>.json (汇总指标) 和 slake_<tag>_preds.jsonl (逐条预测, 用于错例分析)
 """
@@ -41,12 +43,13 @@ def main():
     ap.add_argument("--max-new-tokens", type=int, default=32)
     ap.add_argument("--lang", choices=["en", "zh"], default="en",
                     help="zh: 中文题, 中文提示词与按字判分 (medvlm.metrics 的 *_zh)")
+    ap.add_argument("--no-image", action="store_true", help="不给图片, 只给文字 (看图的对照)")
     args = ap.parse_args()
     zh = args.lang == "zh"
     prompt_of = slake_prompt_zh if zh else slake_prompt
     closed_fn, em_fn = (M.closed_score_zh, M.exact_match_zh) if zh else (M.closed_score, M.exact_match)
     rec_fn, f1_fn = (M.char_recall_zh, M.char_f1_zh) if zh else (M.token_recall, M.token_f1)
-    name = "slake_zh" if zh else "slake"
+    name = ("slake_zh" if zh else "slake") + ("_noimg" if args.no_image else "")
 
     rows = load_split(args.split, lang=args.lang)
     if args.limit:
@@ -65,7 +68,7 @@ def main():
     with open(pred_fn, "w", encoding="utf-8") as fout:
         for r in tqdm(rows):
             prompt = prompt_of(r["question"], r["answer_type"])
-            pred = generate(model, processor, prompt, open_image(r), args.max_new_tokens)
+            pred = generate(model, processor, prompt, None if args.no_image else open_image(r), args.max_new_tokens)
             closed = str(r["answer_type"]).upper() == "CLOSED"
             if closed:
                 score = closed_fn(pred, r["answer"])
@@ -89,7 +92,8 @@ def main():
         return round(100 * sum(xs) / len(xs), 2) if xs else None
 
     summary = {
-        "model": args.model, "adapter": args.adapter, "split": args.split, "lang": args.lang, "n": len(rows),
+        "model": args.model, "adapter": args.adapter, "split": args.split, "lang": args.lang, "no_image": args.no_image,
+        "n": len(rows),
         "load_4bit": args.load_4bit, "max_pixels": args.max_pixels, "backend": backend_info(model),
         "seconds": round(time.time() - t0, 1),
         "metrics": {k: mean(v) for k, v in agg.items()},
