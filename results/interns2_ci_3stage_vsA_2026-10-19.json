@@ -1,0 +1,655 @@
+{
+  "reference": "interns2_s2a",
+  "boot": 2000,
+  "seed": 0,
+  "tests": {
+    "SLAKE closed": {
+      "interns2_s2a": {
+        "n": 416,
+        "mean": 94.23,
+        "ci95": [
+          91.83,
+          96.15
+        ]
+      },
+      "interns2_s2b": {
+        "n": 416,
+        "mean": 93.51,
+        "ci95": [
+          91.11,
+          95.67
+        ],
+        "diff_vs_ref": -0.72,
+        "diff_ci95": [
+          -1.92,
+          0.24
+        ],
+        "significant": false
+      },
+      "interns2_cpt1": {
+        "n": 416,
+        "mean": 87.74,
+        "ci95": [
+          84.38,
+          90.62
+        ],
+        "diff_vs_ref": -6.49,
+        "diff_ci95": [
+          -9.62,
+          -3.85
+        ],
+        "significant": true
+      },
+      "interns2_base": {
+        "n": 416,
+        "mean": 84.38,
+        "ci95": [
+          81.01,
+          87.74
+        ],
+        "diff_vs_ref": -9.86,
+        "diff_ci95": [
+          -12.98,
+          -6.73
+        ],
+        "significant": true
+      }
+    },
+    "SLAKE open": {
+      "interns2_s2a": {
+        "n": 645,
+        "mean": 84.96,
+        "ci95": [
+          82.02,
+          87.6
+        ]
+      },
+      "interns2_s2b": {
+        "n": 645,
+        "mean": 83.72,
+        "ci95": [
+          80.93,
+          86.67
+        ],
+        "diff_vs_ref": -1.24,
+        "diff_ci95": [
+          -3.1,
+          0.62
+        ],
+        "significant": false
+      },
+      "interns2_cpt1": {
+        "n": 645,
+        "mean": 64.34,
+        "ci95": [
+          60.62,
+          67.91
+        ],
+        "diff_vs_ref": -20.62,
+        "diff_ci95": [
+          -24.34,
+          -16.9
+        ],
+        "significant": true
+      },
+      "interns2_base": {
+        "n": 645,
+        "mean": 67.13,
+        "ci95": [
+          63.41,
+          70.85
+        ],
+        "diff_vs_ref": -17.83,
+        "diff_ci95": [
+          -21.55,
+          -14.26
+        ],
+        "significant": true
+      }
+    },
+    "SLAKE 中文 closed": {
+      "interns2_s2a": {
+        "n": 420,
+        "mean": 93.1,
+        "ci95": [
+          90.71,
+          95.48
+        ]
+      },
+      "interns2_s2b": {
+        "n": 420,
+        "mean": 94.05,
+        "ci95": [
+          91.67,
+          96.19
+        ],
+        "diff_vs_ref": 0.95,
+        "diff_ci95": [
+          -0.48,
+          2.38
+        ],
+        "significant": false
+      },
+      "interns2_cpt1": {
+        "n": 420,
+        "mean": 82.38,
+        "ci95": [
+          78.57,
+          85.95
+        ],
+        "diff_vs_ref": -10.71,
+        "diff_ci95": [
+          -14.29,
+          -7.38
+        ],
+        "significant": true
+      },
+      "interns2_base": {
+        "n": 420,
+        "mean": 84.29,
+        "ci95": [
+          80.71,
+          87.62
+        ],
+        "diff_vs_ref": -8.81,
+        "diff_ci95": [
+          -12.14,
+          -5.71
+        ],
+        "significant": true
+      }
+    },
+    "SLAKE 中文 open": {
+      "interns2_s2a": {
+        "n": 613,
+        "mean": 76.02,
+        "ci95": [
+          72.59,
+          79.45
+        ]
+      },
+      "interns2_s2b": {
+        "n": 613,
+        "mean": 76.35,
+        "ci95": [
+          72.92,
+          79.61
+        ],
+        "diff_vs_ref": 0.33,
+        "diff_ci95": [
+          -1.63,
+          2.28
+        ],
+        "significant": false
+      },
+      "interns2_cpt1": {
+        "n": 613,
+        "mean": 66.88,
+        "ci95": [
+          63.13,
+          70.47
+        ],
+        "diff_vs_ref": -9.14,
+        "diff_ci95": [
+          -12.07,
+          -6.53
+        ],
+        "significant": true
+      },
+      "interns2_base": {
+        "n": 613,
+        "mean": 69.98,
+        "ci95": [
+          66.39,
+          73.57
+        ],
+        "diff_vs_ref": -6.04,
+        "diff_ci95": [
+          -8.65,
+          -3.43
+        ],
+        "significant": true
+      }
+    },
+    "SLAKE 去掉图像 closed": {
+      "interns2_s2a": {
+        "n": 416,
+        "mean": 53.37,
+        "ci95": [
+          48.56,
+          58.17
+        ]
+      },
+      "interns2_s2b": {
+        "n": 416,
+        "mean": 49.52,
+        "ci95": [
+          44.71,
+          54.33
+        ],
+        "diff_vs_ref": -3.85,
+        "diff_ci95": [
+          -7.21,
+          -0.24
+        ],
+        "significant": true
+      },
+      "interns2_cpt1": {
+        "n": 416,
+        "mean": 50.48,
+        "ci95": [
+          45.67,
+          55.53
+        ],
+        "diff_vs_ref": -2.88,
+        "diff_ci95": [
+          -8.17,
+          2.88
+        ],
+        "significant": false
+      }
+    },
+    "SLAKE 去掉图像 open": {
+      "interns2_s2a": {
+        "n": 645,
+        "mean": 28.06,
+        "ci95": [
+          24.65,
+          31.78
+        ]
+      },
+      "interns2_s2b": {
+        "n": 645,
+        "mean": 26.82,
+        "ci95": [
+          23.41,
+          30.39
+        ],
+        "diff_vs_ref": -1.24,
+        "diff_ci95": [
+          -3.26,
+          0.78
+        ],
+        "significant": false
+      },
+      "interns2_cpt1": {
+        "n": 645,
+        "mean": 10.7,
+        "ci95": [
+          8.37,
+          13.18
+        ],
+        "diff_vs_ref": -17.36,
+        "diff_ci95": [
+          -20.78,
+          -13.95
+        ],
+        "significant": true
+      }
+    },
+    "VQA-RAD closed": {
+      "interns2_s2a": {
+        "n": 251,
+        "mean": 85.66,
+        "ci95": [
+          80.88,
+          90.04
+        ]
+      },
+      "interns2_s2b": {
+        "n": 251,
+        "mean": 83.67,
+        "ci95": [
+          78.88,
+          88.05
+        ],
+        "diff_vs_ref": -1.99,
+        "diff_ci95": [
+          -4.78,
+          0.8
+        ],
+        "significant": false
+      },
+      "interns2_cpt1": {
+        "n": 251,
+        "mean": 83.27,
+        "ci95": [
+          78.49,
+          88.05
+        ],
+        "diff_vs_ref": -2.39,
+        "diff_ci95": [
+          -5.18,
+          0.4
+        ],
+        "significant": false
+      },
+      "interns2_base": {
+        "n": 251,
+        "mean": 80.48,
+        "ci95": [
+          75.3,
+          85.66
+        ],
+        "diff_vs_ref": -5.18,
+        "diff_ci95": [
+          -8.76,
+          -1.59
+        ],
+        "significant": true
+      }
+    },
+    "VQA-RAD open": {
+      "interns2_s2a": {
+        "n": 200,
+        "mean": 35.5,
+        "ci95": [
+          29.0,
+          42.5
+        ]
+      },
+      "interns2_s2b": {
+        "n": 200,
+        "mean": 35.0,
+        "ci95": [
+          28.5,
+          41.5
+        ],
+        "diff_vs_ref": -0.5,
+        "diff_ci95": [
+          -3.5,
+          2.0
+        ],
+        "significant": false
+      },
+      "interns2_cpt1": {
+        "n": 200,
+        "mean": 27.0,
+        "ci95": [
+          21.5,
+          33.5
+        ],
+        "diff_vs_ref": -8.5,
+        "diff_ci95": [
+          -13.5,
+          -3.5
+        ],
+        "significant": true
+      },
+      "interns2_base": {
+        "n": 200,
+        "mean": 33.0,
+        "ci95": [
+          27.0,
+          39.5
+        ],
+        "diff_vs_ref": -2.5,
+        "diff_ci95": [
+          -7.0,
+          2.0
+        ],
+        "significant": false
+      }
+    },
+    "PathVQA closed": {
+      "interns2_s2a": {
+        "n": 3362,
+        "mean": 92.18,
+        "ci95": [
+          91.28,
+          93.07
+        ]
+      },
+      "interns2_s2b": {
+        "n": 3362,
+        "mean": 91.34,
+        "ci95": [
+          90.42,
+          92.27
+        ],
+        "diff_vs_ref": -0.83,
+        "diff_ci95": [
+          -1.46,
+          -0.21
+        ],
+        "significant": true
+      },
+      "interns2_cpt1": {
+        "n": 3362,
+        "mean": 80.01,
+        "ci95": [
+          78.73,
+          81.35
+        ],
+        "diff_vs_ref": -12.17,
+        "diff_ci95": [
+          -13.44,
+          -10.92
+        ],
+        "significant": true
+      },
+      "interns2_base": {
+        "n": 3362,
+        "mean": 80.13,
+        "ci95": [
+          78.79,
+          81.53
+        ],
+        "diff_vs_ref": -12.05,
+        "diff_ci95": [
+          -13.36,
+          -10.8
+        ],
+        "significant": true
+      }
+    },
+    "PathVQA open": {
+      "interns2_s2a": {
+        "n": 3357,
+        "mean": 31.28,
+        "ci95": [
+          29.7,
+          32.86
+        ]
+      },
+      "interns2_s2b": {
+        "n": 3357,
+        "mean": 31.67,
+        "ci95": [
+          30.09,
+          33.21
+        ],
+        "diff_vs_ref": 0.39,
+        "diff_ci95": [
+          -0.33,
+          1.07
+        ],
+        "significant": false
+      },
+      "interns2_cpt1": {
+        "n": 3357,
+        "mean": 24.04,
+        "ci95": [
+          22.61,
+          25.47
+        ],
+        "diff_vs_ref": -7.24,
+        "diff_ci95": [
+          -8.43,
+          -5.93
+        ],
+        "significant": true
+      },
+      "interns2_base": {
+        "n": 3357,
+        "mean": 24.19,
+        "ci95": [
+          22.76,
+          25.62
+        ],
+        "diff_vs_ref": -7.09,
+        "diff_ci95": [
+          -8.37,
+          -5.84
+        ],
+        "significant": true
+      }
+    },
+    "MedQA acc": {
+      "interns2_s2a": {
+        "n": 1273,
+        "mean": 85.55,
+        "ci95": [
+          83.66,
+          87.35
+        ]
+      },
+      "interns2_s2b": {
+        "n": 1273,
+        "mean": 85.94,
+        "ci95": [
+          83.9,
+          87.82
+        ],
+        "diff_vs_ref": 0.39,
+        "diff_ci95": [
+          -0.79,
+          1.49
+        ],
+        "significant": false
+      },
+      "interns2_cpt1": {
+        "n": 1273,
+        "mean": 85.7,
+        "ci95": [
+          83.74,
+          87.51
+        ],
+        "diff_vs_ref": 0.16,
+        "diff_ci95": [
+          -1.26,
+          1.65
+        ],
+        "significant": false
+      },
+      "interns2_base": {
+        "n": 1273,
+        "mean": 85.0,
+        "ci95": [
+          83.03,
+          86.8
+        ],
+        "diff_vs_ref": -0.55,
+        "diff_ci95": [
+          -2.2,
+          0.94
+        ],
+        "significant": false
+      }
+    },
+    "CMExam acc": {
+      "interns2_s2a": {
+        "n": 1000,
+        "mean": 93.9,
+        "ci95": [
+          92.5,
+          95.3
+        ]
+      },
+      "interns2_s2b": {
+        "n": 1000,
+        "mean": 93.2,
+        "ci95": [
+          91.7,
+          94.8
+        ],
+        "diff_vs_ref": -0.7,
+        "diff_ci95": [
+          -1.8,
+          0.4
+        ],
+        "significant": false
+      },
+      "interns2_cpt1": {
+        "n": 1000,
+        "mean": 93.8,
+        "ci95": [
+          92.4,
+          95.2
+        ],
+        "diff_vs_ref": -0.1,
+        "diff_ci95": [
+          -1.2,
+          1.0
+        ],
+        "significant": false
+      },
+      "interns2_base": {
+        "n": 1000,
+        "mean": 93.0,
+        "ci95": [
+          91.5,
+          94.6
+        ],
+        "diff_vs_ref": -0.9,
+        "diff_ci95": [
+          -2.0,
+          0.2
+        ],
+        "significant": false
+      }
+    },
+    "PneumoniaMNIST closed": {
+      "interns2_s2a": {
+        "n": 624,
+        "mean": 93.11,
+        "ci95": [
+          91.03,
+          95.03
+        ]
+      },
+      "interns2_s2b": {
+        "n": 624,
+        "mean": 93.27,
+        "ci95": [
+          91.35,
+          95.19
+        ],
+        "diff_vs_ref": 0.16,
+        "diff_ci95": [
+          -0.8,
+          1.12
+        ],
+        "significant": false
+      },
+      "interns2_cpt1": {
+        "n": 624,
+        "mean": 83.49,
+        "ci95": [
+          80.29,
+          86.22
+        ],
+        "diff_vs_ref": -9.62,
+        "diff_ci95": [
+          -12.98,
+          -6.41
+        ],
+        "significant": true
+      },
+      "interns2_base": {
+        "n": 624,
+        "mean": 84.94,
+        "ci95": [
+          82.21,
+          87.66
+        ],
+        "diff_vs_ref": -8.17,
+        "diff_ci95": [
+          -11.22,
+          -4.97
+        ],
+        "significant": true
+      }
+    }
+  }
+}
