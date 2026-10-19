@@ -91,7 +91,7 @@ were built, de-duplicated and kept apart from their test splits is in `DATA_CARD
 and kept on the host at `/home/ubuntu/chunqian/merged/interns2_6ds` so the comparison service can serve it
 (`train/interns2/compare_serve.sh switch six`). A second seed has not been run.
 
-#### Three-stage adapters (2026-10-16 to 10-18; evaluation pending)
+#### Three-stage adapters (trained 2026-10-16 to 10-18, evaluated 10-19)
 
 Same LoRA settings as above (rank 16, alpha 32, attention + shared expert, 0.054 %), seed 42. Each stage continues the
 previous stage's adapter (`--init-adapter`), so each comparison adds one stage. Plan and data: `docs/PLAN_35B_CPT.md`.
@@ -106,8 +106,14 @@ previous stage's adapter (`--init-adapter`), so each comparison adds one stage. 
 Training introduced the first text-only multi-turn batches into Intern-S2 training and exposed a cache problem in the
 model code: a text-only batch reuses the `rope_deltas` cached from the previous image batch, and a 1-sample batch after a
 4-sample one gets an empty tensor (A crashed at step 1,745). `train_lora.py` now clears the cache before every forward
-pass (commit 3c52642); A resumed from its step-1,700 checkpoint. Earlier adapters are unaffected. None of the four has
-been evaluated yet, and none has a second seed.
+pass (commit 3c52642); A resumed from its step-1,700 checkpoint. Earlier adapters are unaffected.
+
+Evaluated 2026-10-19 (`results/interns2_3stage_eval_2026-10-19.json`, one run each): fine-tuning gives the gains
+(SLAKE closed 87.7 for stage ① only vs 93.5–94.2 for A/B/C); B − A and C − B differences are within the paired 95%
+intervals on almost every test (exceptions: PathVQA B − A −0.8, PneumoniaMNIST C − B +1.3), so neither text pretraining
+nor reasoning training adds a measurable gain. Without the image, SLAKE closed accuracy falls to 49–53. Adult chest X-ray
+description omissions (keyword judge) are 19.8 / 22.4 / 24.4% for A / B / C versus 13.8% for `interns2_6ds`; whether this
+is the Chinese dialogues or seed variance is open. None has a second seed yet.
 
 ### Hyper-parameters
 
