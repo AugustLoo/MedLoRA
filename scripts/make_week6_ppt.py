@@ -132,16 +132,16 @@ fill_table(t, [
     [("中文数据：先测再训", "Chinese data: measure, then train"),
      ("部分完成", "Partly done"),
      ("基线已测；SLAKE 中文题未加", "Baseline done; SLAKE zh items next")],
-    [("种子 43 重训、上线新模型", "Seed-43 retrain, new deployment"),
-     ("未开始", "Not started"),
-     ("要停世龙的服务，等排显卡时间", "Needs Shilong's GPU slot")],
+    [("种子 43 重训 A、B", "Seed-43 retrain of A and B"),
+     ("进行中，已暂停", "In progress, paused"),
+     ("A 训到一半（断点已存），卡让给世龙", "A half done (checkpoint); GPUs back to Shilong")],
 ])
 fill(shape(S[1], "takeaway").text_frame, [
-    "主要阻碍：显卡要停世龙的服务，硬盘只够放一个合并模型    所需支持：两晚显卡、临时硬盘",
-    "Main blocker: GPU needs Shilong's service stopped; disk fits one model    Support needed: two GPU nights, disk space",
+    "主要阻碍：这几天卡要跑世龙的服务，训练暂停    所需支持：约 18 小时显卡、临时硬盘",
+    "Main blocker: GPUs serve Shilong's model this week; training paused    Support needed: ~18 GPU hours, disk space",
 ])
 NOTES.append("上周说的三件事：三步训练已经全部完成；中文数据部分完成，基线测了、中文对话加进了第 2 步，但 SLAKE 中文训练题还没加；"
-             "种子 43 重训和上线 S2-6datasets 还没做，因为要停世龙的服务。需要的支持：两个晚上的显卡，以及硬盘临时空间。")
+             "种子 43 重训已经开始，A 训到一半、断点已存，但这几天卡要跑世龙的服务，所以先暂停。需要的支持：卡空出来后约 18 小时显卡，以及硬盘临时空间。")
 
 # ---------------------------------------------------------------- 3 核心挑战与研究问题
 boxes(S[2], [
@@ -212,8 +212,8 @@ fill_table(t, [
       "Remove stage 1 (A) or 3 (B); success = 95% CI excludes 0")],
 ])
 fill(shape(S[5], "takeaway").text_frame, [
-    "本周实验：A、B 用种子 43 重训（各约 11 小时）    复现记录：脚本与结果在 GitHub MedLoRA",
-    "This week's run: seed-43 retrain of A and B (~11 h each)    Reproducibility: scripts and results on GitHub",
+    "本周实验：种子 43 重训 A 已到一半，暂停中；B 未开始    复现记录：脚本与结果在 GitHub MedLoRA",
+    "This week's run: seed-43 A half done, paused; B not started    Reproducibility: scripts and results on GitHub",
 ])
 NOTES.append("实验设计：A 对比 B 看预训练，C 对比 B 看推理训练。所有设置固定，只差一步。成功标准事先定好：配对 95% 置信区间不跨 0 才算有差别。")
 
@@ -276,23 +276,23 @@ fill_table(t, [
      ("初稿、原型系统", "Draft, prototype"), ("未开始", "Not started")],
 ])
 fill(shape(S[8], "takeaway").text_frame, [
-    "下周承诺：种子 43 重训并评测 A（约 11.5 小时）    风险预案：排不上显卡就先写实验章节",
-    "Next week: seed-43 retrain and evaluation of A (~11.5 h)    Fallback: write the experiment chapter first",
+    "下周承诺：卡空出来后接着训 A、再训 B（共约 18 小时）    风险预案：排不上就先写实验章节",
+    "Next week: resume A, then B, when GPUs free up (~18 h)    Fallback: write the experiment chapter first",
 ])
-NOTES.append("时间安排：前四周做完数据和基线，第 5 到 8 周是核心方法，现在三步训练已经评完。下周计划用种子 43 重训 A；如果显卡排不上，先写论文的实验章节。")
+NOTES.append("时间安排：前四周做完数据和基线，第 5 到 8 周是核心方法，现在三步训练已经评完。种子 43 的 A 已经训到一半，卡空出来后接着训，再训 B；排不上就先写论文的实验章节。")
 
 # ---------------------------------------------------------------- 10 讨论与决策
 boxes(S[9], [
     ["要不要做带图的预训练？A：做（约 2–3 晚显卡）；B：不做，写成结论。建议先做种子 43 再定",
      "Image-text CPT? A: do it (~2–3 GPU nights); B: report the finding. Suggest seed 43 first"],
-    ["显卡两晚（停世龙服务）；/home/share 临时硬盘；论文能否加原型系统一章",
-     "Two GPU nights; temporary disk on /home/share; may the thesis add a prototype chapter?"],
+    ["显卡约 18 小时（世龙服务空出时）；临时硬盘；论文能否加原型系统一章",
+     "~18 GPU hours when Shilong's service allows; temporary disk; a prototype chapter?"],
     ["会议决策：（会后填写）", "Decision: (to fill after the meeting)", "执行事项：（会后填写） / Action: (after the meeting)"],
 ], [
     "每周材料：汇报 PPT、实验日志（results/README.md）、代码与配置（GitHub AugustLoo/MedLoRA）",
     "Weekly package: slides, experiment log (results/README.md), code and config (GitHub AugustLoo/MedLoRA)",
 ])
-NOTES.append("想请老师决定：要不要做带图的预训练。我的建议是先用种子 43 确认现在的结论，再决定。需要的支持：两个晚上的显卡、硬盘临时空间，以及论文能否加原型系统那一章。")
+NOTES.append("想请老师决定：要不要做带图的预训练。我的建议是先用种子 43 确认现在的结论，再决定。需要的支持：约 18 小时显卡、硬盘临时空间，以及论文能否加原型系统那一章。")
 
 for slide, note in zip(S, NOTES):
     slide.notes_slide.notes_text_frame.text = note
