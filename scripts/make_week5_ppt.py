@@ -144,7 +144,7 @@ for i, (big, cn, en, col) in enumerate(stats):
     box(s, x, 3.75, 3.7, 2.2, NAVY2)
     text(s, x + 0.35, 4.0, 3.2, 0.9, [(big, {"size": 28, "bold": True, "color": col, "font": NUM})])
     text(s, x + 0.35, 4.95, 3.1, 0.9, [(cn, {"size": 16, "color": WHITE, "space": 2}), (en, {"size": 12, "color": PALE, "font": NUM})])
-text(s, 0.8, 6.65, 11.5, 0.4, [("Chunqian Loo · Intern-S2-Preview 35B · LoRA SFT · 单次训练 single seed", {"size": 12, "color": PALE, "font": NUM})])
+text(s, 0.8, 6.65, 11.5, 0.4, [("LOO CHUN QIAN · Intern-S2-Preview 35B · LoRA SFT · 单次训练 single seed", {"size": 12, "color": PALE, "font": NUM})])
 notes(s, "这周把老师要求的两个新模型都训练完、评测完了。最重要的结果：描述胸片时把病说成正常的比例，从现在部署的模型的 68.5% 降到 13.8%；"
          "病理图问答从 76.8 涨到 92.7。漏报的判断还用 CheXbert 交叉核对过，和原来的关键词判断 95.6% 一致。")
 

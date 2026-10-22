@@ -1,6 +1,6 @@
 # Data Card — MedLoRA
 
-**Version** 1.6 · 2026-10-10 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.6 · 2026-10-10 · Author: LOO CHUN QIAN · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 Every dataset used for training or evaluation in this project, how it was obtained, what was done to

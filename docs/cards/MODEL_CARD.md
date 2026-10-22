@@ -1,6 +1,6 @@
 # Model Card — MedLoRA adapters for Qwen2.5-VL-3B-Instruct and Intern-S2-Preview (35B)
 
-**Version** 1.8 · 2026-10-13 · Author: Chunqian Loo · Course project, Topic 6 (Task 1.3)
+**Version** 1.8 · 2026-10-13 · Author: LOO CHUN QIAN · Course project, Topic 6 (Task 1.3)
 **Repository** https://github.com/AugustLoo/MedLoRA
 
 This card covers the LoRA adapters produced in this project: the main family on Qwen2.5-VL-3B-Instruct, and a

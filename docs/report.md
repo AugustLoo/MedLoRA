@@ -1,6 +1,6 @@
 # Parameter-Efficient Continued Pre-training and Instruction Tuning of a Medical Vision-Language Model
 
-**Course project, Topic 6 (Task 1.3)** · Draft v1.4, 2026-10-07 · Author: Chunqian Loo
+**Course project, Topic 6 (Task 1.3)** · Draft v1.4, 2026-10-07 · Author: LOO CHUN QIAN
 
 > **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1, the A-server control and the full C2 replay curve (0 / 99 / 300 / 900, two seeds at 300 and 900) are complete, and the central replay experiment has been repeated on a 35B mixture-of-experts model at four replay budgets (0 / 99 / 300 / 900) with two seeds each, plus six group-D ablations and a free-text probe (Section 5.7), and evaluated on four external test sets approved by the instructor (Section 5.8). Experiment B3 (Section 5.9) has run: image-text CPT on CheXpert Plus with and without alignment-score filtering. Missed abnormalities are measured on 3,189 adult CheXpert Plus films (Section 5.10). Section 2 (Related Work) is written; the 29 original entries in `docs/refs.bib` were checked against arXiv or the publisher page on 2026-09-23 and the nine added for Section 5.7 on 2026-09-27 (record in the file header). No `[TODO]` markers remain; open items are listed as limitations in Section 7. Repository: https://github.com/AugustLoo/MedLoRA
 

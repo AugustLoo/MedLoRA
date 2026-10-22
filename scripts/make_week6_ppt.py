@@ -115,7 +115,7 @@ NOTES = []
 fill(shape(S[0], "details").text_frame, [
     "医学多模态模型的参数高效增量预训练与指令微调",
     "Parameter-Efficient Incremental Pretraining and Instructional Fine-Tuning of Medical Multimodal Models",
-    "Chunqian Loo    导师 / Supervisor：徐蕾",
+    "LOO CHUN QIAN    导师 / Supervisor：徐蕾",
     "第 6 周 / Week 6    2026-10-22",
     "",
     "本周核心进展：三步训练的四个模型全部评完；分数来自微调，增量预训练没有可测提升",
