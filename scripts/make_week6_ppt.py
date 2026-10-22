@@ -95,9 +95,10 @@ def set_rows(tbl, n_body, row_h=None):
 
 
 def fill_table(tbl, body):
+    """每格一个元组: 通常 (中文, 英文); 元组更长就按顺序一行一段。"""
     for i, row in enumerate(body, start=1):
-        for j, (zh, en) in enumerate(row):
-            fill(tbl.cell(i, j).text_frame, [zh, en])
+        for j, lines in enumerate(row):
+            fill(tbl.cell(i, j).text_frame, list(lines))
 
 
 def boxes(slide, items, takeaway):
@@ -197,13 +198,16 @@ NOTES.append("方法：同一个 LoRA 补丁，三步接着训，每步只多加
 
 # ---------------------------------------------------------------- 6 实验计划
 t = table(S[5])
+set_rows(t, 4, row_h=0.6)  # 行高下限调小, 数据那一格写了三行数据集名, 整张表才不会压到底部结论栏
 fill_table(t, [
     [("问题与对比", "Question / comparison"),
      ("A（只微调）对比 B（预训练 + 微调）；C（+ 推理训练）对比 B",
       "A (fine-tune) vs B (CPT + fine-tune); C (+ reasoning) vs B")],
     [("数据与划分", "Data / split"),
-     (f"教材 {TOK_M:,.1f}M token；问答 15,953 + 中文对话 {N_ZH:,}；考题 {N_R:,}",
-      f"{TOK_M:,.1f}M tokens; 15,953 + {N_ZH:,} Q&A; {N_R:,} exam items; test sets isolated")],
+     (f"预训练：OpenMedText 教材 29 本、临床指南、MMedC 中文百科（{TOK_M:,.1f}M token）",
+      f"微调：六个看图数据集 15,953 + 华佗、DISC 中文对话 {N_ZH:,}",
+      f"推理：CMExam、MedMCQA、medical-o1 考题 {N_R:,}；全部与测试集隔离",
+      "CPT: OpenMedText, guidelines, MMedC; FT: + Huatuo, DISC; exams: CMExam, MedMCQA, o1")],
     [("指标与控制变量", "Metrics / controls"),
      ("看图 / 考题准确率（↑）、胸片漏报（↓）；LoRA、种子 42 固定",
       "VQA / exam accuracy (↑), X-ray omission (↓); LoRA r16, seed 42 fixed")],
