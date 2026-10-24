@@ -1,14 +1,14 @@
 # Parameter-Efficient Continued Pre-training and Instruction Tuning of a Medical Vision-Language Model
 
-**Course project, Topic 6 (Task 1.3)** · Draft v1.4, 2026-10-07 · Author: LOO CHUN QIAN
+**Course project, Topic 6 (Task 1.3)** · Draft v1.5, 2026-10-24 · Author: LOO CHUN QIAN
 
-> **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1, the A-server control and the full C2 replay curve (0 / 99 / 300 / 900, two seeds at 300 and 900) are complete, and the central replay experiment has been repeated on a 35B mixture-of-experts model at four replay budgets (0 / 99 / 300 / 900) with two seeds each, plus six group-D ablations and a free-text probe (Section 5.7), and evaluated on four external test sets approved by the instructor (Section 5.8). Experiment B3 (Section 5.9) has run: image-text CPT on CheXpert Plus with and without alignment-score filtering. Missed abnormalities are measured on 3,189 adult CheXpert Plus films (Section 5.10). Section 2 (Related Work) is written; the 29 original entries in `docs/refs.bib` were checked against arXiv or the publisher page on 2026-09-23 and the nine added for Section 5.7 on 2026-09-27 (record in the file header). No `[TODO]` markers remain; open items are listed as limitations in Section 7. Repository: https://github.com/AugustLoo/MedLoRA
+> **Draft status.** Sections 3, 4, 5 and 6 are written from the repository as it stands. Experiments 0, A, B1, B2, C1, the A-server control and the full C2 replay curve (0 / 99 / 300 / 900, two seeds at 300 and 900) are complete, and the central replay experiment has been repeated on a 35B mixture-of-experts model at four replay budgets (0 / 99 / 300 / 900) with two seeds each, plus six group-D ablations and a free-text probe (Section 5.7), and evaluated on four external test sets approved by the instructor (Section 5.8). Experiment B3 (Section 5.9) has run: image-text CPT on CheXpert Plus with and without alignment-score filtering. Missed abnormalities are measured on 3,189 adult CheXpert Plus films (Section 5.10) and re-read by a model-based judge (Section 5.11). Three further 35B runs are complete: one SFT mix covering six datasets (Section 5.12), report-only fine-tuning on CheXpert Plus (Section 5.13) and the three-stage pipeline of knowledge pre-training, instruction tuning and reasoning training (Section 5.14); a second seed of the three-stage models is in training. Section 2 (Related Work) is written; the 29 original entries in `docs/refs.bib` were checked against arXiv or the publisher page on 2026-09-23 and the nine added for Section 5.7 on 2026-09-27 (record in the file header). No `[TODO]` markers remain; open items are listed as limitations in Section 7. Repository: https://github.com/AugustLoo/MedLoRA
 
 ---
 
 ## Abstract
 
-Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 85.1 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 84.1) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. Evaluating the CPT-stage adapters without SFT localises a persistent "yes" bias to the short-answer SFT data rather than to CPT or to the base model. Acting on that diagnosis, mixing 900 three-class text examples into the SFT set (experiment C1) raises PubMedQA macro-F1 from 51.5 to 61.1 and triples the number of correctly answered "maybe" questions, at a cost of 2.2 points of general VQA accuracy and roughly one net SLAKE question; a single-variable control run on the same GPU isolates that trade-off to the replay data itself. Varying the replay budget over 0 / 99 / 300 / 900 examples, with two seeds at 300 and 900, shows the calibration gain saturates early: 99 examples buy 63 % of the 900-example gain and 300 buy 92 %, the remainder being within seed spread, at a smaller retention cost and no main-task cost. The per-class balance of the fix, by contrast, improves monotonically with budget: every replay budget over-corrects toward "no" and "maybe", and 900 examples bring the predicted distribution closest to the truth. A second, broader retention probe (MMBench, 500 fixed multiple-choice questions) shows no replay cost at all, which localises the measured loss to short-answer output format rather than to visual ability. The alignment problem in this pipeline is therefore a data-mixture problem, addressable without a separate preference-optimisation stage. Repeating the zero- and 300-example conditions on Intern-S2-Preview, a 35B mixture-of-experts model roughly twelve times larger, with two seeds each, shows that the fix transfers but the cause does not: the 35B base model is as reluctant to answer "maybe" as the 3B base, short-answer SFT does not reliably make it worse, and 300 replay examples still raise macro-F1 by five points on average (61.4 → 66.3) without the over-correction seen at 3B and at no measurable cost to the main task. Extending the 35B budget to 99 and 900 examples reproduces the shape of the 3B curve — the smallest budget over-predicts "maybe" at both scales — but flattens it: every budget from 99 to 900 lies within seed spread of the others (macro-F1 64.7–66.3), and none costs retention. Letting the 35B base model reason before answering does not substitute for replay: on the questions it finishes within 4,096 tokens it answers 5 of 37 "maybe" questions correctly against 9-12 for the 300-example replay models, and it fails to finish on a third of the "maybe" questions. Ablating the 35B training settings shows that only under-training reliably hurts and that LoRA on the shared expert can be dropped; a free-text probe shows no degradation of long-form description. On four external test sets the fine-tuned 35B models gain 2.8–4.8 points on VQA-RAD, lose 2.3–3.9 points on PathVQA while shifting toward "no", and lose 1.0–1.6 points on MedQA, consistently across four runs; replay makes no measurable difference there, and on chest X-rays every model often describes a film it has just called pneumonia as free of lung abnormality. Image-text CPT on 5,000 CheXpert Plus pairs, chosen either by a Topic 1 alignment score or at random, changes neither the main task nor the comparison between the two (B3). On 3,189 adult chest X-rays every fine-tuned 35B model answers "abnormal" more readily when asked (missed abnormal films 12.9 % → 2–5 %, specificity 82 % → 38–59 %), while three of four runs describe more abnormal films as normal (29 % → 53–69 %), so the two question formats increasingly contradict each other. Data-generation scripts, evaluation code and configurations are released for one-command reproduction; the trained adapters are archived by the author rather than published.
+Open-weight vision-language models (VLMs) in the 2–7B range answer general visual questions well but lag on medical images. This project studies a parameter-efficient adaptation pipeline, continued pre-training (CPT) followed by LoRA/QLoRA supervised fine-tuning (SFT), for Qwen2.5-VL-3B-Instruct, with three fixed evaluation tables: medical VQA (SLAKE), general-ability retention (TextVQA subset) and answer reliability (PubMedQA). QLoRA SFT on 4.9k SLAKE questions raises closed-question accuracy from 67.3 to 85.1 and open-question recall from 46.7 to 82.2 with no measurable loss on TextVQA. A text-only CPT stage on 10k PubMed abstracts does not transfer to image questions (SLAKE unchanged within ±0.6) but improves text-only medical reasoning (PubMedQA +2.2). An image-text CPT stage on 3.5k IU X-Ray image-report pairs learns the radiology report style but not the findings, and leaves SLAKE unchanged (closed 84.1) while lowering open lesion questions; in this regime, a 3B model with a frozen vision tower and a few thousand CPT examples, the CPT stage does not contribute to the primary metric. Evaluating the CPT-stage adapters without SFT localises a persistent "yes" bias to the short-answer SFT data rather than to CPT or to the base model. Acting on that diagnosis, mixing 900 three-class text examples into the SFT set (experiment C1) raises PubMedQA macro-F1 from 51.5 to 61.1 and triples the number of correctly answered "maybe" questions, at a cost of 2.2 points of general VQA accuracy and roughly one net SLAKE question; a single-variable control run on the same GPU isolates that trade-off to the replay data itself. Varying the replay budget over 0 / 99 / 300 / 900 examples, with two seeds at 300 and 900, shows the calibration gain saturates early: 99 examples buy 63 % of the 900-example gain and 300 buy 92 %, the remainder being within seed spread, at a smaller retention cost and no main-task cost. The per-class balance of the fix, by contrast, improves monotonically with budget: every replay budget over-corrects toward "no" and "maybe", and 900 examples bring the predicted distribution closest to the truth. A second, broader retention probe (MMBench, 500 fixed multiple-choice questions) shows no replay cost at all, which localises the measured loss to short-answer output format rather than to visual ability. The alignment problem in this pipeline is therefore a data-mixture problem, addressable without a separate preference-optimisation stage. Repeating the zero- and 300-example conditions on Intern-S2-Preview, a 35B mixture-of-experts model roughly twelve times larger, with two seeds each, shows that the fix transfers but the cause does not: the 35B base model is as reluctant to answer "maybe" as the 3B base, short-answer SFT does not reliably make it worse, and 300 replay examples still raise macro-F1 by five points on average (61.4 → 66.3) without the over-correction seen at 3B and at no measurable cost to the main task. Extending the 35B budget to 99 and 900 examples reproduces the shape of the 3B curve — the smallest budget over-predicts "maybe" at both scales — but flattens it: every budget from 99 to 900 lies within seed spread of the others (macro-F1 64.7–66.3), and none costs retention. Letting the 35B base model reason before answering does not substitute for replay: on the questions it finishes within 4,096 tokens it answers 5 of 37 "maybe" questions correctly against 9-12 for the 300-example replay models, and it fails to finish on a third of the "maybe" questions. Ablating the 35B training settings shows that only under-training reliably hurts and that LoRA on the shared expert can be dropped; a free-text probe shows no degradation of long-form description. On four external test sets the fine-tuned 35B models gain 2.8–4.8 points on VQA-RAD, lose 2.3–3.9 points on PathVQA while shifting toward "no", and lose 1.0–1.6 points on MedQA, consistently across four runs; replay makes no measurable difference there, and on chest X-rays every model often describes a film it has just called pneumonia as free of lung abnormality. Image-text CPT on 5,000 CheXpert Plus pairs, chosen either by a Topic 1 alignment score or at random, changes neither the main task nor the comparison between the two (B3). On 3,189 adult chest X-rays every fine-tuned 35B model answers "abnormal" more readily when asked (missed abnormal films 12.9 % → 2–5 %, specificity 82 % → 38–59 %), while three of four runs describe more abnormal films as normal (29 % → 53–69 %), so the two question formats increasingly contradict each other; re-reading every description with CheXbert keeps the ordering of models and confirms the seed dependence. Training on the training splits of all six evaluation datasets leaves the main tables unchanged, lifts PathVQA by 12.5 points over the base and, without any description training, lowers description omission on both paediatric and adult chest films (adult: 11.2 % by CheXbert, one seed), while report-only training on 10,000 CheXpert Plus pairs gives the most balanced adult-film behaviour (omission 10.2 %, false alarms 25.1 %) and nothing else. Finally, the full three-stage pipeline at 35B (19.4 M tokens of textbook, guideline and encyclopedia pre-training, then 27,953 instruction examples, then 13,000 explained exam questions) shows that the gains come from instruction tuning alone: under paired bootstrap intervals, pre-training changes no test except PathVQA (−0.8) and reasoning training none except PneumoniaMNIST (+1.3), Chinese dialogue data does not lift Chinese short open answers, and a no-image control confirms the models answer from the image. Data-generation scripts, evaluation code and configurations are released for one-command reproduction; the trained adapters are archived by the author rather than published.
 
 ---
 
@@ -910,6 +910,158 @@ Two qualifications apply. The labels are produced by CheXbert from report text, 
 and the normal class is small (231 films), so specificity is the least precise number in the table. And each model was
 decoded once, greedily; the seed dependence above is between training runs, not between decodings.
 
+### 5.11 A model-based judge for the free-text measure (CheXbert)
+
+The keyword judge of Section 5.10 was validated on only 30 descriptions. Every description of six 35B models was
+therefore re-read by CheXbert \citep{smit2020chexbert}, the same report labeller that produced the CheXpert Plus reference
+labels, run on the CPU of the container that holds the data (about two seconds per sentence; one model takes several
+hours). A description counts as omitting the abnormality when CheXbert finds no positive finding other than support
+devices. The judge was first checked on 300 radiologist reports, where it agrees with the dataset's own labels on
+96.2 % of them. Snapshot: `results/interns2_chexbert_2026-10-18.json`.
+
+| 35B | omitted, CheXbert (%) | omitted, keyword (%) | answered "yes", described clean (%) | normal films described as abnormal (%) | agreement of the two judges (%) |
+|---|---|---|---|---|---|
+| base | 24.95 | 29.2 | 18.1 | 33.8 | 94.4 |
+| replay 300, s42 | 56.53 | 68.5 | 55.0 | 19.5 | 86.9 |
+| replay 300, s43 | 35.86 | 56.6 | 34.8 | 33.3 | 78.1 |
+| replay 0, s42 | 43.80 | 52.5 | 41.8 | 20.4 | 91.0 |
+| replay 0, s43 | 9.77 | 14.6 | 8.3 | 50.6 | 93.8 |
+| S2-6datasets (Section 5.12) | 11.20 | 13.8 | 7.6 | 35.5 | 95.6 |
+| S2-CheXpertPlus (Section 5.13) | 10.20 | 14.0 | 4.3 | 26.8 | 96.2 |
+
+The ordering of models is unchanged, so the conclusions of Section 5.10 hold under the stronger judge. The keyword rule
+over-counts omissions for every model, by 2.6–20.7 points, and most on the most formulaic descriptions (the replay-300
+s43 model, where the two judges agree on only 78 % of films). CheXbert is the primary judge from here on, with the
+keyword rule as a cross-check. The seed dependence also survives: the same recipe gives 43.8 % and 9.8 % (replay 0) and
+56.5 % and 35.9 % (replay 300). And the models that omit least describe more normal films as abnormal (replay 0 s43:
+50.6 % of 231 normal films), so a lower omission rate is partly bought with false alarms.
+
+### 5.12 Six training sets in one SFT mix (S2-6datasets)
+
+At the instructor's request the 35B model was retrained on the training splits of all six evaluation datasets, keeping
+every setting of the replay-300 model (Section 5.7) and changing only the data: SLAKE 4,919, PubMedQA replay 300,
+VQA-RAD 734, PathVQA 5,000, MedQA 3,000 and PneumoniaMNIST 2,000, 15,953 examples in all. Test items are excluded by
+image and by question; 202 of the 203 VQA-RAD test images also appear in its official training split, so the 1,059
+training questions on those images were removed (data card §4e). 2,991 steps, 5 h 40 min, one seed. For this model the
+four external sets of Section 5.8 are in-domain (training splits seen, test items not), so they measure in-domain gain,
+not transfer.
+
+| 35B | SLAKE closed | SLAKE open EM | TextVQA | MMBench | PubMedQA macro-F1 | "maybe" correct / 55 | VQA-RAD closed | PathVQA closed | MedQA | PneumoniaMNIST acc / missed of 390 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| base | 84.38 | 67.13 | 88.78 | 93.6 | 61.83 | 7 | 80.48 | 80.13 | 85.00 | 84.94 / 76 |
+| replay 300 (s42) | 94.47 | 86.36 | 86.67 | 94.0 | 67.29 | 22 | 85.26 | 76.83 | 83.58 | 84.29 / 69 |
+| **S2-6datasets** | **94.71** | **86.20** | **87.22** | **93.4** | **66.59** | **23** | **83.27** | **92.65** | **85.31** | **95.35 / 4** |
+
+*On the four main tables the extra 10,734 examples neither help nor hurt*: every difference from the replay-300 model is
+smaller than the gap between its two seeds. *In-domain the gains are large where the domain was missing.* PathVQA closed
+accuracy rises 12.5 points over the base and 15.8 over replay 300, and the shift toward "no" of Section 5.8 disappears
+(predicted "yes" 53.1 % against 54.0 % true); PathVQA training and test splits share no images, so this is learning the
+domain rather than recognising images. PneumoniaMNIST misses 4 of 390 pneumonia films instead of 69–76, and MedQA returns
+to the base level. VQA-RAD does not move, with only 734 training questions left after decontamination.
+
+*Free-text omission falls although no description was trained.* PneumoniaMNIST was trained with yes/no questions only, yet
+pneumonia films described without any lung abnormality fall from 67–78 % to 20.8 %, and films called pneumonia but
+described as clean from 60–73 % to 19.9 %. On the 3,189 adult CheXpert Plus films of Section 5.10, which this model never
+trained on, omission falls to 13.8 % by keyword and 11.2 % by CheXbert (replay 300: 68.5 / 56.5 %), self-contradiction to
+10.2 %, and discrimination reaches 57.2 points, the first fine-tuned 35B model above the base (52.2). It is a single seed,
+however, and the replay-0 recipe alone spans 9.8–43.8 % on this measure (Section 5.11), so the adult-film result is
+provisional until a second seed is trained.
+
+### 5.13 Report-only fine-tuning on CheXpert Plus (S2-CheXpertPlus)
+
+To test whether report writing itself teaches the model to mention abnormalities, a 35B adapter was trained only on
+image → report pairs: all 10,000 pairs of the B3 pool (Section 5.9; patients disjoint from the 3,189 test films), one of
+three report-writing prompts per image, target "Findings + Impression", other settings as in Section 5.7. 1,875 steps,
+3 h 19 min, final loss 0.757, one seed. The data were generated in the container and moved to the GPU host over the
+machine's internal network only.
+
+| 35B | SLAKE closed / open EM | PubMedQA macro-F1 / "maybe" correct | PathVQA closed | MedQA | adult films: omitted (CheXbert / keyword) | discrimination | contradiction | yes/no missed | false alarm (100 − specificity) |
+|---|---|---|---|---|---|---|---|---|---|
+| base | 84.38 / 67.13 | 61.83 / 7 | 80.13 | 85.00 | 25.0 / 29.2 % | 52.2 | 21.6 % | 12.9 % | 18.2 % |
+| replay 300 (s42) | 94.47 / 86.36 | 67.29 / 22 | 76.83 | 83.58 | 56.5 / 68.5 % | 26.4 | 66.9 % | 4.8 % | 41.1 % |
+| S2-6datasets | 94.71 / 86.20 | 66.59 / 23 | 92.65 | 85.31 | 11.2 / 13.8 % | 57.2 | 10.2 % | 4.5 % | 39.4 % |
+| **S2-CheXpertPlus** | **83.89 / 64.50** | **60.21 / 4** | **78.61** | **84.45** | **10.2 / 14.0 %** | **59.6** | **7.7 %** | **8.7 %** | **25.1 %** |
+
+On adult chest films this is the most balanced 35B model: omission is as low as S2-6datasets, discrimination and
+contradiction are the best of all runs, and the false-alarm rate (25.1 %) is far below the other fine-tuned models
+(39–41 %), so the lower omission is not bought by calling everything abnormal. Everything it was not trained on returns to
+the base level: SLAKE short answers, PubMedQA "maybe" (4 correct), the external sets, while TextVQA (87.33) and MMBench
+(94.0) do not drop. On paediatric PneumoniaMNIST films, description omission improves only partly (67.2 → 53.6 %, against
+20.8 % for S2-6datasets), so what adult reports teach transfers little to low-resolution paediatric films. One seed.
+
+### 5.14 Three-stage training: knowledge pre-training, instruction tuning, reasoning training
+
+The last experiment tests, at 35B and with a much larger corpus than B1–B3, the full pipeline that Task 1.3 describes:
+(1) text-only continued pre-training on medical knowledge, (2) instruction tuning, (3) reasoning training. All adapters use
+the LoRA setting of Section 5.7 and are trained one stage on top of the previous one.
+
+- **Stage 1 (`interns2_cpt1`)**: 29 open medical textbooks from OpenMedText \citep{choi2025openmedtext} (7.4 M tokens),
+  clinical guidelines from the Meditron corpus \citep{chen2023meditron} (4.0 M) and the Chinese medical encyclopedia of MMedC
+  \citep{qiu2024mmedc} (8.0 M; 622 promotional entries removed). 19.4 M tokens in 24,043 chunks of up to 1,000 tokens, one
+  epoch. The learning rate was chosen before training by a 120-step sweep (5e-5 / 1e-4 / 2e-4 → held-out loss 1.684 /
+  1.667 / 1.654) and a fixed rule (the smallest rate within 1 % of the best), giving 1e-4. Held-out loss on 235 chunks
+  falls from 1.735 to 1.596 with no sign of over-fitting.
+- **Stage 2**: the 15,953 multimodal examples of S2-6datasets plus 12,000 Chinese medical dialogues, 6,000 each from
+  HuatuoGPT-sft-data-v1 \citep{zhang2023huatuogpt} and DISC-Med-SFT \citep{bao2023discmedllm} (cMedQA-derived items
+  excluded for licence reasons; promotional and malformed dialogues filtered), 27,953 examples, three epochs, lr 1e-4.
+  **A** (`interns2_s2a`) starts from the base model; **B** (`interns2_s2b`) starts from the stage-1 adapter.
+- **Stage 3 (C, `interns2_s3c`)**: 13,000 exam questions with worked explanations, starting from B: CMExam 5,000
+  \citep{liu2023cmexam}, MedMCQA 5,000 \citep{pal2022medmcqa} and 1,500 Chinese plus 1,500 English final answers from
+  medical-o1-reasoning-SFT \citep{chen2024huatuogpto1}. The target is "answer, then a short explanation" with thinking
+  disabled, matching how the models are served; one epoch, lr 5e-5.
+
+Every training item was screened against every test set (a 20-character window matching more than half of a test item
+removes it; 211 CMExam training questions duplicated its own test split). Training losses (mean of the first → last 10 %
+of steps): A 1.409 → 1.255, B 1.399 → 1.252, C 1.253 → 1.202. Two Chinese tests were added: the Chinese half of SLAKE
+(1,033 questions, 420 closed) and 1,000 CMExam single-choice questions. A no-image control asks the SLAKE questions
+without the image. Snapshots: `results/interns2_3stage_train_2026-10-18.json` and `interns2_3stage_eval_2026-10-19.json`.
+
+| test | base | S2-6datasets | stage 1 only | A (2) | B (1→2) | C (1→2→3) |
+|---|---|---|---|---|---|---|
+| SLAKE closed | 84.38 | 94.71 | 87.74 | 94.23 | 93.51 | 93.75 |
+| SLAKE open EM | 67.13 | 86.20 | 64.34 | 84.96 | 83.72 | 82.64 |
+| SLAKE, no image: closed / open | — | — | 50.48 / 10.70 | 53.37 / 28.06 | 49.52 / 26.82 | 49.28 / 23.88 |
+| SLAKE Chinese: closed / open EM | 84.29 / 69.98 | — | 82.38 / 66.88 | 93.10 / 76.02 | 94.05 / 76.35 | 93.57 / 77.81 |
+| CMExam | 93.0 | — | 93.8 | 93.9 | 93.2 | 93.8 |
+| PubMedQA macro-F1 / "maybe" correct | 61.83 / 7 | 66.59 / 23 | 59.82 / 4 | 65.41 / 24 | 64.16 / 26 | 64.33 / 22 |
+| TextVQA / MMBench | 88.78 / 93.6 | 87.22 / 93.4 | 87.11 / 93.2 | 87.89 / 94.2 | 88.11 / 92.8 | 88.11 / 93.4 |
+| VQA-RAD closed / PathVQA closed | 80.48 / 80.13 | 83.27 / 92.65 | 83.27 / 80.01 | 85.66 / 92.18 | 83.67 / 91.34 | 82.87 / 91.02 |
+| MedQA / PneumoniaMNIST | 85.00 / 84.94 | 85.31 / 95.35 | 85.70 / 83.49 | 85.55 / 93.11 | 85.94 / 93.27 | 86.41 / 94.55 |
+| PneumoniaMNIST: description omits pneumonia (%) | 67.2 | 20.8 | 83.9 | 29.2 | 25.4 | 43.1 |
+| adult films: description omitted, keyword (%) | 29.2 | 13.8 | 18.4 | 19.8 | 22.4 | 24.4 |
+| adult films: contradiction / false alarm (%) | 21.6 / 18.2 | 10.2 / 39.4 | 9.7 / 18.6 | 16.2 / 39.4 | 18.9 / 38.1 | 19.8 / 32.9 |
+
+Differences are tested by paired bootstrap over test items (2,000 resamples, `scripts/bootstrap_ci.py`); a difference
+counts only when its 95 % interval excludes zero.
+
+*The gains come from instruction tuning.* The stage-1 adapter alone stays at the base level on image questions (SLAKE open
+64.3) and is significantly below A on every image test; A, B and C are all far above the base.
+
+*Knowledge pre-training adds nothing measurable (B − A).* SLAKE closed −0.7 [−1.9, +0.2], open −1.2 [−3.1, +0.6], Chinese
+closed +1.0 [−0.5, +2.4], Chinese open +0.3 [−1.6, +2.3], VQA-RAD −2.0 [−4.8, +0.8], MedQA +0.4 [−0.8, +1.5], CMExam −0.7
+[−1.8, +0.4], PneumoniaMNIST +0.2 [−0.8, +1.1]. The one interval that excludes zero is PathVQA closed, −0.8 [−1.5,
+−0.2], against B. The 35B result therefore agrees with B1, B2 and B3 at 3B: a continued pre-training stage, here with 19 M tokens of
+textbook, guideline and encyclopedia text, does not improve the fine-tuned model on any test in this suite.
+
+*Reasoning training adds almost nothing (C − B).* Only PneumoniaMNIST moves beyond noise, +1.3 [+0.2, +2.4]; Chinese open
+answers +1.5 [0.0, +2.9] sit on the boundary, and MedQA (86.4, the highest of all models) is +0.5 [−0.6, +1.6]. MedQA and
+CMExam are close to their ceiling for this model (85–86 % and 93–94 %), which limits what exam-style training can show.
+
+*The models use the image.* Without it, closed SLAKE accuracy falls to 49–53 %, the level of guessing, and open exact
+match to 24–28 %. A smaller no-image score is not worse here: B's no-image closed score is 3.9 points below A's
+[−7.2, −0.2], i.e. B guesses slightly less from text alone.
+
+*Chinese open answers are not repaired by Chinese dialogue.* Chinese closed questions improve as much as English ones
+(+9 to +10), but Chinese open exact match stays at 76–78, no better than the replay-300 model trained on English only
+(76.8) and about 8 points below English. Free-form Chinese dialogue does not teach the short Chinese answer vocabulary the
+SLAKE references use.
+
+*The adult chest-film description gets worse than S2-6datasets, for a reason not yet known.* A differs from S2-6datasets
+only by the 12,000 Chinese dialogues, yet its keyword omission rate is 19.8 % against 13.8 %, and B and C are higher still
+(22.4, 24.4 %). PneumoniaMNIST shows the same direction (29.2 % against 20.8 %). Whether this is the dialogue data or the
+training seed cannot be decided from one run, since the replay-0 recipe alone spans 9.8–43.8 % (Section 5.11). A and B are
+being retrained with seed 43 for this reason, and the CheXbert re-reading of A, B, C and the stage-1 adapter is pending.
+
 ---
 
 ## 6. Analysis
@@ -976,6 +1128,17 @@ adapter is trained: only under-training moves macro-F1 outside the seed spread, 
 smallest budget over-hedges at both scales and 300 is the best-balanced point at both, but at 35B every budget from
 99 to 900 recovers most of the gain, where at 3B the gain was still growing between 99 and 300.
 
+**Continued pre-training does not help at either scale; what helps is in-domain instruction data.** Five CPT variants
+have now been tested: PubMed abstracts (B1) and IU X-Ray reports (B2) at 3B, filtered and random CheXpert Plus reports
+(B3) at 3B, and 19.4 M tokens of textbooks, guidelines and encyclopedia text before instruction tuning at 35B (Section
+5.14). None improves the fine-tuned model on any test beyond its confidence interval, and a reasoning stage on explained
+exam questions adds one marginal gain. Every large improvement in the project instead came from putting a domain into the
+instruction data: SLAKE short answers (+10 closed, +19 open at 35B), PathVQA (+12.5), PneumoniaMNIST (+10.4), PubMedQA
+"maybe" replay (+5 macro-F1). The same holds for the free-text failure: descriptions improved after training on in-domain
+yes/no questions (S2-6datasets) or on reports from the same domain (S2-CheXpertPlus), not after knowledge pre-training.
+For a fixed GPU budget, the evidence here favours spending it on curated in-domain instruction data over a separate
+knowledge stage.
+
 ![Figure 5. PubMedQA predicted label distribution.](figures/fig5_pubmedqa_distribution.png)
 
 *Figure 5. PubMedQA predicted-label counts versus gold. Each fine-tuning stage shrinks "maybe" further below its true frequency.*
@@ -995,6 +1158,8 @@ smallest budget over-hedges at both scales and 300 is the best-balanced point at
 - The vision tower is frozen throughout. Unfreezing it (or LoRA on the ViT) is a natural ablation for B2 but roughly doubles memory.
 - The missed-abnormality measure of Section 5.10 rests on automatic CheXbert labels and a keyword judge (validated by hand on 30 descriptions; the per-finding naming rates are lenient and unvalidated), has only 231 normal films, and covers five 35B models with one decoding each; the free-text rates vary strongly between training seeds.
 - Image-text CPT was tested on IU X-Ray (B2, 3.5k pairs) and CheXpert Plus (B3, 5k pairs per arm), always with a frozen vision tower and one epoch; neither helped the main task. B3 has one seed per arm, arms that share half their data, and a weak alignment scorer (1.9 % R@1), so it cannot rule out a small effect of data-quality filtering; a direct report-generation comparison of the two CPT adapters is the planned follow-up.
+- S2-6datasets, S2-CheXpertPlus and the three-stage models A, B and C (Sections 5.12–5.14) are single runs. Their main-table and exam results are compared with paired bootstrap intervals, but the adult chest-film description measures vary by up to 34 points between seeds of one recipe (Section 5.11), so the description results of these runs are provisional. A and B are being retrained with seed 43 (A is half done; GPU time on the shared host is limited). CheXbert re-reading of A, B, C and the stage-1 adapter is pending; for those four the adult-film numbers are keyword-judged only.
+- The three-stage comparison tests one corpus size (19.4 M tokens, one epoch) and LoRA on attention and the shared expert only. A null result for knowledge pre-training at this scale does not exclude an effect from a much larger corpus or from full-parameter pre-training. MedQA and CMExam are near their ceiling for this model (85–86 % and 93–94 %), so they cannot show a large gain from reasoning training; a harder Chinese exam set would be needed.
 - Kaggle's 30 h/week GPU quota bounds throughput at roughly three full experiments per week; the college Docker GPU server, once available, removes the 4-bit requirement (bf16, larger batch).
 
 ---
@@ -1072,6 +1237,18 @@ python data/convert_chexpert_b3.py && bash train/run_b3.sh              # top-5k
 # Missed abnormalities (Section 5.10): host serves one 35B model at a time, the container evaluates
 bash train/interns2/serve_for_container.sh base                          # host; also final / r0 / r0_s43 / s43
 python eval/eval_chexpert.py --model <served model dir> --tag interns2_base --concurrency 8   # container
+python eval/chexbert_judge.py --help                                     # container, CPU: CheXbert re-reading (Section 5.11)
+# S2-6datasets (Section 5.12) and S2-CheXpertPlus (Section 5.13), same settings as replay 300, data only changes
+bash train/interns2/run_6ds.sh data && bash train/interns2/run_6ds.sh train && bash train/interns2/run_6ds.sh merge
+bash train/interns2/run_6ds.sh eval && bash train/interns2/run_6ds.sh external
+python data/convert_chexpert_s2.py                                        # container; then copy to the host
+bash train/interns2/run_cxp.sh data && bash train/interns2/run_cxp.sh train   # likewise merge / eval / external
+# Three-stage training (Section 5.14; plan and data sources in docs/PLAN_35B_CPT.md)
+bash train/interns2/run_cpt35.sh data && bash train/interns2/run_cpt35.sh sweep && bash train/interns2/run_cpt35.sh train
+bash train/interns2/run_sft35.sh data2 && bash train/interns2/run_sft35.sh data3
+bash train/interns2/run_sft35.sh train a     # also b (from stage 1) and c (from b); a43 / b43 = seed 43
+bash train/interns2/run_sft35.sh merge a && bash train/interns2/run_sft35.sh eval a    # English, Chinese, no-image, external
+python scripts/bootstrap_ci.py --help && python scripts/summarize_3stage.py            # paired intervals, snapshot
 ```
 
 ---
@@ -1083,47 +1260,56 @@ BibTeX entries: `docs/refs.bib` (keys in back-quotes below, cited in the text as
 > **Verification.** The 29 original entries were checked on 2026-09-23 against the arXiv abstract page or the
 > publisher page. Titles, first authors, identifiers and years all matched; three entries were corrected
 > (MMBench venue, Model Cards entry type, Med-Flamingo author order) and seven were completed with
-> volume, page or DOI fields. The nine entries added for Section 5.7 were checked on 2026-09-27, and the two added for Section 5.8 on 2026-10-01, against arXiv,
+> volume, page or DOI fields. The nine entries added for Section 5.7 were checked on 2026-09-27, the two added for Section 5.8 on 2026-10-01, and the nine added for Sections 5.11–5.14 on 2026-10-24, against arXiv,
 > the ACL Anthology, the Hugging Face model pages and the LMDeploy repository. Details in the header of
 > `docs/refs.bib`.
 
 1. Alayrac et al. *Flamingo: a Visual Language Model for Few-Shot Learning*. Advances in Neural Information Processing Systems (NeurIPS), 2022. `alayrac2022flamingo`
 2. Bai et al. *Qwen2.5-VL Technical Report*. arXiv preprint, 2025. `bai2025qwen25vl`
-3. Chambon et al. *CheXpert Plus: Augmenting a Large Chest X-ray Dataset with Text Radiology Reports, Patient Demographics and Additional Image Formats*. arXiv preprint, 2024. `chambon2024chexpertplus`
-4. Chen et al. *Microsoft COCO Captions: Data Collection and Evaluation Server*. arXiv preprint arXiv:1504.00325, 2015. `chen2015cococaptions`
-5. Demner-Fushman et al. *Preparing a collection of radiology examinations for distribution and retrieval*. Journal of the American Medical Informatics Association (JAMIA), 2016. `demnerfushman2016openi`
-6. Dettmers et al. *QLoRA: Efficient Finetuning of Quantized LLMs*. Advances in Neural Information Processing Systems (NeurIPS), 2023. `dettmers2023qlora`
-7. Gu et al. *Domain-Specific Language Model Pretraining for Biomedical Natural Language Processing*. ACM Transactions on Computing for Healthcare, 2021. `gu2021pubmedbert`
-8. Guo et al. *On Calibration of Modern Neural Networks*. International Conference on Machine Learning (ICML), 2017. `guo2017calibration`
-9. Gururangan et al. *Don't Stop Pretraining: Adapt Language Models to Domains and Tasks*. Annual Meeting of the Association for Computational Linguistics (ACL), 2020. `gururangan2020dapt`
-10. He et al. *PathVQA: 30000+ Questions for Medical Visual Question Answering*. arXiv preprint, 2020. `he2020pathvqa`
-11. Hu et al. *LoRA: Low-Rank Adaptation of Large Language Models*. International Conference on Learning Representations (ICLR), 2022. `hu2022lora`
-12. InternLM Team. *Intern-S2-Preview*. https://huggingface.co/internlm/Intern-S2-Preview, 2026. `internlm2026interns2`
-13. Irvin et al. *CheXpert: A Large Chest Radiograph Dataset with Uncertainty Labels and Expert Comparison*. AAAI Conference on Artificial Intelligence, 2019. `irvin2019chexpert`
-14. Jin et al. *PubMedQA: A Dataset for Biomedical Research Question Answering*. Conference on Empirical Methods in Natural Language Processing (EMNLP), 2019. `jin2019pubmedqa`
-15. Jin et al. *What Disease does this Patient Have? A Large-scale Open Domain Question Answering Dataset from Medical Exams*. arXiv preprint arXiv:2009.13081, 2020. `jin2020medqa`
-16. Johnson et al. *MIMIC-CXR, a de-identified publicly available database of chest radiographs with free-text reports*. Scientific Data, 2019. `johnson2019mimiccxr`
-17. Kadavath et al. *Language Models (Mostly) Know What They Know*. arXiv preprint, 2022. `kadavath2022know`
-18. Kirkpatrick et al. *Overcoming catastrophic forgetting in neural networks*. Proceedings of the National Academy of Sciences (PNAS), 2017. `kirkpatrick2017ewc`
-19. Lau et al. *A dataset of clinically generated visual questions and answers about radiology images*. Scientific Data, 2018. `lau2018vqarad`
-20. Li et al. *LLaVA-Med: Training a Large Language-and-Vision Assistant for Biomedicine in One Day*. Advances in Neural Information Processing Systems (NeurIPS), Datasets and Benchmarks Track, 2023. `li2023llavamed`
-21. Lin. *ROUGE: A Package for Automatic Evaluation of Summaries*. Text Summarization Branches Out, 2004. `lin2004rouge`
-22. Lin et al. *Microsoft COCO: Common Objects in Context*. European Conference on Computer Vision (ECCV), 2014. `lin2014coco`
-23. Liu et al. *SLAKE: A Semantically-Labeled Knowledge-Enhanced Dataset for Medical Visual Question Answering*. IEEE International Symposium on Biomedical Imaging (ISBI), 2021. `liu2021slake`
-24. Liu et al. *Visual Instruction Tuning*. Advances in Neural Information Processing Systems (NeurIPS), 2023. `liu2023llava`
-25. Liu et al. *MMBench: Is Your Multi-modal Model an All-around Player?*. European Conference on Computer Vision (ECCV), 2024. `liu2023mmbench`
-26. LMDeploy Contributors. *LMDeploy: A Toolkit for Compressing, Deploying, and Serving LLM*. https://github.com/InternLM/lmdeploy, 2023. `lmdeploy2023`
-27. Mitchell et al. *Model Cards for Model Reporting*. Proceedings of the Conference on Fairness, Accountability, and Transparency (FAT*), 2019. `mitchell2019modelcards`
-28. Moor et al. *Med-Flamingo: a Multimodal Medical Few-shot Learner*. Machine Learning for Health (ML4H), 2023. `moor2023medflamingo`
-29. Ouyang et al. *Training language models to follow instructions with human feedback*. Advances in Neural Information Processing Systems (NeurIPS), 2022. `ouyang2022instructgpt`
-30. Qwen Team. *Qwen3.5: Towards Native Multimodal Agents*. https://qwen.ai/blog?id=qwen3.5, 2026. `qwen2026qwen35`
-31. Rafailov et al. *Direct Preference Optimization: Your Language Model is Secretly a Reward Model*. Advances in Neural Information Processing Systems (NeurIPS), 2023. `rafailov2023dpo`
-32. Robins. *Catastrophic Forgetting, Rehearsal and Pseudorehearsal*. Connection Science, 1995. `robins1995rehearsal`
-33. Shazeer et al. *Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer*. International Conference on Learning Representations (ICLR), 2017. `shazeer2017moe`
-34. Singh et al. *Towards VQA Models That Can Read*. IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2019. `singh2019textvqa`
-35. Tu et al. *Towards Generalist Biomedical AI*. NEJM AI, 2024. `tu2024medpalmm`
-36. Vedantam et al. *CIDEr: Consensus-based Image Description Evaluation*. IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2015. `vedantam2015cider`
-37. Wang et al. *Qwen2-VL: Enhancing Vision-Language Model's Perception of the World at Any Resolution*. arXiv preprint, 2024. `wang2024qwen2vl`
-38. Yang et al. *MedMNIST v2 – A large-scale lightweight benchmark for 2D and 3D biomedical image classification*. Scientific Data, 2023. `yang2023medmnist`
-39. Yang et al. *Gated Delta Networks: Improving Mamba2 with Delta Rule*. International Conference on Learning Representations (ICLR), 2025. `yang2025gateddeltanet`
-40. Zheng et al. *LlamaFactory: Unified Efficient Fine-Tuning of 100+ Language Models*. Proceedings of ACL 2024: System Demonstrations, 2024. `zheng2024llamafactory`
+3. Bao et al. *DISC-MedLLM: Bridging General Large Language Models and Real-World Medical Consultation*. arXiv preprint arXiv:2308.14346, 2023. `bao2023discmedllm`
+4. Chambon et al. *CheXpert Plus: Augmenting a Large Chest X-ray Dataset with Text Radiology Reports, Patient Demographics and Additional Image Formats*. arXiv preprint, 2024. `chambon2024chexpertplus`
+5. Chen et al. *HuatuoGPT-o1, Towards Medical Complex Reasoning with LLMs*. arXiv preprint arXiv:2412.18925, 2024. `chen2024huatuogpto1`
+6. Chen et al. *MEDITRON-70B: Scaling Medical Pretraining for Large Language Models*. arXiv preprint arXiv:2311.16079, 2023. `chen2023meditron`
+7. Chen et al. *Microsoft COCO Captions: Data Collection and Evaluation Server*. arXiv preprint arXiv:1504.00325, 2015. `chen2015cococaptions`
+8. Choi et al. *Teaching LLMs How to Learn with Contextual Fine-Tuning*. International Conference on Learning Representations (ICLR), 2025 (source of the OpenMedText corpus). `choi2025openmedtext`
+9. Demner-Fushman et al. *Preparing a collection of radiology examinations for distribution and retrieval*. Journal of the American Medical Informatics Association (JAMIA), 2016. `demnerfushman2016openi`
+10. Dettmers et al. *QLoRA: Efficient Finetuning of Quantized LLMs*. Advances in Neural Information Processing Systems (NeurIPS), 2023. `dettmers2023qlora`
+11. Gu et al. *Domain-Specific Language Model Pretraining for Biomedical Natural Language Processing*. ACM Transactions on Computing for Healthcare, 2021. `gu2021pubmedbert`
+12. Guo et al. *On Calibration of Modern Neural Networks*. International Conference on Machine Learning (ICML), 2017. `guo2017calibration`
+13. Gururangan et al. *Don't Stop Pretraining: Adapt Language Models to Domains and Tasks*. Annual Meeting of the Association for Computational Linguistics (ACL), 2020. `gururangan2020dapt`
+14. He et al. *PathVQA: 30000+ Questions for Medical Visual Question Answering*. arXiv preprint, 2020. `he2020pathvqa`
+15. Hu et al. *LoRA: Low-Rank Adaptation of Large Language Models*. International Conference on Learning Representations (ICLR), 2022. `hu2022lora`
+16. InternLM Team. *Intern-S2-Preview*. https://huggingface.co/internlm/Intern-S2-Preview, 2026. `internlm2026interns2`
+17. Irvin et al. *CheXpert: A Large Chest Radiograph Dataset with Uncertainty Labels and Expert Comparison*. AAAI Conference on Artificial Intelligence, 2019. `irvin2019chexpert`
+18. Jin et al. *PubMedQA: A Dataset for Biomedical Research Question Answering*. Conference on Empirical Methods in Natural Language Processing (EMNLP), 2019. `jin2019pubmedqa`
+19. Jin et al. *What Disease does this Patient Have? A Large-scale Open Domain Question Answering Dataset from Medical Exams*. arXiv preprint arXiv:2009.13081, 2020. `jin2020medqa`
+20. Johnson et al. *MIMIC-CXR, a de-identified publicly available database of chest radiographs with free-text reports*. Scientific Data, 2019. `johnson2019mimiccxr`
+21. Kadavath et al. *Language Models (Mostly) Know What They Know*. arXiv preprint, 2022. `kadavath2022know`
+22. Kirkpatrick et al. *Overcoming catastrophic forgetting in neural networks*. Proceedings of the National Academy of Sciences (PNAS), 2017. `kirkpatrick2017ewc`
+23. Lau et al. *A dataset of clinically generated visual questions and answers about radiology images*. Scientific Data, 2018. `lau2018vqarad`
+24. Li et al. *LLaVA-Med: Training a Large Language-and-Vision Assistant for Biomedicine in One Day*. Advances in Neural Information Processing Systems (NeurIPS), Datasets and Benchmarks Track, 2023. `li2023llavamed`
+25. Lin et al. *Microsoft COCO: Common Objects in Context*. European Conference on Computer Vision (ECCV), 2014. `lin2014coco`
+26. Lin. *ROUGE: A Package for Automatic Evaluation of Summaries*. Text Summarization Branches Out, 2004. `lin2004rouge`
+27. Liu et al. *Benchmarking Large Language Models on CMExam – A Comprehensive Chinese Medical Exam Dataset*. Advances in Neural Information Processing Systems (NeurIPS), Datasets and Benchmarks Track, 2023. `liu2023cmexam`
+28. Liu et al. *MMBench: Is Your Multi-modal Model an All-around Player?*. European Conference on Computer Vision (ECCV), 2024. `liu2023mmbench`
+29. Liu et al. *SLAKE: A Semantically-Labeled Knowledge-Enhanced Dataset for Medical Visual Question Answering*. IEEE International Symposium on Biomedical Imaging (ISBI), 2021. `liu2021slake`
+30. Liu et al. *Visual Instruction Tuning*. Advances in Neural Information Processing Systems (NeurIPS), 2023. `liu2023llava`
+31. LMDeploy Contributors. *LMDeploy: A Toolkit for Compressing, Deploying, and Serving LLM*. https://github.com/InternLM/lmdeploy, 2023. `lmdeploy2023`
+32. Mitchell et al. *Model Cards for Model Reporting*. Proceedings of the Conference on Fairness, Accountability, and Transparency (FAT*), 2019. `mitchell2019modelcards`
+33. Moor et al. *Med-Flamingo: a Multimodal Medical Few-shot Learner*. Machine Learning for Health (ML4H), 2023. `moor2023medflamingo`
+34. Ouyang et al. *Training language models to follow instructions with human feedback*. Advances in Neural Information Processing Systems (NeurIPS), 2022. `ouyang2022instructgpt`
+35. Pal et al. *MedMCQA: A Large-scale Multi-Subject Multi-Choice Dataset for Medical domain Question Answering*. Conference on Health, Inference, and Learning (CHIL), PMLR, 2022. `pal2022medmcqa`
+36. Qiu et al. *Towards Building Multilingual Language Model for Medicine*. arXiv preprint arXiv:2402.13963, 2024. `qiu2024mmedc`
+37. Qwen Team. *Qwen3.5: Towards Native Multimodal Agents*. https://qwen.ai/blog?id=qwen3.5, 2026. `qwen2026qwen35`
+38. Rafailov et al. *Direct Preference Optimization: Your Language Model is Secretly a Reward Model*. Advances in Neural Information Processing Systems (NeurIPS), 2023. `rafailov2023dpo`
+39. Robins. *Catastrophic Forgetting, Rehearsal and Pseudorehearsal*. Connection Science, 1995. `robins1995rehearsal`
+40. Shazeer et al. *Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer*. International Conference on Learning Representations (ICLR), 2017. `shazeer2017moe`
+41. Singh et al. *Towards VQA Models That Can Read*. IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2019. `singh2019textvqa`
+42. Smit et al. *CheXbert: Combining Automatic Labelers and Expert Annotations for Accurate Radiology Report Labeling Using BERT*. Conference on Empirical Methods in Natural Language Processing (EMNLP), 2020. `smit2020chexbert`
+43. Tu et al. *Towards Generalist Biomedical AI*. NEJM AI, 2024. `tu2024medpalmm`
+44. Vedantam et al. *CIDEr: Consensus-based Image Description Evaluation*. IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2015. `vedantam2015cider`
+45. Wang et al. *Qwen2-VL: Enhancing Vision-Language Model's Perception of the World at Any Resolution*. arXiv preprint, 2024. `wang2024qwen2vl`
+46. Yang et al. *Gated Delta Networks: Improving Mamba2 with Delta Rule*. International Conference on Learning Representations (ICLR), 2025. `yang2025gateddeltanet`
+47. Yang et al. *MedMNIST v2 – A large-scale lightweight benchmark for 2D and 3D biomedical image classification*. Scientific Data, 2023. `yang2023medmnist`
+48. Zhang et al. *HuatuoGPT, towards Taming Language Model to Be a Doctor*. arXiv preprint arXiv:2305.15075, 2023. `zhang2023huatuogpt`
+49. Zheng et al. *LlamaFactory: Unified Efficient Fine-Tuning of 100+ Language Models*. Proceedings of ACL 2024: System Demonstrations, 2024. `zheng2024llamafactory`
