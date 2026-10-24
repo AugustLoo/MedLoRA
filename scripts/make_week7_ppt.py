@@ -261,11 +261,12 @@ boxes(S[7], [
     ["待定：胸片描述变差是中文对话还是种子 → 等种子 43 评测",
      "Open: dialogue data or seed behind the X-ray drop → seed-43 evaluation"],
 ], [
-    "最终交付：代码（GitHub MedLoRA）、LoRA 补丁、数据卡 / 模型卡、论文；原型系统待老师确认",
-    "Final deliverables: code, LoRA adapters, data / model cards, thesis; prototype to confirm",
+    "最终交付：代码（GitHub MedLoRA）、LoRA 补丁、数据卡 / 模型卡、论文；老师确认系统可选、重点是实验评估",
+    "Final deliverables: code, LoRA adapters, data / model cards, thesis; system optional, evaluation is the core",
 ])
 NOTES.append("阶段结论：分数来自微调、文字预训练没有可测提升，这一点在 3B 和 35B 上都成立，已经写进英文报告 1.5 版。"
-             "还没定的是胸片描述变差的原因，要等种子 43 评测。毕设表 1 到 3 草稿写好了，要和老师约时间一起定稿签字。")
+             "还没定的是胸片描述变差的原因，要等种子 43 评测。毕设表 1 到 3 草稿写好了，要和老师约时间一起定稿签字。"
+             "另外徐老师确认：研究方法类的论文不一定要做系统，但实验评估必须有，所以原型系统改成可选，时间留给补充实验。")
 
 # ---------------------------------------------------------------- 9 时间安排
 t = table(S[8])
@@ -276,8 +277,8 @@ fill_table(t, [
      ("评测结果、置信区间、报告 v1.5", "Results, CIs, report v1.5"), ("完成", "Done")],
     [("第9–12周", "W9–12"), ("种子 43、CheXbert、表 1–3", "Seed 43, CheXbert, Tables 1–3"),
      ("两种子结论、开题报告", "Two-seed findings, proposal"), ("进行中", "In progress")],
-    [("第13–16周", "W13–16"), ("论文与演示", "Thesis and demo"),
-     ("初稿、原型系统", "Draft, prototype"), ("未开始", "Not started")],
+    [("第13–16周", "W13–16"), ("补充实验与论文", "Extra experiments, thesis"),
+     ("误差分析、论文初稿", "Error analysis, draft"), ("未开始", "Not started")],
 ])
 fill(shape(S[8], "takeaway").text_frame, [
     "下周承诺：硬盘解决后评测 A43、B43（约 4 小时）；表 1–3 与老师定稿（12-11 截止）",
