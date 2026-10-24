@@ -48,20 +48,24 @@ need_gpus() {
   [[ -z "$busy" ]] || { log "0-3 号卡还被占着: $busy"; exit 1; }
   export CUDA_VISIBLE_DEVICES="$GPUS"
 }
-model_of() {  # a|b|c|cpt1 → TAG / 数据 / 起点补丁 / 学习率 / 轮数 (cpt1 = 只做第①步, 只用于 merge / eval)
+model_of() {  # a|b|c|cpt1|a43|b43 → TAG / 数据 / 起点补丁 / 学习率 / 轮数 / 种子 (cpt1 = 只做第①步, 只用于 merge / eval)
+  # a43 / b43: A、B 换种子 43 重训 (LoRA 初始值、数据顺序都变, 数据本身不变); b43 仍从种子 42 的第①步补丁接着训
+  SEED=42
   case $1 in
     a) TAG=interns2_s2a; DATA_FILES=("${STAGE2[@]}"); INIT=""; LR=1e-4; EPOCHS=3 ;;
     b) TAG=interns2_s2b; DATA_FILES=("${STAGE2[@]}"); INIT=$CPT; LR=1e-4; EPOCHS=3 ;;
     c) TAG=interns2_s3c; DATA_FILES=("${STAGE3[@]}"); INIT=outputs/interns2_s2b; LR=5e-5; EPOCHS=1 ;;
     cpt1) TAG=interns2_cpt1; DATA_FILES=(); INIT=""; LR=1e-4; EPOCHS=1 ;;
-    *) echo "模型只能是 a / b / c / cpt1"; exit 1 ;;
+    a43) TAG=interns2_s2a_s43; DATA_FILES=("${STAGE2[@]}"); INIT=""; LR=1e-4; EPOCHS=3; SEED=43 ;;
+    b43) TAG=interns2_s2b_s43; DATA_FILES=("${STAGE2[@]}"); INIT=$CPT; LR=1e-4; EPOCHS=3; SEED=43 ;;
+    *) echo "模型只能是 a / b / c / cpt1 / a43 / b43"; exit 1 ;;
   esac
   OUT=outputs/$TAG; MERGED=$ROOT/merged/$TAG
 }
 train_cmd() {  # 与现有 35B 模型同一组 LoRA 设置, 只换数据 / 起点 / 学习率 / 轮数
   local init=(); [[ -n $INIT ]] && init=(--init-adapter "$INIT")
   python train/interns2/train_lora.py --data "${DATA_FILES[@]}" --path-map "$PM" --batch 4 --accum 4 \
-    --lr "$LR" --epochs "$EPOCHS" ${init[@]+"${init[@]}"} --output "$@"
+    --lr "$LR" --epochs "$EPOCHS" --seed "$SEED" ${init[@]+"${init[@]}"} --output "$@"
 }
 
 run_evals() {  # run_evals <TAG> <模型目录> [只测中文]
@@ -165,5 +169,5 @@ status)
   done
   ;;
 *)
-  echo "用法: $0 data2 | data3 | smoke | train a|b|c | merge a|b|c|cpt1 | eval a|b|c|cpt1 | evalzh base|final|six | status"; exit 1 ;;
+  echo "用法: $0 data2 | data3 | smoke | train a|b|c | merge a|b|c|cpt1|a43|b43 | eval a|b|c|cpt1|a43|b43 | evalzh base|final|six | status"; exit 1 ;;
 esac
