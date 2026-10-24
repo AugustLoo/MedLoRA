@@ -261,12 +261,11 @@ boxes(S[7], [
     ["待定：胸片描述变差是中文对话还是种子 → 等种子 43 评测",
      "Open: dialogue data or seed behind the X-ray drop → seed-43 evaluation"],
 ], [
-    "最终交付：代码（GitHub MedLoRA）、LoRA 补丁、数据卡 / 模型卡、论文；老师确认系统可选、重点是实验评估",
-    "Final deliverables: code, LoRA adapters, data / model cards, thesis; system optional, evaluation is the core",
+    "最终交付：代码（GitHub MedLoRA）、LoRA 补丁、数据卡 / 模型卡、实验评估、论文",
+    "Final deliverables: code, LoRA adapters, data / model cards, experimental evaluation, thesis",
 ])
 NOTES.append("阶段结论：分数来自微调、文字预训练没有可测提升，这一点在 3B 和 35B 上都成立，已经写进英文报告 1.5 版。"
-             "还没定的是胸片描述变差的原因，要等种子 43 评测。毕设表 1 到 3 草稿写好了，要和老师约时间一起定稿签字。"
-             "另外徐老师确认：研究方法类的论文不一定要做系统，但实验评估必须有，所以原型系统改成可选，时间留给补充实验。")
+             "还没定的是胸片描述变差的原因，要等种子 43 评测。毕设表 1 到 3 草稿写好了，要和老师约时间一起定稿签字。")
 
 # ---------------------------------------------------------------- 9 时间安排
 t = table(S[8])
