@@ -134,7 +134,8 @@ merge)
   model_of "${2:-}"
   [[ -f $OUT/adapter_model.safetensors ]] || { log "$TAG 还没有 adapter, 先 train"; exit 1; }
   if [[ -f $MERGED/model.safetensors.index.json ]]; then log "$TAG 已合并, 跳过"; exit 0; fi
-  FREE=$(df --output=avail -BG "$ROOT" | tail -1 | tr -dc 0-9)
+  # 查合并目录所在的盘 (merged 可以是指向别的盘的链接, 系统盘不够时临时放 /home/share)
+  FREE=$(df --output=avail -BG "$ROOT/merged/" | tail -1 | tr -dc 0-9)
   (( FREE >= 80 )) || { log "磁盘只剩 ${FREE} GB, 合并要约 75 GB, 先清理 (或删掉上一个评测完的合并模型)"; exit 1; }
   need_gpus
   rm -rf "$MERGED"
