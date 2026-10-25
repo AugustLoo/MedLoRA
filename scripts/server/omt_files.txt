@@ -1,0 +1,29 @@
+Med-Textbooks/CC-BY-NC-SA/Cell Biology, Genetics, and Biochemistry for Pre-Clinical Students by LeClair.txt
+Med-Textbooks/CC-BY-NC-SA/Clinical Chemistry - Theory, Analysis, Correlation by Kaplan and Pesce.txt
+Med-Textbooks/CC-BY-NC-SA/Fluid Physiology by Brandis.txt
+Med-Textbooks/CC-BY-NC-SA/Human Anatomy I for Kinesiology by NA.txt
+Med-Textbooks/CC-BY-NC-SA/Neuroscience for Pre-Clinical Students by LeClair.txt
+Med-Textbooks/CC-BY-NC-SA/Principles of Pharmacology by NA.txt
+Med-Textbooks/CC-BY-NC/Atlas of Otolaryngology, Head and Neck Operative Surgery by NA.txt
+Med-Textbooks/CC-BY-NC/Foundations of Epidemiology (Bovbjerg) by Bovbjerg.txt
+Med-Textbooks/CC-BY-NC/Nutrition_ Science and Everyday Application - beta v 0.1 by Callahan, Leonard, and Powell.txt
+Med-Textbooks/CC-BY-SA/AandP for STEM Educators by NA.txt
+Med-Textbooks/CC-BY-SA/Acid-base Physiology by Brandis.txt
+Med-Textbooks/CC-BY-SA/Advanced Human Nutrition by Byerley.txt
+Med-Textbooks/CC-BY-SA/Computational Cognitive Neuroscience by O_Reilly and Munakata.txt
+Med-Textbooks/CC-BY-SA/Contemporary Health Concerns Foothill College by Baldwin.txt
+Med-Textbooks/CC-BY-SA/Health Case Studies by Rees, Kruger, and Morrison.txt
+Med-Textbooks/CC-BY/An EKG Interpretation Primer by Christianson et al..txt
+Med-Textbooks/CC-BY/Anatomy and Physiology (OpenStax) by J. Gordon Betts, Tyler Junior College, Eddie Johnson, Central Oregon Community College, James A. Wise, Hampton University, Kelly A. Young, California State University, Long Beach, et al.txt
+Med-Textbooks/CC-BY/Anatomy and Physiology II Laboratory Manual by Shook.txt
+Med-Textbooks/CC-BY/Biology -2e by Mary Ann Clark, Texas Wesleyan University, Jung Choi, Georgia Institute of Technology, Matthew Douglas, Grand Rapids Community College.txt
+Med-Textbooks/CC-BY/Concepts of Biology (OpenStax) by Samantha Fowler, Rebecca Roush, James Wise.txt
+Med-Textbooks/CC-BY/Human Anataomy by OERI.txt
+Med-Textbooks/CC-BY/Lifetime fitness and wellness by NA.txt
+Med-Textbooks/CC-BY/Medical Terminology for Healthcare Professions by Nelson and Greene.txt
+Med-Textbooks/CC-BY/Microbiology (OpenStax) by Author_ Nina Parker, Mark Schneegurt, Anh-Hue Thi Tu, Brian M. Forster, et al.txt
+Med-Textbooks/CC-BY/Neuroscience by Ju.txt
+Med-Textbooks/CC-BY/Nursing Fundamentals by Ernstmeyer and Christman.txt
+Med-Textbooks/CC-BY/Nursing Pharmacology by NA.txt
+Med-Textbooks/CC-BY/Remix_ Women_s Health by Markell.txt
+Med-Textbooks/CC-BY/Vital Sign Measurement Across the Lifespan by Lapum et al..txt

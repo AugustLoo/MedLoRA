@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 35B 三步训练的第①步: 知识预训练 (纯文字: 英文教材 + 临床指南 + 中文医学百科 / 语料), 方案见 docs/PLAN_35B_CPT.md。
 # 分阶段运行 (ubuntu 主机, 在 tmux 里), 每一步都可以重跑, 做完的会跳过:
-#   bash train/interns2/run_cpt35.sh data      # 切段 + 抽样 + 留验证集 (不占卡; 语料先用 scripts/dl_cpt.sh 下到 data/cpt_corpora)
+#   bash train/interns2/run_cpt35.sh data      # 切段 + 抽样 + 留验证集 (不占卡; 语料先用 scripts/server/dl_cpt.sh 下到 /home/ubuntu/chunqian/data/cpt_corpora)
 #   bash train/interns2/run_cpt35.sh smoke     # 3 步冒烟, 看显存和每步耗时 (要 0-3 号卡: 先请世龙停服务)
 #   bash train/interns2/run_cpt35.sh sweep     # 学习率扫描: 5e-5 / 1e-4 / 2e-4 各短跑 SWEEP_STEPS 步, 比验证损失
 #   LR=1e-4 bash train/interns2/run_cpt35.sh train   # 正式训练 1 轮 (LR 按扫描结果填); 断了重跑会接着练
