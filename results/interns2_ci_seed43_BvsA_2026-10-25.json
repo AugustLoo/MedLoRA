@@ -1,0 +1,319 @@
+{
+  "reference": "interns2_s2a_s43",
+  "boot": 2000,
+  "seed": 0,
+  "tests": {
+    "SLAKE closed": {
+      "interns2_s2a_s43": {
+        "n": 416,
+        "mean": 93.75,
+        "ci95": [
+          91.35,
+          95.91
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 416,
+        "mean": 93.03,
+        "ci95": [
+          90.62,
+          95.43
+        ],
+        "diff_vs_ref": -0.72,
+        "diff_ci95": [
+          -1.92,
+          0.48
+        ],
+        "significant": false
+      }
+    },
+    "SLAKE open": {
+      "interns2_s2a_s43": {
+        "n": 645,
+        "mean": 83.26,
+        "ci95": [
+          80.31,
+          86.05
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 645,
+        "mean": 83.57,
+        "ci95": [
+          80.62,
+          86.51
+        ],
+        "diff_vs_ref": 0.31,
+        "diff_ci95": [
+          -1.24,
+          1.86
+        ],
+        "significant": false
+      }
+    },
+    "SLAKE 中文 closed": {
+      "interns2_s2a_s43": {
+        "n": 420,
+        "mean": 94.76,
+        "ci95": [
+          92.62,
+          96.67
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 420,
+        "mean": 95.24,
+        "ci95": [
+          93.1,
+          97.14
+        ],
+        "diff_vs_ref": 0.48,
+        "diff_ci95": [
+          -0.95,
+          1.9
+        ],
+        "significant": false
+      }
+    },
+    "SLAKE 中文 open": {
+      "interns2_s2a_s43": {
+        "n": 613,
+        "mean": 76.18,
+        "ci95": [
+          72.76,
+          79.28
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 613,
+        "mean": 76.51,
+        "ci95": [
+          73.25,
+          79.93
+        ],
+        "diff_vs_ref": 0.33,
+        "diff_ci95": [
+          -1.47,
+          2.45
+        ],
+        "significant": false
+      }
+    },
+    "SLAKE 去掉图像 closed": {
+      "interns2_s2a_s43": {
+        "n": 416,
+        "mean": 52.64,
+        "ci95": [
+          47.6,
+          57.45
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 416,
+        "mean": 52.88,
+        "ci95": [
+          48.08,
+          57.69
+        ],
+        "diff_vs_ref": 0.24,
+        "diff_ci95": [
+          -5.29,
+          6.01
+        ],
+        "significant": false
+      }
+    },
+    "SLAKE 去掉图像 open": {
+      "interns2_s2a_s43": {
+        "n": 645,
+        "mean": 27.29,
+        "ci95": [
+          23.72,
+          30.85
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 645,
+        "mean": 28.06,
+        "ci95": [
+          24.34,
+          31.47
+        ],
+        "diff_vs_ref": 0.78,
+        "diff_ci95": [
+          -1.86,
+          3.26
+        ],
+        "significant": false
+      }
+    },
+    "VQA-RAD closed": {
+      "interns2_s2a_s43": {
+        "n": 251,
+        "mean": 84.06,
+        "ci95": [
+          79.28,
+          88.45
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 251,
+        "mean": 84.06,
+        "ci95": [
+          79.28,
+          88.45
+        ],
+        "diff_vs_ref": 0.0,
+        "diff_ci95": [
+          -1.99,
+          2.39
+        ],
+        "significant": false
+      }
+    },
+    "VQA-RAD open": {
+      "interns2_s2a_s43": {
+        "n": 200,
+        "mean": 35.5,
+        "ci95": [
+          29.5,
+          42.0
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 200,
+        "mean": 33.5,
+        "ci95": [
+          27.0,
+          40.0
+        ],
+        "diff_vs_ref": -2.0,
+        "diff_ci95": [
+          -6.0,
+          1.5
+        ],
+        "significant": false
+      }
+    },
+    "PathVQA closed": {
+      "interns2_s2a_s43": {
+        "n": 3362,
+        "mean": 92.24,
+        "ci95": [
+          91.37,
+          93.16
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 3362,
+        "mean": 91.58,
+        "ci95": [
+          90.69,
+          92.5
+        ],
+        "diff_vs_ref": -0.65,
+        "diff_ci95": [
+          -1.22,
+          -0.06
+        ],
+        "significant": true
+      }
+    },
+    "PathVQA open": {
+      "interns2_s2a_s43": {
+        "n": 3357,
+        "mean": 30.56,
+        "ci95": [
+          28.98,
+          32.05
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 3357,
+        "mean": 31.67,
+        "ci95": [
+          30.06,
+          33.24
+        ],
+        "diff_vs_ref": 1.1,
+        "diff_ci95": [
+          0.39,
+          1.88
+        ],
+        "significant": true
+      }
+    },
+    "MedQA acc": {
+      "interns2_s2a_s43": {
+        "n": 1273,
+        "mean": 86.41,
+        "ci95": [
+          84.52,
+          88.22
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 1273,
+        "mean": 85.86,
+        "ci95": [
+          83.97,
+          87.75
+        ],
+        "diff_vs_ref": -0.55,
+        "diff_ci95": [
+          -1.81,
+          0.71
+        ],
+        "significant": false
+      }
+    },
+    "CMExam acc": {
+      "interns2_s2a_s43": {
+        "n": 1000,
+        "mean": 93.5,
+        "ci95": [
+          92.1,
+          95.0
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 1000,
+        "mean": 93.9,
+        "ci95": [
+          92.5,
+          95.4
+        ],
+        "diff_vs_ref": 0.4,
+        "diff_ci95": [
+          -0.5,
+          1.4
+        ],
+        "significant": false
+      }
+    },
+    "PneumoniaMNIST closed": {
+      "interns2_s2a_s43": {
+        "n": 624,
+        "mean": 94.39,
+        "ci95": [
+          92.31,
+          95.99
+        ]
+      },
+      "interns2_s2b_s43": {
+        "n": 624,
+        "mean": 95.67,
+        "ci95": [
+          94.07,
+          97.28
+        ],
+        "diff_vs_ref": 1.28,
+        "diff_ci95": [
+          0.32,
+          2.4
+        ],
+        "significant": true
+      }
+    }
+  }
+}
