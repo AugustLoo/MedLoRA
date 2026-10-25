@@ -118,11 +118,11 @@ fill(shape(S[0], "details").text_frame, [
     "LOO CHUN QIAN    导师 / Supervisor：徐蕾",
     "第 7 周 / Week 7    2026-10-29",
     "",
-    "本周核心进展：种子 43 的 A、B " + ("已训完并评完" if EVALUATED else "已训完") + "；英文报告补到 v1.5；毕设表 1–3 草稿",
-    "Main update: seed-43 A and B " + ("trained and evaluated" if EVALUATED else "trained") + "; report v1.5; thesis Tables 1–3 drafted",
+    "本周核心进展：种子 43 的 A、B " + ("已训完并评完" if EVALUATED else "已训完") + "；英文报告补到 v1.6；毕设表 1–3 草稿",
+    "Main update: seed-43 A and B " + ("trained and evaluated" if EVALUATED else "trained") + "; report v1.6; thesis Tables 1–3 drafted",
 ])
 NOTES.append("这周三件事：第一，上周暂停的种子 43 重训，世龙 10 月 24 日让出显卡，A 和 B 都" + ("训完并评完了。" if EVALUATED else "训完了，评测在等硬盘空间。")
-             + "第二，英文报告补到 1.5 版，把最近三个实验写进去了。第三，学校发了毕设表格的通知，表 1 到 3 的草稿已经写好。")
+             + "第二，英文报告补到 1.6 版，共 37 页，种子 43 对比和配对区间已写入。第三，表 1 到 3 的草稿已经写好，学校的原始文件还包含空白的表 4 指导记录。")
 
 # ---------------------------------------------------------------- 2 本周进展 (上周承诺)
 t = table(S[1])
@@ -131,21 +131,21 @@ fill_table(t, [
      (("完成：训完、评完", "Done: trained and evaluated") if EVALUATED else ("训练完成，评测待做", "Trained; eval pending")),
      (("结果快照已推 GitHub", "Snapshot pushed to GitHub") if EVALUATED else ("合并模型还缺约 30 GB 硬盘", "Merge needs ~30 GB more disk"))],
     [("把结果写进英文报告", "Write results into the report"),
-     ("完成：v1.5", "Done: v1.5"),
-     ("新增 4 节，参考文献逐条核对", "4 new sections, refs checked")],
+     ("完成：v1.6，37 页", "Done: v1.6, 37 pages"),
+     ("种子 43 对比与配对区间已补", "Seed-43 comparison and paired CIs added")],
     [("CheXbert 复核 A、B、C", "CheXbert re-check of A, B, C"),
-     ("未开始", "Not started"),
-     ("容器 CPU 和队友共用，先征得同意", "Shared container CPU; ask first")],
+     ("安排到下周", "Planned for next week"),
+     ("容器 CPU 共用，执行前先征得同意", "Shared CPU; get agreement before running")],
 ])
 fill(shape(S[1], "takeaway").text_frame, [
-    "已解决：系统盘不够 → 苏学长同意临时用 /home/share，评完已删    仍需：CheXbert 复核先问队友",
-    "Solved: disk → temporary /home/share, deleted after eval    Still needed: ask teammates before CheXbert",
+    "已解决：合并空间已归还；报告已补种子 43    下周：队友同意后做 CheXbert 复核",
+    "Done: merge space returned; seed 43 added to report    Next week: CheXbert once teammates agree",
 ] if EVALUATED else [
     "主要阻碍：系统盘只剩约 49 GB，合并一个模型要 75 GB    所需支持：评测时临时用 /home/share",
     "Main blocker: ~49 GB free, a merge needs 75 GB    Support needed: temporary use of /home/share",
 ])
 NOTES.append("上周承诺的三件事：种子 43 重训" + ("已经训完、评完，系统盘不够的问题，苏学长同意临时借 /home/share 放合并模型，评完已经删掉；" if EVALUATED else "已经训完，但评测要先把模型合并成一个 73 GB 的文件，系统盘现在只剩约 49 GB，放不下；")
-             + "英文报告已经写到 1.5 版；CheXbert 复核还没开始，因为容器的 CPU 和队友共用，要先问。"
+             + "英文报告已经写到 1.6 版，共 37 页；CheXbert 复核安排到下周，容器的 CPU 和队友共用，执行前要先征得同意。"
              + ("" if EVALUATED else "需要的支持：评测时临时借用 /home/share 的空间，评完就删。"))
 
 # ---------------------------------------------------------------- 3 核心挑战与研究问题
@@ -195,10 +195,10 @@ boxes(S[4], [
      "C1: CPT ablation at 35B; C2: reliability (omission, contradiction, no image)",
      "本周：评测流程不变，只换种子 / This week: same evaluation, new seed"],
 ], [
-    "本周方法更新：描述漏报改以 CheXbert 为准（关键词作参照）；训练中断可从断点接着训",
-    "Method update: CheXbert is now the primary judge; training resumes from checkpoints",
+    "胸片描述：本周先报关键词结果；下周 CheXbert 复核后以其为准",
+    "X-ray descriptions: keyword results now; CheXbert re-check next week",
 ])
-NOTES.append("方法上这周没有新东西，重点是把结论做扎实：同一配方训两个种子，主表看配对置信区间，胸片描述用 CheXbert 判，只有两次都成立的才写进论文。")
+NOTES.append("方法上这周没有新东西，重点是把结论做扎实：同一配方训两个种子，主表看配对置信区间。胸片描述本周仍是关键词判断，下周经队友同意再用 CheXbert 复核，复核后以 CheXbert 为准。")
 
 # ---------------------------------------------------------------- 6 实验计划
 t = table(S[5])
@@ -210,8 +210,8 @@ fill_table(t, [
      ("与种子 42 完全相同：六个看图数据集 + 华佗、DISC 中文对话 27,953 条",
       "Same data as seed 42: six VQA sets + Huatuo, DISC dialogues, 27,953")],
     [("指标与控制变量", "Metrics / controls"),
-     ("看图 / 考题准确率（↑）、胸片漏报 CheXbert（↓）；只换种子",
-      "VQA / exam accuracy (↑), X-ray omission by CheXbert (↓); only the seed changes")],
+     ("看图 / 考题准确率（↑）；胸片漏报本周关键词、下周 CheXbert（↓）",
+      "VQA / exam accuracy (↑); omission: keywords now, CheXbert next week (↓)")],
     [("消融与成功标准", "Ablation / criterion"),
      ("结论两种子都成立才算；B 仍从种子 42 的预训练补丁接着训",
       "A finding counts only if both seeds agree; B starts from the seed-42 CPT adapter")],
@@ -251,9 +251,9 @@ fill_table(t, ([
     row(("B 种子 43（本周）", "B, seed 43 (this week)"), B43, "interns2_s2b_s43"),
 ])
 if EVALUATED:
-    a43, a42, six = (r1(m["cxr_desc_miss_pct"]) for m in (A43, MA, SIX))
-    take = [f"观察：A43 漏报 {a43}%，落在 {six}% 与 {a42}% 之间    解释：种子能差约 4 点，对话影响不确定    局限：两个种子",
-            f"Observation: A43 {a43}%, between {six}% and {a42}%    Interpretation: seed moves ~4 pts    Limitation: 2 seeds"]
+    a43 = r1(A43["cxr_desc_miss_pct"])
+    take = [f"A43 漏报 {a43}%，种子差约 4 点，对话影响未定；关键词判断，下周 CheXbert 复核",
+            f"A43 omission {a43}%, seed shifts ~4 pts; dialogue effect unclear. Keyword judge; CheXbert next week"]
 elif A43.get("train_loss_last10pct_mean") and B43.get("train_loss_last10pct_mean"):
     take = ["观察：两个种子的训练损失几乎相同    解释：评测还没做，结论待定    局限：缺硬盘合并模型",
             "Observation: training losses match across seeds    Interpretation: pending evaluation    Limitation: disk"]
@@ -270,7 +270,7 @@ NOTES.append("结果：" + (
     f"先回答上周的问题。按事先定的标准，种子 43 的 A 胸片描述漏报是 {r1(A43['cxr_desc_miss_pct'])}%，"
     f"种子 42 是 {r1(MA['cxr_desc_miss_pct'])}%，没有中文对话的 S2-6datasets 是 {r1(SIX['cxr_desc_miss_pct'])}%。"
     "两个条件都不完全满足，落在中间：只换种子就能差约 4 点，所以上周看到的 6 点差距至少有一部分是种子造成的，"
-    "现在不能说中文对话让胸片描述变差。这些数字是关键词判断的，下一步用 CheXbert 复核两个种子。"
+    "现在不能说中文对话让胸片描述变差。这些数字是关键词判断的，下周经队友同意后用 CheXbert 复核两个种子。"
     "其次，B 减 A 在两个种子下方向基本一致：SLAKE 是非题两次都低 0.7 点，但区间跨 0；PathVQA 是非题两次都低不到 1 点，"
     f"种子 43 是 {ci('PathVQA closed')}；胸片描述漏报 B 两次都高约 2.7 点。所以「文字预训练没有可测提升」在两个种子下都成立。"
     f"其他看图、考题分数，同一个模型换种子的差大多在 2 点以内，最大的是 B 的儿童肺炎题，差 {r1(B43['pneumonia_closed'] - MB['pneumonia_closed'])} 点；"
@@ -282,22 +282,22 @@ NOTES.append("结果：" + (
 
 # ---------------------------------------------------------------- 8 预期成果与阶段结论
 boxes(S[7], [
-    ["英文报告 v1.5（36 页）；毕设表 1–3 草稿；论文实验章节的素材基本齐全",
-     "Report v1.5 (36 pp.); Tables 1–3 drafted; experiment chapter ready"],
+    ["英文报告 v1.6（37 页，种子对比在第 28 页）；毕设表 1–3 草稿",
+     "Report v1.6 (37 pp., seed comparison on p. 28); Tables 1–3 drafted"],
     ["已确认（两个种子）：分数来自微调；文字预训练没有可测提升",
-     "Established (2 seeds): gains come from fine-tuning; CPT adds nothing"] if EVALUATED else
+     "Two SFT seeds: gains from fine-tuning; no measurable gain from CPT"] if EVALUATED else
     ["已确认：分数来自微调；文字预训练、推理训练没有可测提升（种子 42）",
      "Established: gains from fine-tuning; CPT, reasoning add nothing (seed 42)"],
-    ["待定：胸片漏报换种子差约 4 点，对话的影响不确定 → CheXbert 复核",
-     "Open: seed moves X-ray omission ~4 pts; dialogue effect unclear → CheXbert"] if EVALUATED else
+    ["待定：关键词漏报换种子差约 4 点，对话影响未定；下周 CheXbert 复核",
+     "Seed shifts omission ~4 pts; dialogue effect unclear; CheXbert next week"] if EVALUATED else
     ["待定：胸片描述变差是中文对话还是种子 → 等种子 43 评测",
      "Open: dialogue data or seed behind the X-ray drop → seed-43 evaluation"],
 ], [
     "最终交付：代码（GitHub MedLoRA）、LoRA 补丁、数据卡 / 模型卡、实验评估、论文",
     "Final deliverables: code, LoRA adapters, data / model cards, experimental evaluation, thesis",
 ])
-NOTES.append("阶段结论：分数来自微调、文字预训练没有可测提升，这一点在 3B 和 35B 上都成立，已经写进英文报告 1.5 版。"
-             + ("种子 43 也验证了这一点：B 减 A 在两个种子下都没有可测提升。还没定的是胸片描述：换种子就能差约 4 点，中文对话有没有影响，要 CheXbert 复核后再说。"
+NOTES.append("阶段结论：分数来自微调、文字预训练没有可测提升，英文报告已更新到 1.6 版，共 37 页，种子对比表在第 28 页。"
+             + ("种子 43 也验证了这一点：预训练没有可测提升在两个 SFT 种子下都成立；B43 沿用种子 42 的预训练补丁。还没定的是胸片描述：关键词漏报换种子就能差约 4 点，中文对话有没有影响，要等下周 CheXbert 复核后再说。"
                 if EVALUATED else "还没定的是胸片描述变差的原因，要等种子 43 评测。")
              + "毕设表 1 到 3 草稿写好了，要和老师约时间一起定稿签字。")
 
@@ -307,21 +307,21 @@ fill_table(t, [
     [("第1–4周", "W1–4"), ("数据与基线：3B、35B 基座", "Data and baselines: 3B, 35B"),
      ("results/ 快照、周报 1–3", "Result snapshots, reports 1–3"), ("完成", "Done")],
     [("第5–8周", "W5–8"), ("35B 微调、三步训练", "35B fine-tuning, 3 stages"),
-     ("评测结果、置信区间、报告 v1.5", "Results, CIs, report v1.5"), ("完成", "Done")],
+     ("评测结果、置信区间、报告 v1.6", "Results, CIs, report v1.6"), ("完成", "Done")],
     [("第9–12周", "W9–12"), ("种子 43、CheXbert、表 1–3", "Seed 43, CheXbert, Tables 1–3"),
      ("两种子结论、开题报告", "Two-seed findings, proposal"), ("进行中", "In progress")],
     [("第13–16周", "W13–16"), ("补充实验与论文", "Extra experiments, thesis"),
      ("误差分析、论文初稿", "Error analysis, draft"), ("未开始", "Not started")],
 ])
 fill(shape(S[8], "takeaway").text_frame, [
-    "下周承诺：队友同意后 CheXbert 复核两个种子的 A、B；表 1–3 与老师定稿（12-11 截止）",
-    "Next week: CheXbert re-check of A, B (both seeds) once teammates agree; finalise Tables 1–3",
+    "下周计划：队友同意后做 CheXbert 复核；表 1–3 与老师定稿（12-11 截止）",
+    "Next week: CheXbert once teammates agree; finalise Tables 1–3 (due Dec 11)",
 ] if EVALUATED else [
     "下周承诺：硬盘解决后评测 A43、B43（约 4 小时）；表 1–3 与老师定稿（12-11 截止）",
     "Next week: evaluate A43 and B43 once disk allows (~4 h); finalise Tables 1–3 (due Dec 11)",
 ])
 NOTES.append("时间安排：前八周的内容都完成了。" + (
-    "种子 43 也训完、评完了。下周承诺：先问队友，同意后用 CheXbert 复核两个种子的 A 和 B，只用容器 CPU；表 1 到 3 和老师定稿，学校 12 月 11 日截止。"
+    "种子 43 也训完、评完了。CheXbert 安排到下周：先问队友，同意后只用容器 CPU，优先复核两个种子的 A 和 B，再做 C 和只做第①步的补丁。表 1 到 3 和老师定稿，学校 12 月 11 日截止；表 4 按实际指导内容持续记录，由老师确认。"
     if EVALUATED else
     "接下来是种子 43 评测和 CheXbert 复核，以及开题报告。下周承诺：硬盘一解决就评测 A43、B43，大约 4 小时显卡；表 1 到 3 和老师定稿，学校 12 月 11 日截止。"))
 
@@ -329,8 +329,8 @@ NOTES.append("时间安排：前八周的内容都完成了。" + (
 boxes(S[9], [
     ["要不要加种子 44？A：两个种子够，写进局限；B：再训一个 A（约 12 小时）",
      "Seed 44 for X-rays? A: two seeds, state as a limit; B: one more A (~12 GPU h)"],
-    ["CheXbert 复核用容器 CPU（先问队友）；表 2、表 3 约时间与老师一起填",
-     "CheXbert on the shared container CPU (ask first); a meeting for Tables 2 and 3"],
+    ["下周 CheXbert 复核先问队友；表 2、表 3 约老师定稿；表 4 持续记录",
+     "Next week: ask before CheXbert; finalise Tables 2–3; keep Table 4 updated"],
 ] if EVALUATED else [
     ["评测时合并模型能否临时放 /home/share？A：可以（评完即删）；B：等扩容",
      "Merged model on /home/share? A: yes, deleted after; B: wait for expansion"],

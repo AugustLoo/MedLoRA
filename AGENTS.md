@@ -14,6 +14,7 @@
 - **已确立的结论**: 分数主要来自第②步微调; 第①步预训练没有可测提升 (两个 SFT 种子都成立)。第③步推理训练只有单种子结果, 总体收益有限。
 - **还没定的**: 成人胸片描述的漏报。换种子就能差约 4 点, 中文对话数据有没有影响要等 CheXbert 复核。
 - **报告已同步** (2026-10-25): 英文报告 5.14 已补 A/B 两个 SFT 种子的分数与配对区间, 摘要、分析、局限和复现命令同步更新, PDF 已重出; B43 沿用种子 42 的第①步补丁, 还没有检验预训练本身换种子的影响。
+- **周报已同步** (2026-10-25): 第 7 周 PPT 和讲稿已同步报告 v1.6 (37 页), 胸片结果明确标为关键词判断; CheXbert 复核按用户安排放到下周, 执行前仍需队友同意。周报只留本机。
 - **完整结果**: [results/README.md](results/README.md) (实验日志, 按时间往下记), [docs/report.md](docs/report.md) (英文报告, 第 5 节结果, 第 8 节复现命令)。
 
 ---
@@ -295,6 +296,6 @@ bash train/interns2/run_cpt35.sh data && bash train/interns2/run_sft35.sh data2 
 
 ## 7. 待办 (2026-10-25)
 
-1. **CheXbert 复核**: `interns2_s2a`、`interns2_s2b`、`interns2_s3c`、`interns2_cpt1`、`interns2_s2a_s43`、`interns2_s2b_s43` 还没做 (4.6)。等用户问过队友。
+1. **CheXbert 复核 (安排到下周)**: `interns2_s2a`、`interns2_s2b`、`interns2_s3c`、`interns2_cpt1`、`interns2_s2a_s43`、`interns2_s2b_s43` 还没做 (4.6)。先做 A/B 两个种子, 再做 C 和 cpt1; 执行前等用户征得队友同意并约定可用时段。
 2. **要不要加种子 44**: 10-29 周会上请导师决定。要做的话, 先在 `run_sft35.sh` 里加 `a44`, 用 `gpu_window.sh` 跑, 约 12 小时卡。
-3. 每周四周会前做周报 PPT: `scripts/make_weekN_ppt.py`, 模板 `docs/weekly/Weekly_Report_Template.pptx`, 输出在 `docs/weekly/weekN/`, 只留本机。
+3. 每周四周会前做周报 PPT: `scripts/make_weekN_ppt.py`, 模板 `docs/weekly/Weekly_Report_Template.pptx`, 输出在 `docs/weekly/weekN/`, 只留本机。第 7 周 PPT / 讲稿已同步; 周会后的决定另行记录。
