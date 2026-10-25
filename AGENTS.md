@@ -11,8 +11,9 @@
 - **课题**: 医学多模态模型的参数高效增量预训练与指令微调。也是作者 (LOO CHUN QIAN, 导师徐蕾) 的本科毕设。
 - **主线模型**: Intern-S2-Preview (35B, 混合专家, 看图 + 文字), LoRA 微调。早期在 Qwen2.5-VL-3B 上做过同一套实验 (Kaggle / 单卡, `configs/`、`notebooks/`), 已结束。
 - **主线实验**: 三步训练 ① 文字知识预训练 → ② 问答微调 → ③ 推理训练, 得到模型 A / B / C, 外加换种子 43 重训的 A43 / B43。全部训完、评完。
-- **已确立的结论**: 分数来自第②步微调; 第①步预训练、第③步推理训练都没有可测提升 (两个种子都成立)。
+- **已确立的结论**: 分数主要来自第②步微调; 第①步预训练没有可测提升 (两个 SFT 种子都成立)。第③步推理训练只有单种子结果, 总体收益有限。
 - **还没定的**: 成人胸片描述的漏报。换种子就能差约 4 点, 中文对话数据有没有影响要等 CheXbert 复核。
+- **报告已同步** (2026-10-25): 英文报告 5.14 已补 A/B 两个 SFT 种子的分数与配对区间, 摘要、分析、局限和复现命令同步更新, PDF 已重出; B43 沿用种子 42 的第①步补丁, 还没有检验预训练本身换种子的影响。
 - **完整结果**: [results/README.md](results/README.md) (实验日志, 按时间往下记), [docs/report.md](docs/report.md) (英文报告, 第 5 节结果, 第 8 节复现命令)。
 
 ---
@@ -295,6 +296,5 @@ bash train/interns2/run_cpt35.sh data && bash train/interns2/run_sft35.sh data2 
 ## 7. 待办 (2026-10-25)
 
 1. **CheXbert 复核**: `interns2_s2a`、`interns2_s2b`、`interns2_s3c`、`interns2_cpt1`、`interns2_s2a_s43`、`interns2_s2b_s43` 还没做 (4.6)。等用户问过队友。
-2. **报告补种子 43**: 在 `docs/report.md` 5.14 节加两个种子的对比 (数据: `results/interns2_seed43_eval_2026-10-25.json` 和两份 `interns2_ci_seed43_*`), 同步改第 6、7 节和摘要, 重出 PDF。
-3. **要不要加种子 44**: 10-29 周会上请导师决定。要做的话, 先在 `run_sft35.sh` 里加 `a44`, 用 `gpu_window.sh` 跑, 约 12 小时卡。
-4. 每周四周会前做周报 PPT: `scripts/make_weekN_ppt.py`, 模板 `docs/weekly/Weekly_Report_Template.pptx`, 输出在 `docs/weekly/weekN/`, 只留本机。
+2. **要不要加种子 44**: 10-29 周会上请导师决定。要做的话, 先在 `run_sft35.sh` 里加 `a44`, 用 `gpu_window.sh` 跑, 约 12 小时卡。
+3. 每周四周会前做周报 PPT: `scripts/make_weekN_ppt.py`, 模板 `docs/weekly/Weekly_Report_Template.pptx`, 输出在 `docs/weekly/weekN/`, 只留本机。
