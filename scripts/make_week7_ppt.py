@@ -1,7 +1,7 @@
 """第 7 周周进展汇报 PPT (课题组统一模板 Weekly Report_Templet): docs/weekly/week7/Topic6_WeeklyReport7.pptx
 做法同 make_week6_ppt.py: 只往模板原有的文本框 / 表格里填字, 每格「中文一行 + 英文一行」; 数字从 results/ 的快照读。
 种子 43 的结果放在 results/interns2_seed43_eval_*.json (最新一份); 还没有就显示「训练中 / 待评测」, 有了重跑本脚本即可。
-用法: python scripts/make_week7_ppt.py <模板.pptx>
+用法: python scripts/make_week7_ppt.py <模板.pptx> [输出.pptx]   (输出默认 docs/weekly/week7/Topic6_WeeklyReport7.pptx; 讲稿写在输出旁边)
 """
 import copy
 import json
@@ -15,7 +15,7 @@ from pptx.util import Emu, Inches
 REPO = Path(__file__).resolve().parents[1]
 R = REPO / "results"
 TEMPLATE = Path(sys.argv[1])
-OUT = REPO / "docs/weekly/week7/Topic6_WeeklyReport7.pptx"
+OUT = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else REPO / "docs/weekly/week7/Topic6_WeeklyReport7.pptx"
 
 EV = json.loads((R / "interns2_3stage_eval_2026-10-19.json").read_text(encoding="utf-8"))["models"]
 TR = json.loads((R / "interns2_3stage_train_2026-10-18.json").read_text(encoding="utf-8"))
@@ -25,6 +25,11 @@ S43_FILES = sorted(R.glob("interns2_seed43_eval_*.json"))
 S43 = json.loads(S43_FILES[-1].read_text(encoding="utf-8"))["models"] if S43_FILES else {}
 A43, B43 = S43.get("interns2_s2a_s43", {}), S43.get("interns2_s2b_s43", {})
 EVALUATED = bool(A43.get("slake_closed") is not None and B43.get("slake_closed") is not None)
+# S2-CheXpertPlus (只练胸片报告): 问答与是非题来自 10-13 快照, CheXbert 漏报来自带回本机的容器汇总 (只有比例)
+_cxp = json.loads((R / "interns2_cxp_2026-10-13.json").read_text(encoding="utf-8"))["models"]["S2-CheXpertPlus"]
+CXP = {"slake_closed": _cxp["slake_closed"], "false_alarm": 100 - _cxp["chexpert"]["closed"]["specificity"],
+       "chexbert_omission": json.loads((REPO / "outputs/eval/chexbert_interns2_cxp.json").read_text(encoding="utf-8"))
+       ["abnormal_no_finding_reported_pct"]}
 CI_FILES = sorted(R.glob("interns2_ci_seed43_BvsA_*.json"))
 CI43 = json.loads(CI_FILES[-1].read_text(encoding="utf-8"))["tests"] if CI_FILES else {}
 
@@ -314,21 +319,25 @@ fill_table(t, [
      ("误差分析、论文初稿", "Error analysis, draft"), ("未开始", "Not started")],
 ])
 fill(shape(S[8], "takeaway").text_frame, [
-    "下周计划：队友同意后做 CheXbert 复核；表 1–3 与老师定稿（12-11 截止）",
-    "Next week: CheXbert once teammates agree; finalise Tables 1–3 (due Dec 11)",
+    "下周计划：CheXbert 复核（队友同意后）；老师同意则准备 A + 胸片报告混训；表 1–3 定稿",
+    "Next week: CheXbert once agreed; if approved, prepare A + CheXpert Plus mix; finalise Tables 1–3",
 ] if EVALUATED else [
     "下周承诺：硬盘解决后评测 A43、B43（约 4 小时）；表 1–3 与老师定稿（12-11 截止）",
     "Next week: evaluate A43 and B43 once disk allows (~4 h); finalise Tables 1–3 (due Dec 11)",
 ])
 NOTES.append("时间安排：前八周的内容都完成了。" + (
-    "种子 43 也训完、评完了。CheXbert 安排到下周：先问队友，同意后只用容器 CPU，优先复核两个种子的 A 和 B，再做 C 和只做第①步的补丁。表 1 到 3 和老师定稿，学校 12 月 11 日截止；表 4 按实际指导内容持续记录，由老师确认。"
+    "种子 43 也训完、评完了。CheXbert 安排到下周：先问队友，同意后只用容器 CPU，优先复核两个种子的 A 和 B，再做 C 和只做第①步的补丁。"
+    "如果老师同意把胸片报告混进问答微调，下周先准备数据和训练方案，等 CheXbert 结果出来、约好显卡再训。"
+    "表 1 到 3 和老师定稿，学校 12 月 11 日截止；表 4 按实际指导内容持续记录，由老师确认。"
     if EVALUATED else
     "接下来是种子 43 评测和 CheXbert 复核，以及开题报告。下周承诺：硬盘一解决就评测 A43、B43，大约 4 小时显卡；表 1 到 3 和老师定稿，学校 12 月 11 日截止。"))
 
 # ---------------------------------------------------------------- 10 讨论与决策
 boxes(S[9], [
-    ["要不要加种子 44？A：两个种子够，写进局限；B：再训一个 A（约 12 小时）",
-     "Seed 44 for X-rays? A: two seeds, state as a limit; B: one more A (~12 GPU h)"],
+    ["① 要不要加种子 44？A：两个种子够，写进局限；B：再训一个 A（约 12 小时）",
+     "① Seed 44? A: two seeds, state as a limit; B: one more A (~12 GPU h)",
+     "② 胸片报告混进问答微调一起训？A：CheXbert 后再定；B：下周起准备",
+     "② Mix CheXpert Plus reports into SFT? A: after CheXbert; B: prepare now"],
     ["下周 CheXbert 复核先问队友；表 2、表 3 约老师定稿；表 4 持续记录",
      "Next week: ask before CheXbert; finalise Tables 2–3; keep Table 4 updated"],
 ] if EVALUATED else [
@@ -341,8 +350,15 @@ boxes(S[9], [
     "每周材料：汇报 PPT、实验日志（results/README.md）、英文报告（docs/report.pdf）、代码（GitHub）",
     "Weekly package: slides, experiment log, report (docs/report.pdf), code (GitHub AugustLoo/MedLoRA)",
 ])
-NOTES.append(("想请老师决定：胸片描述这个问题，两个种子的结果落在中间，要不要再加一个种子 44 的 A 来定。"
+NOTES.append(("想请老师决定两件事。第一，胸片描述这个问题，两个种子的结果落在中间，要不要再加一个种子 44 的 A 来定。"
               "A 方案是两个种子就够，在论文里写成局限；B 方案是再训一个，大约 12 小时显卡，要再请世龙让卡。"
+              f"第二，要不要把 CheXpert Plus 的胸片报告混进问答微调一起训。之前只用胸片报告训的 S2-CheXpertPlus，"
+              f"胸片上是所有模型里最平衡的：CheXbert 判描述漏报 {r1(CXP['chexbert_omission'])}%，是非题误报 {r1(CXP['false_alarm'])}%，"
+              f"但 SLAKE 是非题回到 {r1(CXP['slake_closed'])}，接近基座，A 是 {r1(MA['slake_closed'])}。"
+              "混在一起训，是想两种能力都保住；但能不能做到要实验才知道，不一定更好。"
+              "做法是：先做完 CheXbert 复核，看 A 和 B 的描述问题到底多大；再用 A 的数据加一部分胸片报告训练，两个种子，"
+              "同时看胸片漏报、误报、自相矛盾和 SLAKE 等问答成绩。报告只用训练划分，和测试的 3,189 张片子不是同一批病人；"
+              "数据只在服务器上用。每个种子大约 12 小时以上显卡。"
               if EVALUATED else "想请老师和苏学长决定：评测时能不能临时用 /home/share 放合并模型，评完马上删。")
              + "另外想约老师时间一起填表 2 任务书和表 3 开题报告。")
 

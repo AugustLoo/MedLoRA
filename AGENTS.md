@@ -294,8 +294,12 @@ bash train/interns2/run_cpt35.sh data && bash train/interns2/run_sft35.sh data2 
 4. 个人事务 (联系人、毕设表格、周会上的决定) 改本机的 `AGENTS.local.md`, 不进 git。
 5. 提交前照第 1 节检查一遍: 不写密码、IP、受控数据。
 
-## 7. 待办 (2026-10-25)
+## 7. 待办 (2026-10-27)
 
 1. **CheXbert 复核 (安排到下周)**: `interns2_s2a`、`interns2_s2b`、`interns2_s3c`、`interns2_cpt1`、`interns2_s2a_s43`、`interns2_s2b_s43` 还没做 (4.6)。先做 A/B 两个种子, 再做 C 和 cpt1; 执行前等用户征得队友同意并约定可用时段。
 2. **要不要加种子 44**: 10-29 周会上请导师决定。要做的话, 先在 `run_sft35.sh` 里加 `a44`, 用 `gpu_window.sh` 跑, 约 12 小时卡。
-3. 每周四周会前做周报 PPT: `scripts/make_weekN_ppt.py`, 模板 `docs/weekly/Weekly_Report_Template.pptx`, 输出在 `docs/weekly/weekN/`, 只留本机。第 7 周 PPT / 讲稿已同步; 周会后的决定另行记录。
+3. **要不要把 CheXpert Plus 胸片报告混进问答微调 (A + 报告)**: 10-29 周会上请导师决定, 第 7 周 PPT 第 10 页第 ② 问。
+   - 理由: 只练报告的 `interns2_cxp` 胸片最平衡 (CheXbert 描述漏报 10.2%, 是非题误报 25.1%), 但 SLAKE 是非题掉回 83.9 (A 是 94.2); 混训是想两边都保住, 不保证更好。
+   - 导师同意后的顺序: 先做完待办 1 的 CheXbert → 再在 `run_sft35.sh` 加一个模型 (第②步数据 + 一部分 B3 候选池报告, 只用训练划分, 与测试 3,189 张不同病人) → 种子 42、43 各训一次 → 看胸片漏报 / 误报 / 矛盾和 SLAKE 等问答。每个种子约 12 小时以上卡, 要先约世龙。
+   - 报告数据是受控数据: 只在服务器上生成和使用 (见 `run_cxp.sh` 和 docs/INTERNS2.md「S2-CheXpertPlus」), 不带回本机。
+4. 每周四周会前做周报 PPT: `scripts/make_weekN_ppt.py`, 模板 `docs/weekly/Weekly_Report_Template.pptx`, 输出在 `docs/weekly/weekN/`, 只留本机。第 7 周 PPT / 讲稿已同步 (10-27 加了 CheXpert Plus 混训的决策问题); 周会后的决定另行记录。生成脚本可带第二个参数指定输出路径 (PPT 被 WPS 打开时先输出到别处预览)。
