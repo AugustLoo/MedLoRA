@@ -16,6 +16,7 @@
 - **报告已同步** (2026-10-25): 英文报告 5.14 已补 A/B 两个 SFT 种子的分数与配对区间, 摘要、分析、局限和复现命令同步更新, PDF 已重出; B43 沿用种子 42 的第①步补丁, 还没有检验预训练本身换种子的影响。
 - **周报已同步** (2026-10-25): 第 7 周 PPT 和讲稿已同步报告 v1.6 (37 页), 胸片结果明确标为关键词判断; CheXbert 复核按用户安排放到下周, 执行前仍需队友同意。周报只留本机。
 - **人工试用说明已备** (2026-10-29): [docs/MODEL_TRIAL_GUIDE.pdf](docs/MODEL_TRIAL_GUIDE.pdf) 列出补丁位置、合并部署和 7 组双语试题。`gpu_window.sh` 新增 `STEPS=demo` 限时试用, 本机模拟检查通过; 尚未同步或执行服务器试用, 仍需借卡、借盘许可。
+- **VS Code 容器连接已修复** (2026-10-29): 用远程 URI 避开 Git Bash 的路径转换, 已确认工作区和新 Bash 终端均在 `/workspace/chunqian`。仅核对图片目录和训练 JSON 存在, 未读取受控内容, 未启动训练或模型服务; 打开方法见 4.10。
 - **完整结果**: [results/README.md](results/README.md) (实验日志, 按时间往下记), [docs/report.md](docs/report.md) (英文报告, 第 5 节结果, 第 8 节复现命令)。
 
 ---
@@ -280,6 +281,16 @@ bash train/interns2/run_cpt35.sh data && bash train/interns2/run_sft35.sh data2 
 python scripts/make_model_trial_pdf.py 'C:/Users/Y4/fyp/Topic 6/MedLoRA/docs/MODEL_TRIAL_GUIDE.pdf'
 ```
 
+### 4.10 用本机 VS Code 打开容器目录 (不占卡)
+
+本机 Git Bash 中执行, 先按 `AGENTS.local.md` 准备登录环境, 或在 VS Code 提示时完成登录:
+
+```bash
+MSYS_NO_PATHCONV=1 code --reuse-window --folder-uri 'vscode-remote://ssh-remote+gpu-user0/workspace/chunqian'
+```
+
+使用远程 URI 保留 Linux 路径。直接把 `/workspace/chunqian` 作为普通参数传给 Windows 的 code, Git Bash 会将其转换成错误的本机路径, 即使 SSH 成功也无法打开目录。修复后检查左侧资源管理器, 再新建终端; 实际工作目录应为 `/workspace/chunqian`, 不能只看 SSH 连接成功的日志。受控图片和报告仍按第 1 节限制处理。
+
 ---
 
 ## 5. 写代码的约定
@@ -314,4 +325,4 @@ python scripts/make_model_trial_pdf.py 'C:/Users/Y4/fyp/Topic 6/MedLoRA/docs/MOD
    - 导师同意后的顺序: 先做完待办 1 的 CheXbert → 再在 `run_sft35.sh` 加一个模型 (第②步数据 + 一部分 B3 候选池报告, 只用训练划分, 与测试 3,189 张不同病人) → 种子 42、43 各训一次 → 看胸片漏报 / 误报 / 矛盾和 SLAKE 等问答。每个种子约 12 小时以上卡, 要先约世龙。
    - 报告数据是受控数据: 只在服务器上生成和使用 (见 `run_cxp.sh` 和 docs/INTERNS2.md「S2-CheXpertPlus」), 不带回本机。
 4. 每周四周会前做周报 PPT: `scripts/make_weekN_ppt.py`, 模板 `docs/weekly/Weekly_Report_Template.pptx`, 输出在 `docs/weekly/weekN/`, 只留本机。第 7 周 PPT / 讲稿已同步 (10-27 加了 CheXpert Plus 混训的决策问题); 周会后的决定另行记录。生成脚本可带第二个参数指定输出路径 (PPT 被 WPS 打开时先输出到别处预览)。
-5. **A 模型人工试用**: 说明 PDF 和限时 demo 模式已备; 等用户取得借卡时段, 需要临时盘时另获借盘许可。届时先同步代码、核对补丁和空间, 再启动服务, 用固定题目保存实际回答; 当前未连接或更改服务器。
+5. **A 模型人工试用**: 说明 PDF 和限时 demo 模式已备; 等用户取得借卡时段, 需要临时盘时另获借盘许可。届时先同步代码、核对补丁和空间, 再启动服务, 用固定题目保存实际回答。已用 VS Code 连接容器并核对数据路径存在, 尚未启动模型试用或同步新运维脚本。
