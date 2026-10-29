@@ -17,6 +17,7 @@
 - **周报已同步** (2026-10-25): 第 7 周 PPT 和讲稿已同步报告 v1.6 (37 页), 胸片结果明确标为关键词判断; CheXbert 复核按用户安排放到下周, 执行前仍需队友同意。周报只留本机。
 - **人工试用说明已备** (2026-10-29): [docs/MODEL_TRIAL_GUIDE.pdf](docs/MODEL_TRIAL_GUIDE.pdf) 列出补丁位置、合并部署和 7 组双语试题。`gpu_window.sh` 新增 `STEPS=demo` 限时试用, 本机模拟检查通过; 尚未同步或执行服务器试用, 仍需借卡、借盘许可。
 - **VS Code 容器连接已修复** (2026-10-29): 用远程 URI 避开 Git Bash 的路径转换, 已确认工作区和新 Bash 终端均在 `/workspace/chunqian`。仅核对图片目录和训练 JSON 存在, 未读取受控内容, 未启动训练或模型服务; 打开方法见 4.10。
+- **第 8 周文献材料已备** (2026-10-29): `docs/weekly/week8/` 有 10 篇原始论文的中文精读笔记/PDF、10 页中英 PPT 准备稿和讲稿; 8 篇 PDF 已下载, 另 2 篇提供官方全文链接。区分论文已有贡献、项目已得结论和待验证方向; 个人精读与最终创新方案仍待完成。材料只留本机, 重出命令见 4.11。
 - **完整结果**: [results/README.md](results/README.md) (实验日志, 按时间往下记), [docs/report.md](docs/report.md) (英文报告, 第 5 节结果, 第 8 节复现命令)。
 
 ---
@@ -114,7 +115,8 @@ eval/                 各测试的评测脚本 (都经 OpenAI 兼容接口调用
 data/                 下载与转换脚本 (convert_*.py); data/raw、data/processed 不进 git; pubmedqa_split.json 是固定的考卷划分
 medvlm/               共用代码: 提示词 prompts.py (训练和评测必须用同一套)、指标 metrics.py、远程调用 remote.py
 scripts/              本机脚本: 汇总 (summarize_3stage.py、summarize_seed43.py)、配对区间 (bootstrap_ci.py)、
-                      报告 PDF (make_report_pdf.py)、试用说明 PDF (make_model_trial_pdf.py)、图 (make_fig*.py)、周报 (make_weekN_ppt.py)
+                      报告 PDF (make_report_pdf.py)、试用说明 PDF (make_model_trial_pdf.py)、文献笔记 PDF (make_literature_pdf.py)、
+                      图 (make_fig*.py)、周报 (make_weekN_ppt.py, 包括第 8 周文献准备稿)
 results/              结果快照 json + README.md (实验日志); 报告里的每个数字都能在这里找到出处
 docs/                 report.md/.pdf (英文报告)、cards/ (模型卡、数据卡)、PLAN_35B_CPT.md (三步训练方案)、
                       INTERNS2.md (35B 操作记录)、TRAINING_35B.md (35B 训练说明, 中文)、SERVER.md (早期 3B 的服务器记录)、
@@ -291,6 +293,17 @@ MSYS_NO_PATHCONV=1 code --reuse-window --folder-uri 'vscode-remote://ssh-remote+
 
 使用远程 URI 保留 Linux 路径。直接把 `/workspace/chunqian` 作为普通参数传给 Windows 的 code, Git Bash 会将其转换成错误的本机路径, 即使 SSH 成功也无法打开目录。修复后检查左侧资源管理器, 再新建终端; 实际工作目录应为 `/workspace/chunqian`, 不能只看 SSH 连接成功的日志。受控图片和报告仍按第 1 节限制处理。
 
+### 4.11 第 8 周文献材料 (本机)
+
+材料在 `docs/weekly/week8/`, 依第 1 节只留本机。先按实际精读情况修改笔记/讲稿和生成脚本里的状态, 不把准备材料当作个人已读记录, 不把候选方向写成已验证创新。重出:
+
+```bash
+python scripts/make_literature_pdf.py 'C:/Users/Y4/fyp/Topic 6/MedLoRA/docs/weekly/week8/literature_review.md' 'C:/Users/Y4/fyp/Topic 6/MedLoRA/docs/weekly/week8/literature_review.pdf'
+python scripts/make_week8_ppt.py 'C:/Users/Y4/fyp/Topic 6/MedLoRA/docs/weekly/Weekly_Report_Template.pptx' 'C:/Users/Y4/fyp/Topic 6/MedLoRA/docs/weekly/week8/Topic6_WeeklyReport8_Literature_Draft.pptx'
+```
+
+PDF 用 Edge 排版; PPT 生成后按本机规则用 PowerPoint 导出各页 PNG 检查。论文全文仅用于阅读, 不涉及服务器受控数据或新增训练。
+
 ---
 
 ## 5. 写代码的约定
@@ -326,3 +339,4 @@ MSYS_NO_PATHCONV=1 code --reuse-window --folder-uri 'vscode-remote://ssh-remote+
    - 报告数据是受控数据: 只在服务器上生成和使用 (见 `run_cxp.sh` 和 docs/INTERNS2.md「S2-CheXpertPlus」), 不带回本机。
 4. 每周四周会前做周报 PPT: `scripts/make_weekN_ppt.py`, 模板 `docs/weekly/Weekly_Report_Template.pptx`, 输出在 `docs/weekly/weekN/`, 只留本机。第 7 周 PPT / 讲稿已同步 (10-27 加了 CheXpert Plus 混训的决策问题); 周会后的决定另行记录。生成脚本可带第二个参数指定输出路径 (PPT 被 WPS 打开时先输出到别处预览)。
 5. **A 模型人工试用**: 说明 PDF 和限时 demo 模式已备; 等用户取得借卡时段, 需要临时盘时另获借盘许可。届时先同步代码、核对补丁和空间, 再启动服务, 用固定题目保存实际回答。已用 VS Code 连接容器并核对数据路径存在, 尚未启动模型试用或同步新运维脚本。
+6. **10 篇文献精读与创新性汇报 (11-05)**: 准备材料见 4.11; 用户需逐篇核对方法与关键实验、用自己的话复述创新和局限。先比较最近方法, 再与导师确定研究问题、基线和验证方案; 候选选样/混训方向尚未实施, 不预填个人已读或新实验完成。
