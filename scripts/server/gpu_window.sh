@@ -13,7 +13,8 @@
 #   DEADLINE_AT  必填, 还卡的时间 (主机时钟 = 北京时间)。到点立即停训练 / 评测 (训练每 100 步有断点, 之后可接着训);
 #                离截止不足 1 小时不开始训练, 不足 2.2 小时不开始评测 (一个模型的评测约 2 小时)
 #   MODELS       必填, train/interns2/run_sft35.sh 认识的模型, 按顺序做: a b c cpt1 a43 b43
-#   STEPS        train,eval (默认) / train / eval
+#   STEPS        train,eval (默认) / train / eval / demo (人工试用, MODELS 只能选一个)
+#                demo 不训练、不跑整套评测; 合并并开服务后等到截止时间, 退出时清理本次合并模型并恢复原服务
 #   CXP_SIG      可选, 容器里 CheXpert Plus 评测的「完成标记」地址, 由 scripts/server/container_cxp_watch.sh 启动时打印;
 #                不填就不等容器, 只做主机上的评测
 set -u
@@ -27,6 +28,7 @@ STEPS=${STEPS:-train,eval}
 SIG=${CXP_SIG:-}
 DEADLINE=$(date -d "$DEADLINE_AT" +%s) || exit 1
 JOB=""
+DEMO_DIR=""
 mkdir -p "$ROOT/logs"
 log() { echo "[$(date '+%m-%d %H:%M:%S')] $*" | tee -a "$LOG"; }
 want() { [[ ",$STEPS," == *",$1,"* ]]; }
@@ -47,6 +49,10 @@ stop_job() { [[ -n $JOB ]] && kill -0 "$JOB" 2>/dev/null && { kill -- -"$JOB" 2>
 restore() {
   stop_job
   PORT=23334 bash "$REPO/train/interns2/serve.sh" stop >> "$LOG" 2>&1
+  if [[ -n $DEMO_DIR ]]; then
+    # 只清理 demo 本次新建的目录; 原本已有的合并模型在启动前就会被拒绝。
+    rm -rf -- "$DEMO_DIR" && log "已删本次试用的合并模型 (补丁保留)"
+  fi
   if ss -ltn | grep -q ":23333 "; then log "世龙的服务本来就在运行"; return; fi
   wait_free || log "!! 显存没释放干净, 仍尝试起服务"
   local s="svc23333_$(date +%m%d%H%M)"
@@ -93,14 +99,43 @@ evaluate() {  # evaluate <模型> <TAG>: 合并 → 23334 起服务 → 主机�
   rm -rf "$dir" && log "已删 $tag 合并模型 (补丁保留)"
   return $rc
 }
+demo() {  # demo <模型> <TAG>: 全程受截止时间限制, 不改训练补丁。
+  local m=$1 tag=$2 dir=$ROOT/merged/$2 rc
+  [[ ! -e $dir && ! -L $dir ]] || { log "!! $dir 已存在, 不覆盖也不清理, 请先核对"; return 1; }
+  DEMO_DIR=$dir
+  log "== $tag: 合并并限时试用"
+  run_until_deadline bash train/interns2/run_sft35.sh merge "$m"
+  rc=$?; [[ $rc -eq 0 ]] || { log "!! 合并未完成, 退出码 $rc"; return "$rc"; }
+  run_until_deadline env PORT=23334 bash train/interns2/serve.sh start "$dir"
+  rc=$?; [[ $rc -eq 0 ]] || { log "!! 服务未就绪, 退出码 $rc"; return "$rc"; }
+  log "READY 人工试用: $tag, 端口 23334, 截止 $DEADLINE_AT; 可在独立终端提问"
+  while (( $(left) > 0 )); do sleep 5; done
+  log "到截止时间, 结束人工试用"
+  return 2
+}
 
+case $STEPS in train|eval|train,eval|demo) ;; *) echo "STEPS 只能是 train / eval / train,eval / demo"; exit 1 ;; esac
 for m in $MODELS; do tag_of "$m" > /dev/null || { echo "不认识的模型 $m (只能是 a b c cpt1 a43 b43)"; exit 1; }; done
 cd "$REPO"
+if want demo; then
+  read -r -a demo_models <<< "$MODELS"
+  [[ ${#demo_models[@]} -eq 1 ]] || { echo "demo 一次只能试用一个模型"; exit 1; }
+  demo_tag=$(tag_of "${demo_models[0]}")
+  [[ -f outputs/$demo_tag/adapter_model.safetensors && -f outputs/$demo_tag/adapter_config.json ]] || { echo "缺少补丁或 adapter_config.json"; exit 1; }
+  demo_target=$ROOT/merged/$demo_tag
+  [[ ! -e $demo_target && ! -L $demo_target ]] || { echo "$demo_target 已存在, 不覆盖也不清理"; exit 1; }
+  ss -ltn | grep -q ":23334 " && { echo "23334 已有服务, 先核对, 不开始试用"; exit 1; }
+  free_gb=$(df --output=avail -BG "$ROOT/merged/" | tail -1 | tr -dc 0-9)
+  [[ $free_gb =~ ^[0-9]+$ ]] && (( free_gb >= 80 )) || { echo "合并目录所在盘至少要有 80 GB 可用空间"; exit 1; }
+  (( $(left) >= 900 )) || { echo "demo 距截止时间至少要有 15 分钟"; exit 1; }
+fi
 log "==== 时间窗开始: 模型 $MODELS, 步骤 $STEPS, 截止 $(date -d @$DEADLINE '+%m-%d %H:%M')"
 r0=$(reqs); sleep 120; r1=$(reqs)
 util=$(nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits -i 0,1,2,3 | sort -n | tail -1)
 if (( r1 > r0 || util > 10 )); then log "世龙的服务 2 分钟内有 $((r1 - r0)) 个请求、最高利用率 ${util}%, 有人在用, 不开始"; exit 1; fi
 trap restore EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 log "停世龙的服务 (已征得同意, 截止 $DEADLINE_AT)"
 bash "$SVC/scripts/stop_server.sh" >> "$LOG" 2>&1
 wait_free || { log "显存 10 分钟没释放, 放弃"; exit 1; }
@@ -118,6 +153,13 @@ for m in $MODELS; do
   if want eval; then
     [[ -f outputs/$TAG/adapter_model.safetensors ]] || { log "!! $TAG 还没有补丁, 跳过评测"; continue; }
     evaluate "$m" "$TAG"
+  fi
+  if want demo; then
+    demo "$m" "$TAG"
+    demo_rc=$?
+    log "==== 人工试用结束, 退出码 $demo_rc, 恢复原服务"
+    [[ $demo_rc -eq 2 ]] && demo_rc=0  # 正常到点结束
+    exit "$demo_rc"
   fi
   (( $(left) > 0 )) || break
 done

@@ -6,7 +6,7 @@
 
 ---
 
-## 0. 项目一句话与现状 (2026-10-25)
+## 0. 项目一句话与现状 (2026-10-29)
 
 - **课题**: 医学多模态模型的参数高效增量预训练与指令微调。也是作者 (LOO CHUN QIAN, 导师徐蕾) 的本科毕设。
 - **主线模型**: Intern-S2-Preview (35B, 混合专家, 看图 + 文字), LoRA 微调。早期在 Qwen2.5-VL-3B 上做过同一套实验 (Kaggle / 单卡, `configs/`、`notebooks/`), 已结束。
@@ -15,6 +15,7 @@
 - **还没定的**: 成人胸片描述的漏报。换种子就能差约 4 点, 中文对话数据有没有影响要等 CheXbert 复核。
 - **报告已同步** (2026-10-25): 英文报告 5.14 已补 A/B 两个 SFT 种子的分数与配对区间, 摘要、分析、局限和复现命令同步更新, PDF 已重出; B43 沿用种子 42 的第①步补丁, 还没有检验预训练本身换种子的影响。
 - **周报已同步** (2026-10-25): 第 7 周 PPT 和讲稿已同步报告 v1.6 (37 页), 胸片结果明确标为关键词判断; CheXbert 复核按用户安排放到下周, 执行前仍需队友同意。周报只留本机。
+- **人工试用说明已备** (2026-10-29): [docs/MODEL_TRIAL_GUIDE.pdf](docs/MODEL_TRIAL_GUIDE.pdf) 列出补丁位置、合并部署和 7 组双语试题。`gpu_window.sh` 新增 `STEPS=demo` 限时试用, 本机模拟检查通过; 尚未同步或执行服务器试用, 仍需借卡、借盘许可。
 - **完整结果**: [results/README.md](results/README.md) (实验日志, 按时间往下记), [docs/report.md](docs/report.md) (英文报告, 第 5 节结果, 第 8 节复现命令)。
 
 ---
@@ -102,7 +103,7 @@ train/interns2/       35B 的全部流程 (每个脚本开头的注释就是它�
   run_6ds.sh / run_cxp.sh   S2-6datasets / S2-CheXpertPlus 两个对照模型
   ablation.sh / external.sh / overnight.sh / serve_for_container.sh / compare_serve.sh   早期 35B 实验与工具
 scripts/server/       ★ 服务器上直接跑的运维脚本
-  gpu_window.sh         借卡时间窗: 停世龙服务 → 训练 / 评测 → 到点或结束都恢复服务 (主机)
+  gpu_window.sh         借卡时间窗: 训练 / 评测 / 人工试用 (STEPS=demo), 到点或结束都恢复服务 (主机)
   container_cxp_watch.sh   与上面配对: 容器里自动跑 CheXpert Plus 评测 (容器)
   dl_cpt.sh / dl_omt.sh / omt_files.txt / dl_sft35.sh   三步训练的原始语料下载 (主机, 走 hf-mirror)
 eval/                 各测试的评测脚本 (都经 OpenAI 兼容接口调用模型: MEDVLM_API_BASE)
@@ -112,7 +113,7 @@ eval/                 各测试的评测脚本 (都经 OpenAI 兼容接口调用
 data/                 下载与转换脚本 (convert_*.py); data/raw、data/processed 不进 git; pubmedqa_split.json 是固定的考卷划分
 medvlm/               共用代码: 提示词 prompts.py (训练和评测必须用同一套)、指标 metrics.py、远程调用 remote.py
 scripts/              本机脚本: 汇总 (summarize_3stage.py、summarize_seed43.py)、配对区间 (bootstrap_ci.py)、
-                      报告 PDF (make_report_pdf.py)、图 (make_fig*.py)、周报 (make_weekN_ppt.py)
+                      报告 PDF (make_report_pdf.py)、试用说明 PDF (make_model_trial_pdf.py)、图 (make_fig*.py)、周报 (make_weekN_ppt.py)
 results/              结果快照 json + README.md (实验日志); 报告里的每个数字都能在这里找到出处
 docs/                 report.md/.pdf (英文报告)、cards/ (模型卡、数据卡)、PLAN_35B_CPT.md (三步训练方案)、
                       INTERNS2.md (35B 操作记录)、TRAINING_35B.md (35B 训练说明, 中文)、SERVER.md (早期 3B 的服务器记录)、
@@ -141,7 +142,7 @@ configs/ notebooks/   早期 3B 实验 (LLaMA-Factory yaml、Kaggle notebook), �
 
 ```bash
 cd "/c/Users/Y4/fyp/Topic 6/MedLoRA"
-python -m pytest -q tests                  # 约 1 秒, 现在 39 passed 1 skipped
+python -m pytest -q tests                  # 本机检查, 现在 51 passed 1 skipped
 bash -n train/interns2/*.sh scripts/server/*.sh
 ```
 
@@ -269,6 +270,16 @@ bash train/interns2/run_cpt35.sh data && bash train/interns2/run_sft35.sh data2 
 
 数据来源、许可、清洗规则见 `docs/PLAN_35B_CPT.md` 和 `docs/cards/DATA_CARD.md`。
 
+### 4.9 人工提问试用 (主机, 要借卡)
+
+按 `docs/MODEL_TRIAL_GUIDE.pdf` 操作: 先获准借卡、约定截止时间, 需要临时盘时重新获准借盘, 再同步新版 `gpu_window.sh`。`STEPS=demo`、`MODELS=a` 表示只合并 A42 并启动供人工提问, 不训练、不跑整套评测; MODELS 一次只能指定一个。合并目录需至少 80 GB 空间, 距截止至少 15 分钟, 不覆盖已有同名模型或已有的 23334 服务。结束时删除本次生成的临时合并模型、保留补丁并恢复原服务。该模式尚未在服务器实跑。
+
+本机重出说明 (输出用绝对路径):
+
+```bash
+python scripts/make_model_trial_pdf.py 'C:/Users/Y4/fyp/Topic 6/MedLoRA/docs/MODEL_TRIAL_GUIDE.pdf'
+```
+
 ---
 
 ## 5. 写代码的约定
@@ -294,7 +305,7 @@ bash train/interns2/run_cpt35.sh data && bash train/interns2/run_sft35.sh data2 
 4. 个人事务 (联系人、毕设表格、周会上的决定) 改本机的 `AGENTS.local.md`, 不进 git。
 5. 提交前照第 1 节检查一遍: 不写密码、IP、受控数据。
 
-## 7. 待办 (2026-10-27)
+## 7. 待办 (2026-10-29)
 
 1. **CheXbert 复核 (安排到下周)**: `interns2_s2a`、`interns2_s2b`、`interns2_s3c`、`interns2_cpt1`、`interns2_s2a_s43`、`interns2_s2b_s43` 还没做 (4.6)。先做 A/B 两个种子, 再做 C 和 cpt1; 执行前等用户征得队友同意并约定可用时段。
 2. **要不要加种子 44**: 10-29 周会上请导师决定。要做的话, 先在 `run_sft35.sh` 里加 `a44`, 用 `gpu_window.sh` 跑, 约 12 小时卡。
@@ -303,3 +314,4 @@ bash train/interns2/run_cpt35.sh data && bash train/interns2/run_sft35.sh data2 
    - 导师同意后的顺序: 先做完待办 1 的 CheXbert → 再在 `run_sft35.sh` 加一个模型 (第②步数据 + 一部分 B3 候选池报告, 只用训练划分, 与测试 3,189 张不同病人) → 种子 42、43 各训一次 → 看胸片漏报 / 误报 / 矛盾和 SLAKE 等问答。每个种子约 12 小时以上卡, 要先约世龙。
    - 报告数据是受控数据: 只在服务器上生成和使用 (见 `run_cxp.sh` 和 docs/INTERNS2.md「S2-CheXpertPlus」), 不带回本机。
 4. 每周四周会前做周报 PPT: `scripts/make_weekN_ppt.py`, 模板 `docs/weekly/Weekly_Report_Template.pptx`, 输出在 `docs/weekly/weekN/`, 只留本机。第 7 周 PPT / 讲稿已同步 (10-27 加了 CheXpert Plus 混训的决策问题); 周会后的决定另行记录。生成脚本可带第二个参数指定输出路径 (PPT 被 WPS 打开时先输出到别处预览)。
+5. **A 模型人工试用**: 说明 PDF 和限时 demo 模式已备; 等用户取得借卡时段, 需要临时盘时另获借盘许可。届时先同步代码、核对补丁和空间, 再启动服务, 用固定题目保存实际回答; 当前未连接或更改服务器。
