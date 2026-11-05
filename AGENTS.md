@@ -19,7 +19,7 @@
 - **VS Code 容器连接已修复** (2026-10-29): 用远程 URI 避开 Git Bash 的路径转换, 已确认工作区和新 Bash 终端均在 `/workspace/chunqian`。仅核对图片目录和训练 JSON 存在, 未读取受控内容, 未启动训练或模型服务; 打开方法见 4.10。
 - **文献阅读材料已备** (2026-10-31): 用户取消了 `docs/weekly/week8/` 那版 10 篇 (留在本机, 不再更新, 不作依据)。现在这版从 59 篇候选里选出 10 篇 CCF A 类会议论文, 每篇有中英对照阅读页和五步拆解 PDF, 已逐篇对照原文核对。个人精读仍待完成, 第五步的建议都未验证。材料只留本机, 重出命令见 4.11。
 - **11-05 文献综述 PPT 已生成** (2026-11-03): 独立成稿、只放中文 (英文版用户待定), 19 页: 课题、已做的训练和现象、文献地图、其余七篇按用途压成两页 (诊断 4 篇 / 修复 3 篇, 只列创新点和怎么用, 各配原文小图)、星标三篇 (MMedPO / DEPO / PU-DPO) 每篇一页详讲 (原文图 + 问题 / 做法 / 创新 / 没解决的 / 参考价值)、横向对比、研究空白、按导师目标函数的拟议方法和偏好版备选、之前与之后对比、计划 (右栏只列第 1–2 周要训哪些模型, 不写卡号和时长)、user0 挖矿报告、问题页 (请教导师的四个问题)。附讲稿。只留本机, 重出见 4.11。
-- **汇报改到下周, PPT 在重做** (2026-11-05): 用户要求更专业、更贴合导师文档。已做完深度检索 (6 个方向, 报告见 4.11); 已定结构为「文献综述 + 研究提案」两段式、视觉风格为白底学术会议风 (样张在 `docs/weekly/week9/样张/`), 另做一段 1–2 分钟无旁白动画短片嵌进 PPT。创新点的表述正在和用户讨论, 定了再写新的生成脚本; 第 8 周那版 PPT 保留不动。
+- **汇报改到下周, PPT 在重做** (2026-11-05): 用户要求更专业、更贴合导师文档。已做完深度检索 (6 个方向, 报告见 4.11); 已定结构为「文献综述 + 研究提案」两段式、视觉风格为白底学术会议风 (样张在 `docs/weekly/week9/样张/`), 另做一段 1–2 分钟无旁白动画短片嵌进 PPT。创新口径定为「一个能被推翻的发现 + 两个配套」。**成品已生成** (2026-11-05): `docs/weekly/week9/Topic6_Week9_ReviewProposal.pptx` 27 页 (正文 26 页 + 附录挖矿页) + `_讲稿.md` + `Topic6_Week9_Teaser.mp4` (96 秒, 嵌在第 2 页), 重出见 4.11; 第 8 周那版 PPT 保留不动。
 - **完整结果**: [results/README.md](results/README.md) (实验日志, 按时间往下记), [docs/report.md](docs/report.md) (英文报告, 第 5 节结果, 第 8 节复现命令)。
 
 ---
@@ -311,6 +311,10 @@ python make_breakdown.py    # 重出全部 PDF 和合订本; 带篇目 id 时只
 python make_reading.py      # 重出阅读页
 python crop_figs.py figs    # 从十篇原文 PDF 裁论文页用的图 (原文 PDF 在仓库外的 Topic 6/论文/, 图存 figs/)
 python make_review_ppt.py   # 重出 11-05 文献综述 PPT 和讲稿 (docs/weekly/week8/Topic6_Week8_LiteratureReview*)
+python make_teaser.py       # 第 9 周动画短片和海报帧 (docs/weekly/week9/Topic6_Week9_Teaser*), 先于下一行跑
+python make_proposal_ppt.py # 第 9 周 PPT 和讲稿 (docs/weekly/week9/Topic6_Week9_ReviewProposal*)
+python check_deck.py ../../weekly/week9/Topic6_Week9_ReviewProposal.pptx   # 交付前检查: 禁用词、页码、来源行、讲稿
+python -m pytest tests -q   # 版式工具、示意胸片、动画、检查脚本的测试
 ```
 
 PDF 用 Edge 无头打印, 重出前先关掉正开着的 PDF。不要把准备材料当作用户已读的记录, 不要把候选方向写成已验证创新。旧的第 8 周文献稿 (`docs/weekly/week8/Topic6_WeeklyReport8_*`、`literature_review.*`、`scripts/make_literature_pdf.py`、`scripts/make_week8_ppt.py`) 已被用户取消, 不再更新, 不作依据。论文全文仅用于阅读, 不涉及服务器受控数据或新增训练。
