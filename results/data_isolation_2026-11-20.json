@@ -1,0 +1,127 @@
+{
+ "slake_images": {
+  "train_en": 450,
+  "train_zh": 450,
+  "test_en": 96,
+  "test_zh": 96
+ },
+ "en_train_vs_en_test_image_overlap": 0,
+ "en_train_vs_zh_test_image_overlap": 70,
+ "zh_test_questions": 1033,
+ "zh_test_questions_on_en_train_images": 736,
+ "pubmedqa_train_test_overlap": 0,
+ "zh_closed_acc": {
+  "interns2_base": {
+   "all": {
+    "n": 420,
+    "acc": 84.29
+   },
+   "seen_images": {
+    "n": 298,
+    "acc": 84.56
+   },
+   "unseen_images": {
+    "n": 122,
+    "acc": 83.61
+   }
+  },
+  "interns2_cpt1": {
+   "all": {
+    "n": 420,
+    "acc": 82.38
+   },
+   "seen_images": {
+    "n": 298,
+    "acc": 83.22
+   },
+   "unseen_images": {
+    "n": 122,
+    "acc": 80.33
+   }
+  },
+  "interns2_mix_300": {
+   "all": {
+    "n": 420,
+    "acc": 93.81
+   },
+   "seen_images": {
+    "n": 298,
+    "acc": 93.29
+   },
+   "unseen_images": {
+    "n": 122,
+    "acc": 95.08
+   }
+  },
+  "interns2_s2a": {
+   "all": {
+    "n": 420,
+    "acc": 93.1
+   },
+   "seen_images": {
+    "n": 298,
+    "acc": 92.28
+   },
+   "unseen_images": {
+    "n": 122,
+    "acc": 95.08
+   }
+  },
+  "interns2_s2a_s43": {
+   "all": {
+    "n": 420,
+    "acc": 94.76
+   },
+   "seen_images": {
+    "n": 298,
+    "acc": 94.3
+   },
+   "unseen_images": {
+    "n": 122,
+    "acc": 95.9
+   }
+  },
+  "interns2_s2b": {
+   "all": {
+    "n": 420,
+    "acc": 94.05
+   },
+   "seen_images": {
+    "n": 298,
+    "acc": 94.63
+   },
+   "unseen_images": {
+    "n": 122,
+    "acc": 92.62
+   }
+  },
+  "interns2_s2b_s43": {
+   "all": {
+    "n": 420,
+    "acc": 95.24
+   },
+   "seen_images": {
+    "n": 298,
+    "acc": 94.97
+   },
+   "unseen_images": {
+    "n": 122,
+    "acc": 95.9
+   }
+  },
+  "interns2_s3c": {
+   "all": {
+    "n": 420,
+    "acc": 93.57
+   },
+   "seen_images": {
+    "n": 298,
+    "acc": 93.96
+   },
+   "unseen_images": {
+    "n": 122,
+    "acc": 92.62
+   }
+  }
+ }
+}
