@@ -218,3 +218,54 @@ bash train/interns2/serve_for_container.sh six   # CheXpert 漏报 (容器里评
 经验: 从别的脚本或非交互 shell 里调用时没有 conda 函数, 2026-10-10 夜里外部四项因此退出码 127; 五个主机脚本已改成找不到
 conda 时退回 `/home/ubuntu/miniconda3` (31dfce7)。在 tmux 里用 `bash -ic` 启动也能加载 conda。合并后的模型可在对比服务里用:
 `bash train/interns2/compare_serve.sh switch six`。
+
+## 三个对照实验的数据 (执行方案第 1–2 周, 2026-11-20 写好, **主机上还没跑过**)
+
+要回答: 短答微调后描述漏报变多, 是不是只因为格式或数据。三个对照都在回放 0 (只用 SLAKE 4,919 条) 上每次只改一样,
+对照组是 `interns2_mix_0` (种子 42) 和 `interns2_abl_r0_s43`、`interns2_abl_r0_s44`。每个对照训种子 42、43 两次, 数据文件不随种子变。
+
+| 名字 (`ablation.sh`) | 改了什么 | 数据文件 |
+|---|---|---|
+| `s44` / `r0_s44` | 只换种子 44 (回放 300 / 回放 0) | `pubmedqa_sft_train_300s44.json` |
+| `nofmt` / `nofmt_s43` | **R0**: 去掉每道题后面的格式提示句。现有训练一直带着这句, 所以新训的是不带的那一边 | `slake_train_nofmt.json` |
+| `rw20` / `rw20_s43` | **R2**: 20% 的题 (984 条) 答案改成一句完整的话, 提示句同时换成 `Answer in one complete sentence.` | `slake_train_rw20.json` |
+| `dself` / `dself_s43` | **R1 甲**: 加上原版模型对每张训练图的描述 (450 条, 约 9%) | `slake_desc_self.json` |
+| `dcxp` / `dcxp_s43` | **R1 乙**: 加上 490 条胸片报告 (从 S2-CheXpertPlus 的 1 万对训练数据里抽) | `chexpert_s2/cxp_s2_train_490.json` |
+
+改写和描述都由主机上的原版模型生成, 不调外部服务。改写句要过检查 (一句话、4–40 个词、是 / 否题以 Yes / No 开头、其他题原答案整词出现),
+没过的那条保持原来的短答; 通过率不到 95% 脚本会停。SLAKE 是公开数据, `rw_gen.jsonl` 和 `desc_gen.jsonl` 可以带回本机人工抽查。
+`cxp_s2_train_490.json` 含报告原文, 只留主机, 不打印、不带回。
+
+```bash
+# ubuntu 主机, 0-3 号卡 (先按惯例确认世龙的服务空闲并停掉)
+cd /home/ubuntu/chunqian/MedLoRA && conda activate /home/ubuntu/chunqian/envs/s2train
+D=/home/ubuntu/chunqian/data/processed
+BASE=/home/ubuntu/Large-Model-Service-Interns2/models/Intern-S2-Preview
+
+# 1. 第三个种子的回放样本 (与 300s43 同一做法)
+python data/convert_pubmedqa_sft.py --per-class 100 --tag 300s44 --seed 44 && cp data/processed/pubmedqa_sft_train_300s44.json $D/
+
+# 2. R0: 去掉提示句。会先核对 4,919 条是否都带提示句, 有一条不带就报错停下
+python data/make_short_answer_controls.py nofmt $D/slake_train.json $D/slake_train_nofmt.json
+
+# 3. 列出要生成的条目, 起原版模型, 生成 (改写是纯文字 984 条, 描述是 450 张图), 停服务
+python data/make_short_answer_controls.py rw-requests   $D/slake_train.json $D/rw_req.jsonl
+python data/make_short_answer_controls.py desc-requests $D/slake_train.json $D/desc_req.jsonl
+bash train/interns2/serve.sh start $BASE
+export MEDVLM_API_BASE=http://127.0.0.1:23334/v1 MEDVLM_API_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}'
+python scripts/gen_control_text.py rewrite  $D/rw_req.jsonl   $D/rw_gen.jsonl   --model $BASE
+python scripts/gen_control_text.py describe $D/desc_req.jsonl $D/desc_gen.jsonl --model $BASE \
+  --path-map /workspace/chunqian/MedLoRA/data/raw/SLAKE=/home/ubuntu/chunqian/data/SLAKE
+bash train/interns2/serve.sh stop
+
+# 4. 做成训练文件
+python data/make_short_answer_controls.py rw-apply   $D/slake_train.json $D/slake_train_rw20.json --gen $D/rw_gen.jsonl
+python data/make_short_answer_controls.py desc-apply $D/slake_train.json $D/slake_desc_self.json  --gen $D/desc_gen.jsonl
+C=/home/ubuntu/chunqian/data/chexpert_s2
+python data/make_short_answer_controls.py sample $C/cxp_s2_train.json $C/cxp_s2_train_490.json --n 490 | tail -1
+
+# 5. 训练 + 四张表 (tmux 里; 按 9 月的经验每轮约 2.5–3 小时)。先跑过两道关要用的, 顺序可调
+bash train/interns2/ablation.sh s44 r0_s44 nofmt nofmt_s43 rw20 rw20_s43 dself dself_s43 dcxp dcxp_s43
+```
+
+成人胸片的漏报 / 误报 / 矛盾不在 `ablation.sh` 里, 训完后按「S2-CheXpertPlus」一节的办法另测 (主机起服务, 容器跑 `eval/eval_chexpert.py`, 再用 `eval/chexbert_judge.py` 判描述)。

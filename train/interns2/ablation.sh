@@ -16,6 +16,8 @@ ROOT=/home/ubuntu/chunqian
 REPO=$ROOT/MedLoRA
 DATA=$ROOT/data/processed
 PM=/workspace/chunqian/MedLoRA/data/raw/SLAKE=$ROOT/data/SLAKE
+CXP=$ROOT/data/chexpert_s2
+CXP_PM=/workspace/chunqian/data/chexpert_b3/images_1024=$CXP/images_1024   # 与 run_cxp.sh 相同
 LOG=$ROOT/logs/ablation.log
 GPUS="${GPUS:-0,1,2,3}"
 mkdir -p "$ROOT/logs" "$ROOT/merged"
@@ -39,6 +41,23 @@ declare -A CONFIGS=(
   [r900]="--data $DATA/slake_train.json $DATA/pubmedqa_sft_train.json"
   [r900_s43]="--seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_900s43.json"
   [r100_s43]="--seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_100s43.json"
+  # ---- 执行方案第 1–2 周 (2026-11-20 起), 数据文件的生成见 docs/INTERNS2.md「三个对照实验的数据」----
+  # 第三个种子: 短答退化两种配方 (回放 300、回放 0), 与 s43 / r0_s43 同一做法
+  [s44]="--seed 44 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300s44.json"
+  [r0_s44]="--seed 44 --data $DATA/slake_train.json"
+  # 三个对照都在回放 0 (只用 SLAKE) 上每次只改一样; 对照组是 interns2_mix_0 (种子 42) 和 r0_s43、r0_s44。数据文件不随种子变
+  # R0 格式提示: 去掉题目后面的提示句 (现有训练一直带着)
+  [nofmt]="--data $DATA/slake_train_nofmt.json"
+  [nofmt_s43]="--seed 43 --data $DATA/slake_train_nofmt.json"
+  # R2 改写: 20% 的短答改成一句完整的话
+  [rw20]="--data $DATA/slake_train_rw20.json"
+  [rw20_s43]="--seed 43 --data $DATA/slake_train_rw20.json"
+  # R1 描述回放 甲: 加上原版模型对每张训练图的描述 (450 条)
+  [dself]="--data $DATA/slake_train.json $DATA/slake_desc_self.json"
+  [dself_s43]="--seed 43 --data $DATA/slake_train.json $DATA/slake_desc_self.json"
+  # R1 描述回放 乙: 加上 490 条胸片报告 (受控数据, 文件只在主机上; 病人与成人胸片测试集不重叠)
+  [dcxp]="--data $DATA/slake_train.json $CXP/cxp_s2_train_490.json --path-map $CXP_PM"
+  [dcxp_s43]="--seed 43 --data $DATA/slake_train.json $CXP/cxp_s2_train_490.json --path-map $CXP_PM"
 )
 ORDER=(ep1 attn r8 r32 lr5e-5 lr2e-4)
 [[ $# -gt 0 ]] && ORDER=("$@")
