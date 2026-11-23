@@ -48,8 +48,11 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--model", required=True, help="服务里的模型名 (/v1/models 返回的那个, 即原版模型目录)")
     ap.add_argument("--path-map", action="append", default=[], help="旧前缀=新前缀, 把训练文件里的图片路径换成本机路径")
+    ap.add_argument("--concurrency", type=int, default=8, help="同时发几个请求 (与 eval_chexpert.py 相同)")
+    ap.add_argument("--limit", type=int, default=0, help="只生成前几条, 试跑用")
     args = ap.parse_args()
 
+    from concurrent.futures import ThreadPoolExecutor
     from PIL import Image
     from make_short_answer_controls import DESCRIBE
     from medvlm.model import generate, load_model
@@ -57,15 +60,19 @@ def main():
     key, out = KEY[args.mode], Path(args.out)
     path_map = [tuple(x.split("=", 1)) for x in args.path_map]
     rest = todo(read_jsonl(Path(args.requests)), read_jsonl(out), key)
-    print(f"还要生成 {len(rest)} 条 ({args.mode})")
+    if args.limit:
+        rest = rest[: args.limit]
+    print(f"还要生成 {len(rest)} 条 ({args.mode})", flush=True)
     model, processor = load_model(args.model)
-    with out.open("a", encoding="utf-8") as f:
-        for i, r in enumerate(rest, 1):
-            if args.mode == "rewrite":
-                text = generate(model, processor, r["prompt"], None, MAX_NEW_TOKENS[args.mode])
-            else:
-                image = Image.open(map_path(r["image"], path_map)).convert("RGB")
-                text = generate(model, processor, DESCRIBE, image, MAX_NEW_TOKENS[args.mode])
+
+    def ask(r):
+        if args.mode == "rewrite":
+            return generate(model, processor, r["prompt"], None, MAX_NEW_TOKENS[args.mode])
+        image = Image.open(map_path(r["image"], path_map)).convert("RGB")
+        return generate(model, processor, DESCRIBE, image, MAX_NEW_TOKENS[args.mode])
+
+    with out.open("a", encoding="utf-8") as f, ThreadPoolExecutor(max_workers=args.concurrency) as ex:
+        for i, (r, text) in enumerate(zip(rest, ex.map(ask, rest)), 1):   # map 按原顺序返回, 文件里的顺序不变
             f.write(json.dumps({key: r[key], "text": text.strip()}, ensure_ascii=False) + "\n")
             f.flush()
             if i % 50 == 0 or i == len(rest):
