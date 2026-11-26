@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 容器 (user0) 端, 与主机的 scripts/server/gpu_window.sh 配对: 等主机 23334 上出现指定的合并模型 → 跑 CheXpert Plus 漏报评测
+# 容器端 (原 user0, 2026-11-27 起 gpu47 的 4 卡容器, 两个容器的 /workspace 是同一个), 与主机的 scripts/server/cxp_queue.sh (或旧的 gpu_window.sh) 配对: 等主机 23334 上出现指定的合并模型 → 跑 CheXpert Plus 漏报评测
 # → 在内网放「完成」标记 (文件内容只有退出码, 不含任何数据)。由 s43_container.sh / eval35_container.sh 改成参数版。
 # CheXpert Plus 是受控数据: 逐题记录 (chexpert_<tag>_preds.jsonl) 只留在容器里, 只有汇总 chexpert_<tag>.json 可以带回本机。
 #
@@ -11,17 +11,21 @@
 #   TAGS     必填, 要测的模型标签 (= 主机 merged/ 下的目录名)
 #   END_AT   必填, 北京时间; 到点不再等主机 (容器时钟是 UTC, 脚本内部换算)
 #   SIG_TOKEN  可选, 标记地址里的随机串; 不填就新生成一个
-#   BIND_IP    可选, 容器在内网的地址, 默认 172.20.0.2 (主机能访问到的那个)
+#   BIND_IP    可选, 容器在内网的地址, 默认 172.20.0.2 (user0; gpu47 是 172.23.0.2)
+#   HOST_IP    可选, 容器访问主机用的地址, 默认 172.17.0.1 (user0; gpu47 用 172.23.0.1)
+#   PY         可选, 用哪个 python; 不设就激活 user0 的 conda 环境 chunqian (gpu47 里没有它, 见 scripts/server/gpu47_start.sh)
 X0=/workspace/chunqian/xfer3
 BIND_IP=${BIND_IP:-172.20.0.2}
+HOST_IP=${HOST_IP:-172.17.0.1}
 : "${TAGS:?要设 TAGS}"
 : "${END_AT:?要设 END_AT (北京时间)}"
 END=$(TZ=Asia/Shanghai date -d "$END_AT" +%s) || exit 1
 SIG_TOKEN=${SIG_TOKEN:-$(python3 -c 'import secrets; print(secrets.token_hex(16))')}
 X=$X0/$SIG_TOKEN
 mkdir -p "$X"; : > "$X0/index.html"   # 空的 index.html: 目录不能被列出来, 只有知道随机串才能取到标记
-source /opt/conda/etc/profile.d/conda.sh && conda activate chunqian && cd /workspace/chunqian/MedLoRA || exit 1
-export MEDVLM_API_BASE=http://172.17.0.1:23334/v1 MEDVLM_API_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}' PYTHONIOENCODING=utf-8
+if [ -z "${PY:-}" ]; then source /opt/conda/etc/profile.d/conda.sh && conda activate chunqian || exit 1; PY=python; fi
+cd /workspace/chunqian/MedLoRA || exit 1
+export MEDVLM_API_BASE=http://$HOST_IP:23334/v1 MEDVLM_API_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}' PYTHONIOENCODING=utf-8
 L=outputs/eval/cxp_watch.log
 echo "CXP_SIG=http://$BIND_IP:38531/$SIG_TOKEN" | tee -a $L
 if ss -ltn | grep -q ":38531 "; then
@@ -33,11 +37,11 @@ echo "[$(date '+%m-%d %H:%M')] 开始等主机的服务: $TAGS" >> $L
 while [ "$(date +%s)" -lt "$END" ]; do
   left=0; for t in $TAGS; do [ -f "$X/done_$t" ] || left=1; done
   [ $left -eq 0 ] && break
-  M=$(curl -s -m 5 http://172.17.0.1:23334/v1/models | grep -o 'merged/interns2_[a-z0-9_]*' | head -1 | cut -d/ -f2)
+  M=$(curl -s -m 5 http://$HOST_IP:23334/v1/models | grep -o 'merged/interns2_[a-z0-9_]*' | head -1 | cut -d/ -f2)
   if [ -n "$M" ] && echo " $TAGS " | grep -q " $M " && [ ! -f "$X/done_$M" ]; then
     if [ -f "outputs/eval/chexpert_$M.json" ]; then echo 0 > "$X/done_$M"; continue; fi
     echo "[$(date '+%m-%d %H:%M')] CheXpert Plus 评测 $M" >> $L
-    python eval/eval_chexpert.py --model "/home/ubuntu/chunqian/merged/$M" --tag "$M" --concurrency 8 >> $L 2>&1
+    "$PY" eval/eval_chexpert.py --model "/home/ubuntu/chunqian/merged/$M" --tag "$M" --concurrency 8 >> $L 2>&1
     rc=$?; echo $rc > "$X/done_$M"
     echo "[$(date '+%m-%d %H:%M')] $M 结束, 退出码 $rc" >> $L
   fi
