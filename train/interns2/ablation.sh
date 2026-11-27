@@ -58,6 +58,21 @@ declare -A CONFIGS=(
   # R1 描述回放 乙: 加上 490 条胸片报告 (受控数据, 文件只在主机上; 病人与成人胸片测试集不重叠)
   [dcxp]="--data $DATA/slake_train.json $CXP/cxp_s2_train_490.json --path-map $CXP_PM"
   [dcxp_s43]="--seed 43 --data $DATA/slake_train.json $CXP/cxp_s2_train_490.json --path-map $CXP_PM"
+  # ---- 2026-11-27: 回放 0 上只有 1/3 个种子退化, 回放 300 是 3/3, 所以三个对照搬到回放 300 上重做 ----
+  # 对照组是 interns2_mix_300 (种子 42) 和 s43、s44; 种子 43 的 PubMedQA 抽样与 s43 相同。PubMedQA 部分不改
+  # 拆原因: 只用这 300 条 PubMedQA 训 (不加 SLAKE), 看漏报是不是它带来的
+  [pqonly]="--data $DATA/pubmedqa_sft_train_300.json"
+  [pqonly_s43]="--seed 43 --data $DATA/pubmedqa_sft_train_300s43.json"
+  # R1 甲 / 乙 (回放 300 版)
+  [p3dself]="--data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300.json $DATA/slake_desc_self.json"
+  [p3dself_s43]="--seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300s43.json $DATA/slake_desc_self.json"
+  [p3dcxp]="--data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300.json $CXP/cxp_s2_train_490.json --path-map $CXP_PM"
+  [p3dcxp_s43]="--seed 43 --data $DATA/slake_train.json $DATA/pubmedqa_sft_train_300s43.json $CXP/cxp_s2_train_490.json --path-map $CXP_PM"
+  # R0 / R2 (回放 300 版): 只换 SLAKE 那一份
+  [p3nofmt]="--data $DATA/slake_train_nofmt.json $DATA/pubmedqa_sft_train_300.json"
+  [p3nofmt_s43]="--seed 43 --data $DATA/slake_train_nofmt.json $DATA/pubmedqa_sft_train_300s43.json"
+  [p3rw20]="--data $DATA/slake_train_rw20.json $DATA/pubmedqa_sft_train_300.json"
+  [p3rw20_s43]="--seed 43 --data $DATA/slake_train_rw20.json $DATA/pubmedqa_sft_train_300s43.json"
 )
 ORDER=(ep1 attn r8 r32 lr5e-5 lr2e-4)
 [[ $# -gt 0 ]] && ORDER=("$@")
